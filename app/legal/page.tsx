@@ -48,9 +48,27 @@ export default function Legal() {
                 CentMeta è un progetto indipendente e open-source. La tutela della privacy degli utenti è per noi una priorità assoluta e operiamo nel pieno rispetto del Regolamento Generale sulla Protezione dei Dati (UE 2016/679).
               </p>
               <ul className="list-disc pl-5 space-y-3 text-slate-400 mt-4">
-                <li><strong className="text-slate-200">Dati Personali:</strong> Il sito non richiede registrazione, non raccoglie dati anagrafici, e-mail o informazioni personali sensibili in alcuna forma.</li>
-                <li><strong className="text-slate-200">Cookie e Tracciamento:</strong> Non facciamo alcun uso di cookie di profilazione, cookie pubblicitari o strumenti di tracciamento di terze parti (come Google Analytics o Pixel vari). Per questo motivo non è richiesto, né visualizzato, alcun banner per il consenso dei cookie (Cookie Law).</li>
-                <li><strong className="text-slate-200">Log di Sistema:</strong> Al solo fine di garantire la sicurezza, prevenire attacchi informatici (es. DDoS) e mantenere la stabilità dell&apos;infrastruttura di rete, i server registrano temporaneamente log tecnici di connessione (come gli indirizzi IP e l&apos;User-Agent). Questi dati sono strettamente funzionali all&apos;erogazione del servizio, non vengono incrociati con altre banche dati e vengono sovrascritti automaticamente a cicli regolari.</li>
+                <li>
+                  <strong className="text-slate-200">Titolare del Trattamento:</strong> Filippo Zanardi. L&apos;utente può contattare il titolare per qualsiasi richiesta relativa ai dati personali e per esercitare tutti i diritti elencati in questa sezione all&apos;indirizzo e-mail: <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline">privacy@centmeta.it</a>.
+                </li>
+                <li>
+                  <strong className="text-slate-200">Dati Personali:</strong> Il sito non richiede registrazione, non raccoglie dati anagrafici, e-mail o informazioni personali sensibili in alcuna forma.
+                </li>
+                <li>
+                  <strong className="text-slate-200">Cookie e Tracciamento:</strong> Non facciamo alcun uso di cookie di profilazione, cookie pubblicitari o strumenti di tracciamento di terze parti (come Google Analytics o Pixel vari). Per questo motivo non è richiesto, né visualizzato, alcun banner per il consenso dei cookie (Cookie Law).
+                </li>
+                <li>
+                  <strong className="text-slate-200">Base Giuridica del Trattamento:</strong> Il trattamento dei log tecnici di connessione avviene in base al legittimo interesse del titolare (art. 6, par. 1, lett. f GDPR), al solo scopo di garantire la sicurezza e la stabilità del servizio. Precisiamo che non vengono prese decisioni automatizzate né viene svolta alcuna attività di profilazione (art. 22 GDPR).
+                </li>
+                <li>
+                  <strong className="text-slate-200">Log di Sistema:</strong> Al solo fine di garantire la sicurezza, prevenire attacchi informatici (es. DDoS) e mantenere la stabilità dell&apos;infrastruttura di rete, i server registrano temporaneamente log tecnici di connessione (come gli indirizzi IP e l&apos;User-Agent). Questi dati sono strettamente funzionali all&apos;erogazione del servizio, non vengono incrociati con altre banche dati e i log sono conservati per un massimo di 30 giorni, dopodiché vengono eliminati automaticamente. I log non vengono utilizzati per scopi di marketing o statistico e non sono accessibili a terzi.
+                </li>
+                <li>
+                  <strong className="text-slate-200">Cloudflare:</strong> Il traffico del sito è gestito tramite Cloudflare, che agisce come responsabile del trattamento e può trattare l&apos;indirizzo IP dell&apos;utente per finalità di sicurezza e protezione dell&apos;infrastruttura (es. prevenzione attacchi DDoS). Per maggiori informazioni, rimandiamo all&apos;<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">informativa sulla privacy di Cloudflare</a>.
+                </li>
+                <li>
+                  <strong className="text-slate-200">Diritti dell&apos;Interessato:</strong> Ai sensi degli artt. 15–21 del GDPR, l&apos;utente ha il diritto di chiedere l&apos;accesso ai propri dati personali, la rettifica, la cancellazione, la limitazione del trattamento, l&apos;opposizione al trattamento e la portabilità dei dati. Le richieste vanno inviate a <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline">privacy@centmeta.it</a>. L&apos;utente ha inoltre il diritto di presentare reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">www.garanteprivacy.it</a>).
+                </li>
               </ul>
             </div>
           </section>
