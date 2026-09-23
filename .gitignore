@@ -1,0 +1,20 @@
+# Dipendenze (molto pesanti, si reinstallano automaticamente con npm install)
+node_modules/
+
+# Cartelle di build e file generati in automatico da Next.js
+.next/
+out/
+build/
+
+# Variabili d'ambiente e chiavi segrete (per sicurezza)
+.env
+.env.*.local
+
+# Log di errore di npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# File di sistema nascosti (Mac/Windows)
+.DS_Store
+Thumbs.db
