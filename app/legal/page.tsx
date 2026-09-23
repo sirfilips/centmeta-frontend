@@ -45,14 +45,14 @@ export default function Legal() {
             </h2>
             <div className="space-y-5 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
               <p>
-                CentMeta è un progetto indipendente e open-source. La tutela della privacy degli utenti è per noi una priorità assoluta e operiamo nel pieno rispetto del Regolamento Generale sulla Protezione dei Dati (UE 2016/679).
+                CentMeta è un progetto indipendente. La tutela della privacy degli utenti è per noi una priorità assoluta e operiamo nel pieno rispetto del Regolamento Generale sulla Protezione dei Dati (UE 2016/679).
               </p>
               <ul className="list-disc pl-5 space-y-3 text-slate-400 mt-4">
                 <li>
                   <strong className="text-slate-200">Titolare del Trattamento:</strong> Filippo Zanardi. L&apos;utente può contattare il titolare per qualsiasi richiesta relativa ai dati personali e per esercitare tutti i diritti elencati in questa sezione all&apos;indirizzo e-mail: <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline">privacy@centmeta.it</a>.
                 </li>
                 <li>
-                  <strong className="text-slate-200">Dati Personali:</strong> Il sito non richiede registrazione, non raccoglie dati anagrafici, e-mail o informazioni personali sensibili in alcuna forma.
+                  <strong className="text-slate-200">Dati Personali:</strong> Il sito non richiede registrazione, non raccoglie dati anagrafici, e-mail o informazioni personali sensibili in alcuna forma, fatta eccezione per i log tecnici descritti di seguito. A ulteriore tutela della riservatezza degli utenti, l&apos;infrastruttura di analisi estrae unicamente la composizione tecnica dei mazzi (carte e comandanti), insieme all&apos;identificativo pubblico e alla data di aggiornamento, astenendosi rigorosamente dal salvare i nomi assegnati ai mazzi dai rispettivi creatori.
                 </li>
                 <li>
                   <strong className="text-slate-200">Cookie e Tracciamento:</strong> Non facciamo alcun uso di cookie di profilazione, cookie pubblicitari o strumenti di tracciamento di terze parti (come Google Analytics o Pixel vari). Per questo motivo non è richiesto, né visualizzato, alcun banner per il consenso dei cookie (Cookie Law).
@@ -61,10 +61,10 @@ export default function Legal() {
                   <strong className="text-slate-200">Base Giuridica del Trattamento:</strong> Il trattamento dei log tecnici di connessione avviene in base al legittimo interesse del titolare (art. 6, par. 1, lett. f GDPR), al solo scopo di garantire la sicurezza e la stabilità del servizio. Precisiamo che non vengono prese decisioni automatizzate né viene svolta alcuna attività di profilazione (art. 22 GDPR).
                 </li>
                 <li>
-                  <strong className="text-slate-200">Log di Sistema:</strong> Al solo fine di garantire la sicurezza, prevenire attacchi informatici (es. DDoS) e mantenere la stabilità dell&apos;infrastruttura di rete, i server registrano temporaneamente log tecnici di connessione (come gli indirizzi IP e l&apos;User-Agent). Questi dati sono strettamente funzionali all&apos;erogazione del servizio, non vengono incrociati con altre banche dati e i log sono conservati per un massimo di 30 giorni, dopodiché vengono eliminati automaticamente. I log non vengono utilizzati per scopi di marketing o statistico e non sono accessibili a terzi.
+                  <strong className="text-slate-200">Log di Sistema:</strong> Al solo fine di garantire la sicurezza, prevenire attacchi informatici (es. DDoS) e mantenere la stabilità dell&apos;infrastruttura di rete, i server registrano temporaneamente log tecnici di connessione (come gli indirizzi IP e l&apos;User-Agent). Questi dati sono strettamente funzionali all&apos;erogazione del servizio, non vengono incrociati con altre banche dati e i log sono conservati per un massimo di 30 giorni, dopodiché vengono eliminati automaticamente. I log non vengono utilizzati per scopi di marketing o statistico e non sono accessibili a terzi, fatto salvo Cloudflare in qualità di responsabile del trattamento.
                 </li>
                 <li>
-                  <strong className="text-slate-200">Cloudflare:</strong> Il traffico del sito è gestito tramite Cloudflare, che agisce come responsabile del trattamento e può trattare l&apos;indirizzo IP dell&apos;utente per finalità di sicurezza e protezione dell&apos;infrastruttura (es. prevenzione attacchi DDoS). Per maggiori informazioni, rimandiamo all&apos;<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">informativa sulla privacy di Cloudflare</a>.
+                  <strong className="text-slate-200">Cloudflare:</strong> Il traffico del sito è gestito tramite Cloudflare, Inc. (Stati Uniti), che agisce come responsabile del trattamento e può trattare l&apos;indirizzo IP e i dati tecnici di connessione per finalità di sicurezza e protezione dell&apos;infrastruttura (es. prevenzione attacchi DDoS). Il trasferimento verso gli Stati Uniti avviene sulla base della decisione di adeguatezza della Commissione europea sul EU-US Data Privacy Framework, cui Cloudflare aderisce, e in subordine delle Clausole Contrattuali Standard incluse nel Data Processing Addendum di Cloudflare. Per maggiori informazioni, rimandiamo all&apos;<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">informativa sulla privacy di Cloudflare</a>.
                 </li>
                 <li>
                   <strong className="text-slate-200">Diritti dell&apos;Interessato:</strong> Ai sensi degli artt. 15–21 del GDPR, l&apos;utente ha il diritto di chiedere l&apos;accesso ai propri dati personali, la rettifica, la cancellazione, la limitazione del trattamento, l&apos;opposizione al trattamento e la portabilità dei dati. Le richieste vanno inviate a <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline">privacy@centmeta.it</a>. L&apos;utente ha inoltre il diritto di presentare reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">www.garanteprivacy.it</a>).
@@ -95,13 +95,13 @@ export default function Legal() {
             </h2>
             <div className="space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
               <p>
-                Le liste dei mazzi analizzate sulla piattaforma vengono estratte direttamente dalle <strong className="text-slate-200">liste pubbliche di Moxfield</strong>, servizio con cui CentMeta non ha alcuna affiliazione ufficiale.
+                Le liste dei mazzi analizzate derivano da liste rese pubbliche dai rispettivi autori su Moxfield, servizio con cui CentMeta non ha alcuna affiliazione ufficiale. Di ciascun mazzo vengono conservati solo l&apos;identificativo pubblico, il comandante, la data di aggiornamento e l&apos;elenco delle carte. La raccolta automatizzata dei dati è al momento sospesa in attesa di un accordo con Moxfield. Chi non desidera che un proprio mazzo sia incluso nelle statistiche può scrivere a privacy@centmeta.it per chiederne la rimozione (artt. 17 e 21 GDPR).
               </p>
               <p>
                 I dati tecnici relativi alle carte (Testo Oracle, Costo di Mana, Identità di Colore e Immagini in alta definizione) sono forniti tramite le API pubbliche di <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer" className="text-slate-200 hover:text-blue-400 underline decoration-slate-600 underline-offset-2 transition-colors">Scryfall</a>, che ringraziamo per l&apos;immenso contributo fornito alla community.
               </p>
               <p>
-                I dati statistici elaborati derivano da informazioni pubbliche, rielaborate unicamente per scopi statistici, informativi e comunitari per il formato Commander Centurion.
+                I dati statistici elaborati derivano da informazioni pubbliche, rielaborate unicamente per scopi statistici, informativi e comunitari per il formato Centurion Commander.
               </p>
             </div>
           </section>
@@ -117,6 +117,18 @@ export default function Legal() {
               </p>
               <p>
                 CentMeta è un progetto indipendente e <strong className="text-slate-200">non è affiliato, supportato o riconosciuto ufficialmente</strong> dal Comitato Centurion Commander.
+              </p>
+            </div>
+          </section>
+
+          {/* Sezione Esclusione di Responsabilità */}
+          <section>
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-200 mb-5 border-l-4 border-rose-500 pl-4">
+              Esclusione di Responsabilità
+            </h2>
+            <div className="space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <p>
+                Le statistiche pubblicate su CentMeta sono fornite a scopo informativo, così come sono, senza garanzia di accuratezza, completezza o aggiornamento.
               </p>
             </div>
           </section>

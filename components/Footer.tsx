@@ -34,7 +34,7 @@ export default function Footer() {
           </div>
 
           <p className="text-sm font-bold text-slate-300 mt-4">
-            CentMeta © {currentYear} — Sviluppato da Filippo Zanardi. Dati estratti da Moxfield e forniti dalle API di Scryfall.
+            CentMeta © {currentYear} — Sviluppato da Filippo Zanardi. Dati provenienti da liste pubbliche su Moxfield e dalle API di Scryfall.
           </p>
 
         </div>
