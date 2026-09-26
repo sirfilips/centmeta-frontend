@@ -10,7 +10,7 @@ import TrendIndicator from './TrendIndicator';
 import Carousel from './Carousel';
 import HeroSection from './HeroSection';
 import { handleNav } from '../utils/navigation';
-import { RefreshCw, ArrowRight, ArrowLeft, ArrowDown, ChevronUp, ChevronDown, Search } from 'lucide-react'; 
+import { RefreshCw, ArrowRight, ArrowLeft, ArrowDown, ChevronUp, ChevronDown, Search, HelpCircle } from 'lucide-react'; 
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -718,9 +718,20 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                       {activeTab !== 'Liste Mazzi' && (
                         <div className="flex gap-2 overflow-x-auto pb-1 w-full sm:w-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                           {categories.map((cat) => (
-                            <button key={cat} onClick={() => { setActiveTab(cat); setVisibleCount(50); }} className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === cat ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40' : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'}`}>
-                              {cat}
-                            </button>
+                            <div key={cat} className="relative group/tab flex items-center">
+                              <button onClick={() => { setActiveTab(cat); setVisibleCount(50); }} className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === cat ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40' : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'}`}>
+                                {cat}
+                              </button>
+                              
+                              {/* Tooltip Etichette Speciali */}
+                              {(cat === 'In Crescita' || cat === 'Top Sinergie') && (
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
+                                  {cat === 'In Crescita' 
+                                    ? "Carte con il maggiore incremento globale di utilizzo negli ultimi 7 giorni." 
+                                    : "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
                       )}
@@ -784,7 +795,14 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                     {(homeMode === 'cards' && cardSort === 'hot' && selectedCommander === 'Tutti i mazzi') ? (
                                       <>
                                         <span className="text-[11px] text-slate-400 font-medium">{card.freq} mazzi</span>
-                                        <span className="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded font-bold">+{card.delta}</span>
+                                        {/* Tooltip per Delta Positivo */}
+                                        <div className="group/delta relative flex items-center cursor-help">
+                                          <span className="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded font-bold">+{card.delta}</span>
+                                          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/delta:block w-40 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
+                                            <strong className="text-orange-400 block mb-1">Trend Positivo</strong>
+                                            Nuovi mazzi in cui è stata inclusa negli ultimi 7 giorni.
+                                          </div>
+                                        </div>
                                       </>
                                     ) : (
                                       <>
@@ -792,7 +810,14 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                           {card.Percentuale}% <span className="text-slate-500 font-normal">({card.freq})</span>
                                         </div>
                                         {(activeTab === 'Top Sinergie' || activeTab === 'In Crescita') && card.Sinergia > 0 && (
-                                          <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">+{card.Sinergia}%</span>
+                                          /* Tooltip per Sinergia */
+                                          <div className="group/syn relative flex items-center cursor-help">
+                                            <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">+{card.Sinergia}%</span>
+                                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
+                                              <strong className="text-emerald-400 block mb-1">Valore Sinergia</strong>
+                                              Indica quanto questa carta è giocata in più in questo mazzo rispetto alla media globale.
+                                            </div>
+                                          </div>
                                         )}
                                       </>
                                     )}
