@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import 'mana-font/css/mana.min.css';
 
 const siteUrl = 'https://centmeta.it';
 
@@ -8,10 +9,6 @@ export const metadata: Metadata = {
   title: 'CentMeta | Analisi Centurion Commander',
   description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
   
-  // Il blocco "icons" è stato rimosso intenzionalmente! 
-  // Next.js troverà da solo "icon.png" e "apple-icon.png" dentro la cartella app/
-  
-  // Anteprima per WhatsApp, Telegram, Facebook
   openGraph: {
     title: 'CentMeta | Analisi Centurion Commander',
     description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
@@ -19,7 +16,7 @@ export const metadata: Metadata = {
     siteName: 'CentMeta',
     images: [
       {
-        url: '/og-image.png', // Questa sta in public/, quindi il percorso va specificato
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'CentMeta Preview',
@@ -29,7 +26,6 @@ export const metadata: Metadata = {
     type: 'website',
   },
   
-  // Anteprima per Twitter/X
   twitter: {
     card: 'summary_large_image',
     title: 'CentMeta | Analisi Centurion Commander',

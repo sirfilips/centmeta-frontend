@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ScrollToTop from './ScrollToTop';
 import Header from './Header';
 import Footer from './Footer';
@@ -57,8 +57,11 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   const [isFlipped, setIsFlipped] = useState(false);
   const [showOracle, setShowOracle] = useState(false);
   
-  // SEMAFORO: Controlla se la lettura iniziale dell'URL è completata
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  // SENTINELLE PER LA CRONOLOGIA BROWSER
+  const isPopState = useRef(false);
+  const isInitialUrlCorrected = useRef(false);
 
   const isAnyLoading = loading || dashboardLoading || loadingCardDetail || loadingDecks;
 
@@ -78,18 +81,25 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     setCommanderSort((params.get('csort') as any) || 'top');
     setCardSort((params.get('csort') as any) || 'top');
     
-    // Segnala che l'inizializzazione è completa
     setIsInitialized(true);
   }, [initialCommander]);
 
   useEffect(() => {
     syncStateFromURL();
-    window.addEventListener('popstate', syncStateFromURL);
-    return () => window.removeEventListener('popstate', syncStateFromURL);
+    
+    // Gestore per le frecce Avanti/Indietro del browser
+    const handlePopState = () => {
+      isPopState.current = true;
+      syncStateFromURL();
+      // Resetta il blocco cronologia dopo che React ha aggiornato la grafica
+      setTimeout(() => { isPopState.current = false; }, 100);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [syncStateFromURL]);
 
   useEffect(() => {
-    // Impedisce la riscrittura dell'URL prima che la sincronizzazione iniziale sia finita
     if (!isInitialized) return;
 
     const params = new URLSearchParams();
@@ -105,8 +115,21 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     }
     
     const newUrl = params.toString() ? `${basePath}?${params.toString()}` : basePath;
-    if (window.location.pathname + window.location.search !== newUrl) {
-      window.history.pushState(null, '', newUrl);
+    const currentUrl = window.location.pathname + window.location.search;
+
+    // Se l'URL deve cambiare...
+    if (currentUrl !== newUrl) {
+      // 1. Se è il primo caricamento (es. apro da un link vecchio), correggilo ma NON aggiungere storico
+      if (!isInitialUrlCorrected.current) {
+        window.history.replaceState(null, '', newUrl);
+        isInitialUrlCorrected.current = true;
+      } 
+      // 2. Se l'utente ha cliccato nel sito (e NON sta usando le frecce indietro), aggiungi allo storico
+      else if (!isPopState.current) {
+        window.history.pushState(null, '', newUrl);
+      }
+    } else {
+      isInitialUrlCorrected.current = true;
     }
   }, [selectedCommander, selectedCardDetail, homeMode, activeTab, commanderSort, cardSort, isInitialized]);
 
@@ -211,6 +234,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     if (val !== 'Tutti i mazzi') {
       setCommanderSearch('');
       setActiveTab('Top Cards');
+      setActiveColors([]); 
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -256,20 +280,28 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     
     if (activeColors.length > 0) {
       filtered = filtered.filter(c => {
-        const isC = c.color_identity.length === 0;
-        const isM = c.color_identity.length > 1;
-        const matchC = activeColors.includes('C') && isC;
-        const matchM = activeColors.includes('M') && isM;
+        const colorsArray = c.color_identity || [];
+        const isC = colorsArray.length === 0;
+        const isM = colorsArray.length > 1;
         const baseColors = activeColors.filter(a => a !== 'C' && a !== 'M');
         
-        let matchBase = false;
-        if (baseColors.length > 0) {
-          matchBase = c.color_identity.some((col: string) => baseColors.includes(col));
+        if (baseColors.length === 0) {
+            return (activeColors.includes('C') && isC) || (activeColors.includes('M') && isM);
         }
         
-        if (activeColors.includes('M') && baseColors.length > 0) return matchBase && isM;
-        if (baseColors.length > 0) return matchBase || matchC || matchM;
-        return matchC || matchM;
+        const hasAllSelected = baseColors.every(col => colorsArray.includes(col));
+        const hasNoExtraColors = colorsArray.every(col => baseColors.includes(col));
+        
+        let isMatch = hasAllSelected && hasNoExtraColors;
+        
+        if (activeColors.includes('M') && isM && hasAllSelected) {
+            isMatch = true; 
+        }
+        if (activeColors.includes('C') && isC) {
+            isMatch = true; 
+        }
+        
+        return isMatch;
       });
     }
     return filtered;
@@ -286,12 +318,49 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   }
 
   const synergyCategories = ['Tutte', 'Creature', 'Istantanei', 'Stregonerie', 'Artefatti', 'Incantesimi', 'Planeswalker', 'Terre'];
-  const colors = [{ label: 'Tutti', val: 'Tutti' }, { label: '⚪', val: 'W' }, { label: '🔵', val: 'U' }, { label: '⚫', val: 'B' }, { label: '🔴', val: 'R' }, { label: '🟢', val: 'G' }, { label: '🎨', val: 'M' }, { label: '⚙️', val: 'C' }];
+  
+  const colors = [
+    { label: 'Tutti', val: 'Tutti', icon: null }, 
+    { label: 'White', val: 'W', icon: 'ms ms-w ms-cost shadow-sm' }, 
+    { label: 'Blue', val: 'U', icon: 'ms ms-u ms-cost shadow-sm' }, 
+    { label: 'Black', val: 'B', icon: 'ms ms-b ms-cost shadow-sm' }, 
+    { label: 'Red', val: 'R', icon: 'ms ms-r ms-cost shadow-sm' }, 
+    { label: 'Green', val: 'G', icon: 'ms ms-g ms-cost shadow-sm' }, 
+    { label: 'Multi', val: 'M', icon: 'ms ms-multicolor ms-cost shadow-sm' }, 
+    { label: 'Colorless', val: 'C', icon: 'ms ms-c ms-cost shadow-sm' }
+  ];
 
-  const filteredCommanders = commanders.filter(c => c.comandante.toLowerCase().includes(commanderSearch.toLowerCase()));
-  const listToRender = commanderSort === 'hot' 
+  const baseFilteredCommanders = commanders.filter(c => c.comandante.toLowerCase().includes(commanderSearch.toLowerCase()));
+  let listToRender = commanderSort === 'hot' 
     ? (dashboardData?.hot_commanders || []).filter((c: any) => c.name.toLowerCase().includes(commanderSearch.toLowerCase()))
-    : filteredCommanders;
+    : baseFilteredCommanders;
+
+  if (activeColors.length > 0 && homeMode === 'commanders') {
+    listToRender = listToRender.filter((c: any) => {
+      const colorsArray = c.color_identity || c.colors || [];
+      const isC = colorsArray.length === 0;
+      const isM = colorsArray.length > 1;
+      const baseColors = activeColors.filter(a => a !== 'C' && a !== 'M');
+      
+      if (baseColors.length === 0) {
+          return (activeColors.includes('C') && isC) || (activeColors.includes('M') && isM);
+      }
+      
+      const hasAllSelected = baseColors.every(col => colorsArray.includes(col));
+      const hasNoExtraColors = colorsArray.every(col => baseColors.includes(col));
+      
+      let isMatch = hasAllSelected && hasNoExtraColors;
+      
+      if (activeColors.includes('M') && isM && hasAllSelected) {
+          isMatch = true;
+      }
+      if (activeColors.includes('C') && isC) {
+          isMatch = true;
+      }
+      
+      return isMatch;
+    });
+  }
 
   const selectedCmdObj = commanders.find(c => c.comandante === selectedCommander);
   const visibleCardsData = applyFilters(statsData.cards, activeTab);
@@ -302,6 +371,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     setSelectedCommander('Tutti i mazzi');
     setCommanderSearch('');
     setActiveTab('Top Cards');
+    setActiveColors([]);
     setHomeMode('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -412,8 +482,23 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
 
                   {homeMode === 'commanders' && (
                     <>
+                      <div className="flex justify-center sm:justify-start gap-1.5 overflow-x-auto pb-6 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        {colors.map((col) => {
+                          const isActive = activeColors.length === 0 ? col.val === 'Tutti' : activeColors.includes(col.val);
+                          return (
+                            <button key={col.val} onClick={() => toggleColor(col.val)} title={col.label} className={`px-3 py-1.5 rounded-lg flex items-center justify-center min-w-[44px] h-9 transition-all border ${isActive ? 'bg-slate-700 text-white border-slate-500 shadow-inner' : 'bg-slate-900/50 text-slate-500 border-slate-800 hover:bg-slate-800'}`}>
+                              {col.icon ? <i className={`${col.icon} text-lg`}></i> : <span className="text-xs font-bold">{col.label}</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+
                       {listToRender.length === 0 ? (
-                        <div className="py-12 text-center text-slate-500">Nessun comandante trovato.</div>
+                        <div className="py-12 text-center text-slate-500 flex flex-col items-center animate-fade-in">
+                          <img src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop" alt="Fblthp" className="w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-lg mb-4 opacity-80 hover:opacity-100 transition-all duration-300 hover:rotate-3" />
+                          <p className="text-slate-300 font-bold">Fblthp si è perso di nuovo... e anche la tua ricerca.</p>
+                          <p className="text-sm mt-1 text-slate-500">Nessun comandante trovato con questi filtri.</p>
+                        </div>
                       ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-y-10 gap-x-6">
                           {listToRender.slice(0, visibleCount).map((cmd: any) => {
@@ -519,7 +604,6 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                     
                     <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-10 border border-slate-700/50 shadow-xl min-h-[auto] lg:min-h-[320px] justify-start">
   
-                        {/* FIX DEFINITIVO WEBKIT: mask-image e translateZ forzano il browser a non sbrodolare il blur fuori dai bordi */}
                         <div className="absolute inset-0 rounded-2xl md:rounded-3xl overflow-hidden -z-20 pointer-events-none [mask-image:linear-gradient(white,white)] [transform:translateZ(0)]">
                           {selectedCmdObj?.art_crops?.[0] && (
                             <div className="absolute -inset-8 bg-cover bg-center filter blur-md opacity-80" style={{ backgroundImage: `url("${selectedCmdObj.art_crops[0]}")` }}></div>
@@ -646,13 +730,15 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                     }) 
                                     .map(([type, count]) => {
                                       let dotColor = 'text-slate-500';
-                                      if (type === 'Creature') dotColor = 'text-emerald-500';
-                                      if (type === 'Istantanei') dotColor = 'text-blue-500';
-                                      if (type === 'Stregonerie') dotColor = 'text-red-500';
-                                      if (type === 'Artefatti') dotColor = 'text-slate-400';
-                                      if (type === 'Incantesimi') dotColor = 'text-purple-500';
-                                      if (type === 'Planeswalker') dotColor = 'text-pink-500';
-                                      if (type === 'Terre') dotColor = 'text-yellow-600';
+                                      let iconClass = '';
+                                      
+                                      if (type === 'Creature') { dotColor = 'text-emerald-500'; iconClass = 'ms-creature'; }
+                                      if (type === 'Istantanei') { dotColor = 'text-blue-500'; iconClass = 'ms-instant'; }
+                                      if (type === 'Stregonerie') { dotColor = 'text-red-500'; iconClass = 'ms-sorcery'; }
+                                      if (type === 'Artefatti') { dotColor = 'text-slate-400'; iconClass = 'ms-artifact'; }
+                                      if (type === 'Incantesimi') { dotColor = 'text-purple-500'; iconClass = 'ms-enchantment'; }
+                                      if (type === 'Planeswalker') { dotColor = 'text-pink-500'; iconClass = 'ms-planeswalker'; }
+                                      if (type === 'Terre') { dotColor = 'text-yellow-600'; iconClass = 'ms-land'; }
 
                                       return (
                                         <div 
@@ -661,7 +747,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                           title={`Filtra per ${type}`}
                                           className="flex items-center gap-1.5 text-[10px] md:text-[11px] text-slate-300 font-medium cursor-pointer hover:text-white transition-colors group"
                                         >
-                                          <span className={`${dotColor} text-lg leading-none group-hover:scale-125 transition-transform`}>•</span>
+                                          <i className={`ms ${iconClass} ${dotColor} text-sm group-hover:scale-110 transition-transform`}></i>
                                           <span>{type} ({Math.round(count as number)})</span>
                                         </div>
                                       );
@@ -726,22 +812,40 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       {activeTab !== 'Liste Mazzi' && (
                         <div className="flex gap-2 overflow-x-auto pb-1 w-full sm:w-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                          {categories.map((cat) => (
-                            <div key={cat} className="relative group/tab flex items-center">
-                              <button onClick={() => { setActiveTab(cat); setVisibleCount(50); }} className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === cat ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40' : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'}`}>
-                                {cat}
-                              </button>
-                              
-                              {/* Tooltip Etichette Speciali */}
-                              {(cat === 'In Crescita' || cat === 'Top Sinergie') && (
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden sm:group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
-                                  {cat === 'In Crescita' 
-                                    ? "Carte con il maggiore incremento globale di utilizzo negli ultimi 7 giorni." 
-                                    : "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                          {categories.map((cat) => {
+                            let iconClass = '';
+                            if (cat === 'Creature') iconClass = 'ms-creature';
+                            if (cat === 'Istantanei') iconClass = 'ms-instant';
+                            if (cat === 'Stregonerie') iconClass = 'ms-sorcery';
+                            if (cat === 'Artefatti') iconClass = 'ms-artifact';
+                            if (cat === 'Incantesimi') iconClass = 'ms-enchantment';
+                            if (cat === 'Planeswalker') iconClass = 'ms-planeswalker';
+                            if (cat === 'Terre') iconClass = 'ms-land';
+
+                            return (
+                              <div key={cat} className="relative group/tab flex items-center">
+                                <button 
+                                  onClick={() => { setActiveTab(cat); setVisibleCount(50); }} 
+                                  className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                                    activeTab === cat 
+                                      ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40' 
+                                      : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'
+                                  }`}
+                                >
+                                  {iconClass && <i className={`ms ${iconClass} text-[13px]`}></i>}
+                                  <span>{cat}</span>
+                                </button>
+                                
+                                {(cat === 'In Crescita' || cat === 'Top Sinergie') && (
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden sm:group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
+                                    {cat === 'In Crescita' 
+                                      ? "Carte con il maggiore incremento globale di utilizzo negli ultimi 7 giorni." 
+                                      : "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 
@@ -750,8 +854,8 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                           {colors.map((col) => {
                             const isActive = activeColors.length === 0 ? col.val === 'Tutti' : activeColors.includes(col.val);
                             return (
-                              <button key={col.val} onClick={() => toggleColor(col.val)} className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap transition-all border ${isActive ? 'bg-slate-700 text-white border-slate-500' : 'bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800'}`}>
-                                {col.label}
+                              <button key={col.val} onClick={() => toggleColor(col.val)} title={col.label} className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap transition-all border flex items-center justify-center min-w-[40px] h-8 ${isActive ? 'bg-slate-700 text-white border-slate-500 shadow-inner' : 'bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800'}`}>
+                                {col.icon ? <i className={`${col.icon} text-base`}></i> : col.label}
                               </button>
                             );
                           })}
@@ -776,9 +880,10 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                   ) : (
                     <>
                       {visibleCardsData.length === 0 ? (
-                        <div className="py-20 text-center flex flex-col items-center">
-                          <Search className="w-12 h-12 mb-4 opacity-30 text-slate-500" strokeWidth={1.5} />
-                          <p className="text-slate-400 font-medium">Nessuna carta trovata con i filtri attuali.</p>
+                        <div className="py-20 text-center flex flex-col items-center animate-fade-in">
+                          <img src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop" alt="Fblthp" className="w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-lg mb-4 opacity-80 hover:opacity-100 transition-all duration-300 hover:rotate-3" />
+                          <p className="text-slate-300 font-bold">Fblthp si è perso di nuovo... e anche la tua ricerca.</p>
+                          <p className="text-sm mt-1 text-slate-500">Nessuna carta trovata con i filtri attuali.</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-y-10 gap-x-6">
@@ -804,7 +909,6 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                     {(homeMode === 'cards' && cardSort === 'hot' && selectedCommander === 'Tutti i mazzi') ? (
                                       <>
                                         <span className="text-[11px] text-slate-400 font-medium">{card.freq} mazzi</span>
-                                        {/* Tooltip per Delta Positivo */}
                                         <div className="group/delta relative flex items-center cursor-help">
                                           <span className="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded font-bold">+{card.delta}</span>
                                           <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/delta:block w-40 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
@@ -819,7 +923,6 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                           {card.Percentuale}% <span className="text-slate-500 font-normal">({card.freq})</span>
                                         </div>
                                         {(activeTab === 'Top Sinergie' || activeTab === 'In Crescita') && card.Sinergia > 0 && (
-                                          /* Tooltip per Sinergia */
                                           <div className="group/syn relative flex items-center cursor-help">
                                             <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">+{card.Sinergia}%</span>
                                             <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">

@@ -1,7 +1,7 @@
 import React from 'react';
 import SkeletonCard from './SkeletonCard';
 import { handleNav } from '../utils/navigation';
-import { RefreshCw } from 'lucide-react'; // <-- Nuova icona importata
+import { RefreshCw } from 'lucide-react'; 
 
 interface CardDetailProps {
   selectedCardDetail: string;
@@ -21,7 +21,7 @@ interface CardDetailProps {
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
   activeColors: string[];
   toggleColor: (val: string) => void;
-  colors: { label: string; val: string }[];
+  colors: { label: string; val: string; icon?: string | null }[]; 
   synergyCategories: string[];
   visibleSynergiesData: any[];
 }
@@ -168,18 +168,38 @@ export default function CardDetail({
             
             <div className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md pt-4 pb-4 border-b border-slate-800 mb-6 flex flex-col gap-3">
               <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {synergyCategories.map((cat) => (
-                  <button key={cat} onClick={() => { setActiveSynergyTab(cat); setVisibleCount(50); }} className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeSynergyTab === cat ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40' : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'}`}>
-                    {cat}
-                  </button>
-                ))}
+                {synergyCategories.map((cat) => {
+                  let iconClass = '';
+                  if (cat === 'Creature') iconClass = 'ms-creature';
+                  if (cat === 'Istantanei') iconClass = 'ms-instant';
+                  if (cat === 'Stregonerie') iconClass = 'ms-sorcery';
+                  if (cat === 'Artefatti') iconClass = 'ms-artifact';
+                  if (cat === 'Incantesimi') iconClass = 'ms-enchantment';
+                  if (cat === 'Planeswalker') iconClass = 'ms-planeswalker';
+                  if (cat === 'Terre') iconClass = 'ms-land';
+
+                  return (
+                    <button 
+                      key={cat} 
+                      onClick={() => { setActiveSynergyTab(cat); setVisibleCount(50); }} 
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                        activeSynergyTab === cat 
+                          ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40' 
+                          : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'
+                      }`}
+                    >
+                      {iconClass && <i className={`ms ${iconClass} text-[13px]`}></i>}
+                      <span>{cat}</span>
+                    </button>
+                  );
+                })}
               </div>
               <div className="flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {colors.map((col) => {
                   const isActive = activeColors.length === 0 ? col.val === 'Tutti' : activeColors.includes(col.val);
                   return (
-                    <button key={col.val} onClick={() => toggleColor(col.val)} className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap transition-all border ${isActive ? 'bg-slate-700 text-white border-slate-500' : 'bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800'}`}>
-                      {col.label}
+                    <button key={col.val} onClick={() => toggleColor(col.val)} className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap transition-all border flex items-center justify-center min-w-[40px] h-8 ${isActive ? 'bg-slate-700 text-white border-slate-500 shadow-inner' : 'bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800'}`}>
+                      {col.icon ? <i className={`${col.icon} text-base`}></i> : col.label}
                     </button>
                   );
                 })}
@@ -187,9 +207,10 @@ export default function CardDetail({
             </div>
 
             {visibleSynergiesData.length === 0 ? (
-              <div className="py-16 text-center text-slate-500 flex flex-col items-center">
-                <span className="text-4xl mb-4 opacity-50">🔍</span>
-                <p>Nessuna carta trovata con i filtri selezionati.</p>
+              <div className="py-16 text-center text-slate-500 flex flex-col items-center animate-fade-in">
+                <img src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop" alt="Fblthp" className="w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-lg mb-4 opacity-80 hover:opacity-100 transition-all duration-300 hover:rotate-3" />
+                <p className="text-slate-300 font-bold">Fblthp si è perso di nuovo... e anche la tua ricerca.</p>
+                <p className="text-sm mt-1 text-slate-500">Nessuna carta trovata con i filtri selezionati.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-y-8 gap-x-6">
