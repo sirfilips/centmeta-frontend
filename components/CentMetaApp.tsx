@@ -56,6 +56,9 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   const [cacheStats, setCacheStats] = useState<{ [key: string]: any }>({});
   const [isFlipped, setIsFlipped] = useState(false);
   const [showOracle, setShowOracle] = useState(false);
+  
+  // SEMAFORO: Controlla se la lettura iniziale dell'URL è completata
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const isAnyLoading = loading || dashboardLoading || loadingCardDetail || loadingDecks;
 
@@ -74,6 +77,9 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     setActiveTab(params.get('tab') || 'Top Cards');
     setCommanderSort((params.get('csort') as any) || 'top');
     setCardSort((params.get('csort') as any) || 'top');
+    
+    // Segnala che l'inizializzazione è completa
+    setIsInitialized(true);
   }, [initialCommander]);
 
   useEffect(() => {
@@ -83,6 +89,9 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   }, [syncStateFromURL]);
 
   useEffect(() => {
+    // Impedisce la riscrittura dell'URL prima che la sincronizzazione iniziale sia finita
+    if (!isInitialized) return;
+
     const params = new URLSearchParams();
     if (selectedCardDetail) params.set('card', selectedCardDetail);
     if (homeMode !== 'dashboard' && selectedCommander === 'Tutti i mazzi') params.set('view', homeMode);
@@ -99,7 +108,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     if (window.location.pathname + window.location.search !== newUrl) {
       window.history.pushState(null, '', newUrl);
     }
-  }, [selectedCommander, selectedCardDetail, homeMode, activeTab, commanderSort, cardSort]);
+  }, [selectedCommander, selectedCardDetail, homeMode, activeTab, commanderSort, cardSort, isInitialized]);
 
   useEffect(() => {
     if (selectedCommander !== 'Tutti i mazzi') {
@@ -725,7 +734,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                               
                               {/* Tooltip Etichette Speciali */}
                               {(cat === 'In Crescita' || cat === 'Top Sinergie') && (
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden sm:group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
                                   {cat === 'In Crescita' 
                                     ? "Carte con il maggiore incremento globale di utilizzo negli ultimi 7 giorni." 
                                     : "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
@@ -798,7 +807,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                         {/* Tooltip per Delta Positivo */}
                                         <div className="group/delta relative flex items-center cursor-help">
                                           <span className="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded font-bold">+{card.delta}</span>
-                                          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/delta:block w-40 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
+                                          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/delta:block w-40 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
                                             <strong className="text-orange-400 block mb-1">Trend Positivo</strong>
                                             Nuovi mazzi in cui è stata inclusa negli ultimi 7 giorni.
                                           </div>
@@ -813,7 +822,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                           /* Tooltip per Sinergia */
                                           <div className="group/syn relative flex items-center cursor-help">
                                             <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">+{card.Sinergia}%</span>
-                                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
+                                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
                                               <strong className="text-emerald-400 block mb-1">Valore Sinergia</strong>
                                               Indica quanto questa carta è giocata in più in questo mazzo rispetto alla media globale.
                                             </div>

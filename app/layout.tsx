@@ -5,16 +5,16 @@ const siteUrl = 'https://centmeta.it';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'CentMeta | Analisi Commander',
-  description: 'Statistiche per il formato Centurion Commander.',
+  title: 'CentMeta | Analisi Centurion Commander',
+  description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
   
   // Il blocco "icons" è stato rimosso intenzionalmente! 
   // Next.js troverà da solo "icon.png" e "apple-icon.png" dentro la cartella app/
   
   // Anteprima per WhatsApp, Telegram, Facebook
   openGraph: {
-    title: 'CentMeta | Analisi Commander',
-    description: 'Statistiche per il formato Centurion Commander.',
+    title: 'CentMeta | Analisi Centurion Commander',
+    description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
     url: siteUrl, 
     siteName: 'CentMeta',
     images: [
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   // Anteprima per Twitter/X
   twitter: {
     card: 'summary_large_image',
-    title: 'CentMeta | Analisi Commander',
-    description: 'Statistiche per il formato Centurion Commander.',
+    title: 'CentMeta | Analisi Centurion Commander',
+    description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
     images: ['/og-image.png'],
   },
 };

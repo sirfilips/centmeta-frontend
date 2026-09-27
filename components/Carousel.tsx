@@ -27,7 +27,7 @@ const Carousel = ({ title, items, onItemClick, onViewAll, viewAllHref, isHot = f
         {/* Tooltip Didattico per i titoli */}
         <div className="group/info relative inline-flex items-center justify-center cursor-help ml-3">
           <HelpCircle className="w-4 h-4 text-slate-500 hover:text-blue-400 transition-colors" strokeWidth={2.5} />
-          <div className="absolute bottom-full mb-2 left-0 hidden group-hover/info:block w-64 p-3 bg-slate-800 text-xs text-slate-200 rounded-xl shadow-xl border border-slate-700 z-50 pointer-events-none normal-case font-normal text-left leading-relaxed">
+          <div className="absolute bottom-full mb-2 right-0 sm:right-auto sm:left-0 hidden group-hover/info:block w-56 sm:w-64 p-3 bg-slate-800 text-xs text-slate-200 rounded-xl shadow-xl border border-slate-700 z-50 pointer-events-none normal-case font-normal text-left leading-relaxed">
             {isHot 
               ? <span><strong className="text-orange-400">Classifica Trend:</strong> Mostra chi ha registrato il maggiore incremento negli ultimi 7 giorni. Il valore (+X) indica i nuovi mazzi in cui è apparso.</span> 
               : <span><strong className="text-blue-400">Classifica Assoluta:</strong> Mostra i più giocati nel periodo. Le frecce (▲/▼) o "NEW" indicano il cambio di posizione rispetto al periodo precedente.</span>}
