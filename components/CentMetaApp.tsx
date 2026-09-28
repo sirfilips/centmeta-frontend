@@ -434,6 +434,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
           filtroTempo={filtroTempo} setFiltroTempo={setFiltroTempo} onReset={handleResetHome} 
           totalDecks={homeMode === 'dashboard' ? dashboardData?.total_decks : statsData.total_decks} 
           lastUpdated={(statsData as any).last_updated} 
+          onNavigate={navigateToTab}
         />
 
         <div className="max-w-[1600px] w-full mx-auto px-4 md:px-8 mt-8">
