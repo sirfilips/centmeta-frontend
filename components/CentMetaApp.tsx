@@ -377,10 +377,18 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   };
 
   const navigateToTab = (mode: 'commanders'|'cards', tab: string = 'Top Cards', sort: 'top'|'hot' = 'top') => {
+    // 1. Azzera la navigazione profonda per forzare il ritorno alla "Home" (/)
+    setSelectedCommander('Tutti i mazzi');
+    setSelectedCardDetail(null);
+    setCommanderSearch('');
+    setActiveColors([]);
+
+    // 2. Imposta la nuova visualizzazione globale richiesta dalle tendine
     setHomeMode(mode);
     setActiveTab(tab);
     if (mode === 'commanders') setCommanderSort(sort);
     if (mode === 'cards') setCardSort(sort);
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
