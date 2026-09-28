@@ -8,7 +8,8 @@ interface HeaderProps {
   onReset: () => void;
   totalDecks?: number;
   lastUpdated?: string | null;
-  onNavigate?: (mode: 'commanders' | 'cards', sort: 'top' | 'hot') => void; 
+  // CORREZIONE: Aggiunto il parametro "tab" mancante per allinearsi a CentMetaApp
+  onNavigate?: (mode: 'commanders' | 'cards', tab: string, sort: 'top' | 'hot') => void; 
 }
 
 export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDecks, lastUpdated, onNavigate }: HeaderProps) {
@@ -27,7 +28,8 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
   const handleNavClick = (mode: 'commanders' | 'cards', sort: 'top' | 'hot') => {
     setOpenDropdown(null);
     if (onNavigate) {
-      onNavigate(mode, sort);
+      // CORREZIONE: Passiamo esplicitamente 'Top Cards' come secondo parametro
+      onNavigate(mode, 'Top Cards', sort);
     }
   };
 
