@@ -8,6 +8,12 @@ export default function Footer() {
         {/* Link Utili */}
         <div className="flex flex-wrap justify-center gap-4 pb-2">
           <a 
+            href="/status" 
+            className="text-sm font-bold text-slate-300 hover:text-blue-400 transition-all bg-slate-900/50 border border-slate-800 hover:border-blue-900/50 px-6 py-2.5 rounded-xl shadow-sm"
+          >
+            Stato del Sistema
+          </a>
+          <a 
             href="/changelog" 
             className="text-sm font-bold text-slate-300 hover:text-blue-400 transition-all bg-slate-900/50 border border-slate-800 hover:border-blue-900/50 px-6 py-2.5 rounded-xl shadow-sm"
           >

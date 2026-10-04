@@ -8,7 +8,6 @@ interface HeaderProps {
   onReset: () => void;
   totalDecks?: number;
   lastUpdated?: string | null;
-  // CORREZIONE: Aggiunto il parametro "tab" mancante per allinearsi a CentMetaApp
   onNavigate?: (mode: 'commanders' | 'cards', tab: string, sort: 'top' | 'hot') => void; 
 }
 
@@ -28,9 +27,24 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
   const handleNavClick = (mode: 'commanders' | 'cards', sort: 'top' | 'hot') => {
     setOpenDropdown(null);
     if (onNavigate) {
-      // CORREZIONE: Passiamo esplicitamente 'Top Cards' come secondo parametro
       onNavigate(mode, 'Top Cards', sort);
     }
+  };
+
+  // Funzione helper per gestire il click sui link supportando il middle-click nativo
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, mode: 'commanders' | 'cards', sort: 'top' | 'hot') => {
+    // Se è un middle-click (button === 1) o un click con modificatori (Ctrl/Cmd), lascia fare al browser
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    
+    // Altrimenti (click sinistro normale) usa la navigazione veloce SPA
+    e.preventDefault();
+    handleNavClick(mode, sort);
+  };
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    onReset();
   };
 
   const toggleDropdown = (menu: 'commanders' | 'cards') => {
@@ -44,7 +58,12 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
         
         {/* 1. LATO SINISTRO: Logo */}
         <div className="flex justify-start items-center">
-          <div className="cursor-pointer w-28 md:w-36 lg:w-44 transition-transform hover:scale-105" onClick={onReset} title="Torna alla Dashboard">
+          <a 
+            href="/"
+            onClick={handleLogoClick}
+            className="block w-28 md:w-36 lg:w-44 transition-transform hover:scale-105" 
+            title="Torna alla Dashboard"
+          >
             <Image 
               src="/logo.png" 
               alt="CentMeta Logo" 
@@ -53,7 +72,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               priority
               className="w-full h-auto object-contain"
             />
-          </div>
+          </a>
         </div>
 
         {/* 2. LATO DESTRO: Controlli (e Statistiche Desktop) */}
@@ -116,12 +135,20 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               
               <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top ${openDropdown === 'commanders' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
-                  <button onClick={() => handleNavClick('commanders', 'top')} className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50">
+                  <a 
+                    href="/?view=commanders&csort=top" 
+                    onClick={(e) => handleLinkClick(e, 'commanders', 'top')} 
+                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                  >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Comandanti
-                  </button>
-                  <button onClick={() => handleNavClick('commanders', 'hot')} className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                  </a>
+                  <a 
+                    href="/?view=commanders&csort=hot" 
+                    onClick={(e) => handleLinkClick(e, 'commanders', 'hot')} 
+                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                  >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -140,12 +167,20 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               
               <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top ${openDropdown === 'cards' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
-                  <button onClick={() => handleNavClick('cards', 'top')} className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50">
+                  <a 
+                    href="/?view=cards&tab=Top+Cards&csort=top" 
+                    onClick={(e) => handleLinkClick(e, 'cards', 'top')} 
+                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                  >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Carte
-                  </button>
-                  <button onClick={() => handleNavClick('cards', 'hot')} className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                  </a>
+                  <a 
+                    href="/?view=cards&tab=Top+Cards&csort=hot" 
+                    onClick={(e) => handleLinkClick(e, 'cards', 'hot')} 
+                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                  >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
