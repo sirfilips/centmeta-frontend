@@ -35,15 +35,66 @@ export default function Changelog() {
           <p className="text-base lg:text-lg text-slate-400">Cronologia degli aggiornamenti, ottimizzazioni e nuove funzionalità di CentMeta.</p>
         </div>
 
-        {/* Blocco Versione v2.7.0 (NUOVA) */}
+        {/* Blocco Versione v2.8.0 (NUOVA) */}
         <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-rose-700 z-10"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-700 z-10"></div>
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-2">
-            <h2 className="text-2xl lg:text-3xl font-bold text-red-400 flex items-center gap-3">
+            <h2 className="text-2xl lg:text-3xl font-bold text-violet-400 flex items-center gap-3">
+              v2.8.0 - Concorrenza Database & Resilienza Scraper
+            </h2>
+            <span className="text-sm lg:text-base bg-violet-900/30 text-violet-300 px-4 py-1.5 rounded-full font-bold w-fit border border-violet-500/30">
+              09 Ottobre 2026
+            </span>
+          </div>
+          
+          <div className="space-y-10 lg:space-y-12">
+            
+            {/* Sezione Concorrenza SQLite */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-violet-500 pl-4">
+                Concorrenza e Zero Downtime
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-violet-500 font-bold">•</span> <div><strong className="text-slate-200">Abilitazione WAL Mode (Write-Ahead Logging):</strong> Il database SQLite è stato migrato al protocollo WAL. Questa architettura consente ora l'accesso simultaneo di infiniti lettori mentre lo scraper notturno esegue operazioni di scrittura, eliminando i colli di bottiglia e garantendo zero tempi di inattività (downtime) durante l'allineamento dei dati.</div></li>
+                <li className="flex gap-3"><span className="text-violet-500 font-bold">•</span> <div><strong className="text-slate-200">Risoluzione Timestamp:</strong> Affinata l'estrazione dell'orario di ultimo aggiornamento esposto nella dashboard di monitoraggio, integrando la lettura del file temporaneo WAL per restituire un riscontro temporale sempre sincronizzato al secondo.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Resilienza Scraper */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-fuchsia-500 pl-4">
+                Resilienza dell'Estrattore Dati
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-fuchsia-500 font-bold">•</span> <div><strong className="text-slate-200">Prevenzione da Eliminazioni Massive:</strong> Introdotto un rigoroso meccanismo di salvaguardia (safety check). Qualora l'API di Moxfield restituisse anomalie o timeout estesi durante la paginazione, il sistema preserverà l'integrità del database locale, interrompendo la sincronizzazione e impedendo l'eliminazione accidentale dei mazzi.</div></li>
+                <li className="flex gap-3"><span className="text-fuchsia-500 font-bold">•</span> <div><strong className="text-slate-200">Ottimizzazione Dry-Run:</strong> L'ambiente di test isolato (dry-run) è stato blindato. È ora possibile avviare simulazioni di allineamento e leggere file JSON storici senza alcun rischio di alterare le tabelle SQL in produzione.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Thread Safety */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-cyan-400 pl-4">
+                Sicurezza in Memoria e Thread-Safety
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Cache Scryfall Isolato:</strong> Ristrutturata l'architettura di scrittura dei file temporanei sfruttando il PID (Process ID) e il Thread ID univoci. Due thread concorrenti non potranno mai più sovrascrivere lo stesso blocco JSON in memoria, azzerando le probabilità di corruzione dei dati.</div></li>
+                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Negative Cache Dinamica:</strong> Rivista la logica di memorizzazione temporanea delle carte mancanti. Un errore transitorio (timeout o 429) dai server di Scryfall non causerà più l'occultamento di una carta per 24 ore: l'API riproverà in modo proattivo al caricamento successivo.</div></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Blocco Versione v2.7.0 */}
+        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16 opacity-90 hover:opacity-100 transition-opacity">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-rose-700 z-10"></div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-400 flex items-center gap-3 group-hover:text-red-400 transition-colors">
               v2.7.0 - Monitoraggio Servizi, GDPR Oblio & Fix UX
             </h2>
-            <span className="text-sm lg:text-base bg-red-900/30 text-red-300 px-4 py-1.5 rounded-full font-bold w-fit border border-red-500/30">
+            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
               04 Ottobre 2026
             </span>
           </div>
@@ -52,35 +103,33 @@ export default function Changelog() {
             
             {/* Sezione Stato Servizi */}
             <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-emerald-500 pl-4">
+              <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
                 Dashboard "Stato del Sistema" (Uptime Monitoring)
               </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
-                <li className="flex gap-3"><span className="text-emerald-500 font-bold">•</span> <div><strong className="text-slate-200">Monitoraggio API 24/7:</strong> Introdotta una nuova pagina pubblica (raggiungibile dal footer) per monitorare lo stato di salute in tempo reale di Moxfield e Scryfall. Il sistema esegue un <i>health check</i> orario asincrono (nel rispetto dei ToS e con User-Agent ufficiale) memorizzando l'esito nel database.</div></li>
-                <li className="flex gap-3"><span className="text-emerald-500 font-bold">•</span> <div><strong className="text-slate-200">Cronologia Visiva 48 Ore:</strong> Realizzata una UI di livello enterprise che traccia la latenza e i blocchi temporanei (errori 429) degli ultimi 2 giorni tramite una barra temporale dinamica a segmenti colorati.</div></li>
-                <li className="flex gap-3"><span className="text-emerald-500 font-bold">•</span> <div><strong className="text-slate-200">Trasparenza Aggiornamento DB:</strong> La dashboard espone ora in modo chiaro e inequivocabile l'orario esatto in cui è avvenuto l'ultimo allineamento notturno tra il database di CentMeta e le liste pubbliche.</div></li>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Monitoraggio API 24/7:</strong> Introdotta una nuova dashboard pubblica dedicata al monitoraggio dello stato di salute in tempo reale di Moxfield e Scryfall. L'infrastruttura backend interroga periodicamente gli endpoint esterni garantendo piena trasparenza operativa.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Cronologia Visiva (48 Ore):</strong> Sviluppata un'interfaccia a segmenti per monitorare lo storico degli ultimi due giorni, facilitando l'individuazione di picchi di latenza o interruzioni temporanee dei servizi esterni.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Trasparenza di Allineamento:</strong> La piattaforma espone ora l'orario certificato in cui l'ecosistema locale è stato sincronizzato per l'ultima volta con le fonti pubbliche.</div></li>
               </ul>
             </div>
 
             {/* Sezione GDPR & Sicurezza */}
             <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-rose-500 pl-4">
-                Sicurezza, Privacy (Diritto all'Oblio) e GDPR
+              <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
+                Integrità Dati e Diritto all'Oblio (GDPR)
               </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
-                <li className="flex gap-3"><span className="text-rose-500 font-bold">•</span> <div><strong className="text-slate-200">Motore di Blacklisting:</strong> Implementata un'infrastruttura backend dedicata alla cancellazione irreversibile dei dati. Gli admin possono vaporizzare un mazzo dal DB tramite API protetta da Secret Key (Environment Variables).</div></li>
-                <li className="flex gap-3"><span className="text-rose-500 font-bold">•</span> <div><strong className="text-slate-200">Oblio Permanente:</strong> Lo scraper notturno è stato aggiornato per interrogare preliminarmente la blacklist prima di ogni download: i mazzi rimossi in ottemperanza al GDPR (Art. 17) verranno ignorati per sempre, anche se tornassero pubblici su Moxfield.</div></li>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Infrastruttura di Blacklisting:</strong> Sviluppata un'architettura backend per la gestione dell'Oblio Permanente. I mazzi rimossi per conformità privacy sono esclusi dai cicli di scraping futuri e disaccoppiati in modo irreversibile dall'aggregazione.</div></li>
               </ul>
             </div>
 
             {/* Sezione Fix UX */}
             <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-indigo-400 pl-4">
+              <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
                 User Experience e Navigazione
               </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
-                <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Ripristino Middle-Click:</strong> Ristrutturata l'architettura dei bottoni del menù di navigazione superiore (Header). Convertiti in elementi <code>{`<a>`}</code> semantici con hijacking selettivo dell'evento onClick: ora il tasto centrale del mouse e le scorciatoie da tastiera (Ctrl/Cmd) funzionano nativamente per l'apertura in nuove schede.</div></li>
-                <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Pulizia Generale:</strong> Normalizzato lo stile della navbar e rivisti i pesi visivi dei link nel Footer. Aggiunto il redirect nativo sul logo verso la root principale per prevenire blocchi di stato in React.</div></li>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Ripristino Middle-Click:</strong> Ristrutturata l'architettura del menù di navigazione (Header) tramite elementi semantici. Le operazioni di apertura in background (Middle-Click o Ctrl/Cmd + Clic) sono ora supportate nativamente.</div></li>
               </ul>
             </div>
 
@@ -105,33 +154,31 @@ export default function Changelog() {
             {/* Sezione Filtri ed Exact Match */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
-                Filtri di Colore (Exact Match)
+                Filtraggio Cromatico (Exact Match)
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Logica AND Restrittiva:</strong> Il filtro dei colori è stato completamente riscritto. Selezionando ad esempio Rosso e Nero, il sistema estrarrà <i>esattamente</i> le carte Rakdos, bloccando le carte con colori extra non in linea con la ricerca.</div></li>
-                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Estensione ai Comandanti:</strong> La stessa logica di filtraggio avanzata per identità cromatica è stata propagata anche alla griglia dei Comandanti (Top e Hot), prelevando il dato direttamente dall'API di Scryfall.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Query Restrittive (AND):</strong> Implementata una logica di filtro rigorosa basata sull'identità di colore. Il sistema estrae esclusivamente le carte corrispondenti all'esatta combinazione cromatica richiesta, bloccando sovrapposizioni non desiderate.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Estensione Dashboard:</strong> Il meccanismo di classificazione cromatica è stato esteso alle dashboard riepilogative, permettendo analisi verticali sulle tendenze dei Comandanti.</div></li>
               </ul>
             </div>
 
             {/* Sezione Design */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
-                Design & Iconografia Ufficiale
+                Integrazione Design Ufficiale
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Integrazione Mana Font:</strong> Sostituite le emoji native con il pacchetto vettoriale ufficiale <i>Mana Font</i>. I filtri cromatici e le etichette delle tipologie di carte (Creature, Istantanei, Artefatti, ecc.) ora utilizzano la vera simbologia di Magic per un'esperienza premium.</div></li>
-                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Fblthp Easter Egg:</strong> Le ricerche senza esito non mostreranno più una generica lente d'ingrandimento, ma accoglieranno l'utente con uno speciale Easter Egg dedicato a Fblthp, l'omuncolo più smarrito del multiverso.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Libreria Mana Font:</strong> Deprecata la simbologia testuale a favore del pacchetto vettoriale standard di mercato (Mana Font), garantendo uniformità estetica e professionale nell'esposizione delle tipologie di carte.</div></li>
               </ul>
             </div>
 
             {/* Sezione Bug Fixes e Storia */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
-                Bug Fixes e Routing
+                Routing e Stato Applicativo
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Risoluzione Loop Storico:</strong> Corretto un bug critico legato alla navigazione con la "Freccia Indietro" del browser. L'applicativo ora gestisce la cronologia in modo intelligente (tramite hook <code>useRef</code> e <code>replaceState</code>) impedendo disallineamenti di URL.</div></li>
-                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Gestione Modali in Navigazione:</strong> Risolto il conflitto di rendering all'apertura in background di nuove tab, bloccando le sovrascritture premature dell'URL durante la fase di caricamento iniziale.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Risoluzione Disallineamenti di Stato:</strong> Sistemata l'interazione con l'History API del browser. Il meccanismo di gestione dello stato React previene ora conflitti URL durante la navigazione regressiva o l'apertura asincrona di viste.</div></li>
               </ul>
             </div>
 
@@ -157,35 +204,32 @@ export default function Changelog() {
             {/* Sezione Moxfield & API */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-400 mb-5 border-l-4 border-slate-700 pl-4">
-                Integrazione Ufficiale Moxfield
+                Compliance API Moxfield
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-500 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Accesso Autorizzato:</strong> CentMeta ha ottenuto l'autorizzazione ufficiale dal team di Moxfield per l'interrogazione delle loro API pubbliche, rendendo la raccolta dati 100% conforme ai loro Termini di Servizio (ToS).</div></li>
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Rate Limiting Globale:</strong> Abbandonato il framework di scraping parallelo (cloudscraper) a favore di un estrattore sequenziale (requests) guidato da un rate limiter matematico basato su <code>time.monotonic()</code>, che garantisce il rispetto assoluto delle frequenze di connessione concordate.</div></li>
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Gestione Retry e Backoff:</strong> Il motore di download è stato irrobustito con logiche di attesa incrementale in caso di colli di bottiglia (Status 429) e un sistema di *fail-safe* che previene scritture sul database locale in caso di instabilità di rete.</div></li>
+                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Rate Limiting Globale:</strong> Abbandonato il framework di scraping parallelo a favore di un estrattore sequenziale governato da un rate limiter esatto, garantendo piena conformità ai Termini di Servizio (ToS).</div></li>
+                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Gestione Retry e Backoff:</strong> Introdotti meccanismi di tolleranza all'errore (fault tolerance) volti a mitigare l'impatto di instabilità di rete, preservando lo stato consistente del database.</div></li>
               </ul>
             </div>
 
             {/* Sezione Privacy e GDPR */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-400 mb-5 border-l-4 border-slate-700 pl-4">
-                Privacy, GDPR e Compliance
+                Adeguamento Privacy e Data Minimization
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-500 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Data Minimization:</strong> Lo schema del database è stato completamente anonimizzato. Non viene più salvato il "nome" assegnato al mazzo dal creatore. Il sistema conserva esclusivamente l'identificativo alfanumerico pubblico, il comandante e le liste delle carte.</div></li>
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Pagina Legale Ristrutturata:</strong> Pubblicata una sezione "Privacy e Note Legali" esaustiva che definisce ruoli, titolarità (inclusa la gestione dei log tramite Cloudflare) e procedure GDPR (Art. 17 e 21).</div></li>
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Canale di Contatto Ufficiale:</strong> Attivato un indirizzo email dedicato alle comunicazioni legali ed esercizio dei diritti privacy (privacy@centmeta.it) ospitato su server OVHcloud europei e con instradamento protetto.</div></li>
+                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Minimizzazione Dati:</strong> Ottimizzata l'impronta di stoccaggio espellendo campi metadati non necessari e focalizzandosi solo sugli identificativi operativi essenziali per le metriche.</div></li>
+                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Ecosistema Legale:</strong> Formalizzate le policy di gestione dati in accordo alla normativa vigente e attivato il canale istituzionale protetto dedicato alle questioni di conformità.</div></li>
               </ul>
             </div>
 
             {/* Sezione GitHub & Security */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-400 mb-5 border-l-4 border-slate-700 pl-4">
-                Sicurezza Infrastrutturale
+                Isolamento Credenziali
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-500 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Gestione Segreti (Dotenv):</strong> Implementazione del pattern `Environment Variables` per iniettare l'API Key (User-Agent) di Moxfield a runtime tramite servizio systemd, separando il codice sorgente dalle credenziali.</div></li>
-                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Blindatura Repository:</strong> Ottimizzati i file <code>.gitignore</code> sia per il comparto Next.js che FastAPI, garantendo l'assoluta esclusione di database SQLite, log di sistema e chiavi ambientali dai push su GitHub.</div></li>
+                <li className="flex gap-3"><span className="text-slate-600 font-bold">•</span> <div><strong className="text-slate-400">Environment Injection:</strong> Disaccoppiate le credenziali e l'API Key (User-Agent) di Moxfield dalla base di codice, delegandone l'iniezione a livello di servizio di sistema (systemd).</div></li>
               </ul>
             </div>
 
@@ -210,34 +254,11 @@ export default function Changelog() {
             {/* Sezione Interattività */}
             <div>
               <h3 className="text-lg lg:text-xl font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Interattività e Analitica
+                Funzionalità e Aggiornamenti Interfaccia
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Filtri Dinamici per Tipologia:</strong> La barra della "Composizione Media" è ora completamente interattiva. Cliccando sui segmenti colorati o sulle etichette sottostanti (es. "Creature" o "Istantanei"), la pagina scorrerà automaticamente impostando il filtro corrispondente sulle carte.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Ordinamento Intelligente:</strong> L'ordine dei colori nella barra e delle etichette testuali è ora sincronizzato in base alla reale frequenza delle carte. Inoltre, la categoria "Terre" viene costantemente forzata in ultima posizione per non distorcere visivamente l'analisi delle altre tipologie.</div></li>
-              </ul>
-            </div>
-
-            {/* Sezione UI Desktop */}
-            <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Design e Ottimizzazione Desktop
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Hero Section Espansa:</strong> Riprogettata l'intestazione principale per sfruttare al meglio gli schermi larghi (PC/Desktop). Introdotta un'illuminazione ambientale (glow) di sfondo e un gradiente dinamico per conferire maggiore profondità tridimensionale al sito.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Coerenza Iconografica:</strong> Il pulsante "Torna in alto" (Scroll to Top) è stato aggiornato, sostituendo il carattere testuale con l'iconografia ufficiale <i>lucide-react</i> per uniformità con il resto della piattaforma.</div></li>
-              </ul>
-            </div>
-
-            {/* Sezione Bug Fixes */}
-            <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Correzioni Visive (Bug Fixes)
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Fix Sbordamento WebKit:</strong> Risolta una storica criticità di rendering sui browser Apple/WebKit. L'immagine di sfondo sfocata della carta analizzata non "sbrodola" più al di fuori dei bordi arrotondati del contenitore principale.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Allineamento Caroselli:</strong> Ricalcolate millimetricamente le posizioni delle frecce di scorrimento laterale dei caroselli per essere sempre centrate rispetto agli artwork delle carte.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Z-Index e Tagli Immagini:</strong> Eliminato l'effetto "taglio" (clipping) che colpiva la sommità delle carte durante l'animazione di ingrandimento col mouse. Corretto inoltre l'ordine di sovrapposizione (z-index) in modo che i comandanti <i>Partner</i> non vengano coperti dalle carte adiacenti al passaggio del cursore.</div></li>
+                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Composizione Dinamica:</strong> La componente a barra delle tipologie è ora interattiva, facilitando il filtraggio rapido della lista carte tramite interazione diretta col diagramma.</div></li>
+                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Ottimizzazione Desktop:</strong> Ampliamento della Hero Section per ambienti desktop e risoluzione di bug visivi legati al sistema WebKit (clipping e sovrapposizioni z-index errate in fase di ingrandimento).</div></li>
               </ul>
             </div>
 
@@ -259,36 +280,13 @@ export default function Changelog() {
           
           <div className="space-y-10 lg:space-y-12">
             
-            {/* Sezione Motori di Ricerca */}
             <div>
               <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Visibilità e Motori di Ricerca (SEO)
+                Ottimizzazione Motori di Ricerca (SEO) e Social
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Indicizzazione Globale:</strong> CentMeta è ora ufficialmente ottimizzato per essere scansionato e indicizzato dai principali motori di ricerca come Google, Bing, Ecosia e DuckDuckGo.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Mappe del Sito e Gerarchia:</strong> Implementata la generazione automatica delle Sitemap e perfezionata la gerarchia dei titoli delle pagine, permettendo agli algoritmi di ricerca di capire istantaneamente di cosa parla ogni analisi.</div></li>
-              </ul>
-            </div>
-
-            {/* Sezione Social */}
-            <div>
-              <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Condivisione Social e Link
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Anteprime Avanzate:</strong> Condividendo il link di un comandante su WhatsApp, Discord, Telegram o Facebook, ora appariranno automaticamente il logo del sito, il nome specifico del mazzo e una breve descrizione dedicata.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Link Puliti e Diretti:</strong> Gli indirizzi web del sito sono stati riscritti in un formato definitivo e super leggibile (es. <i>/commander/Phelia</i>), facilitando il salvataggio nei preferiti e la navigazione tra le pagine.</div></li>
-              </ul>
-            </div>
-
-            {/* Sezione Estetica */}
-            <div>
-              <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Perfezionamenti Estetici (UI/UX)
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Layout Carte su Mobile:</strong> Risolto un problema visivo che creava fastidiosi spazi vuoti irregolari sotto le carte sugli schermi degli smartphone, garantendo ora una griglia compatta e perfettamente proporzionata.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Schermata Iniziale:</strong> Snellita l'intestazione principale (Hero Section) della dashboard per renderla meno invasiva, più moderna e concentrata sui contenuti statistici.</div></li>
+                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Indicizzazione Strutturata:</strong> Implementata sitemap dinamica e gerarchia avanzata dei tag per migliorare l'esposizione sui motori di ricerca mainstream.</div></li>
+                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Social Graph:</strong> Supporto nativo ai protocolli di Open Graph per arricchire l'anteprima dei link su canali di messaggistica e social network.</div></li>
               </ul>
             </div>
 
@@ -312,45 +310,11 @@ export default function Changelog() {
             
             <div>
               <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Nuove Metriche Analitiche
+                Migrazione Architetturale e Migliorie Analitiche
               </h3>
               <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Composizione Media del Mazzo:</strong> Integrato un nuovo diagramma a barre proporzionale che illustra istantaneamente la distribuzione delle tipologie di carte (Creature, Istantanei, Terre, ecc.) per ciascun comandante.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Valori Assoluti e Differenziali:</strong> Aggiunta la visibilità della frequenza assoluta di utilizzo (numero totale di mazzi) accanto ai valori percentuali. Implementata la metrica del delta incrementale positivo (+X) per la vista delle carte in tendenza.</div></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Infrastruttura e Prestazioni
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Motore SQL Nativo:</strong> Riscrittura architetturale delle logiche di estrazione dati. I calcoli massivi (join e aggregazioni) sono stati demandati interamente al livello database (SQLite), bypassando l'elaborazione in-memory di Pandas, con un incremento prestazionale fino all'80%.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Indicizzazione del Database:</strong> Implementata la generazione automatica di indici SQL strutturati all'avvio del server, eliminando i Full Table Scan durante la navigazione temporale.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Connection Pooling HTTP:</strong> Ottimizzate le latenze di rete verso i provider di terze parti (Scryfall) sfruttando sessioni TLS persistenti, riducendo i tempi di risoluzione delle immagini in cache miss.</div></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Interfaccia Utente e Mobile
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Loader Asincrono Globale:</strong> Integrato un sistema di feedback visivo persistente per notificare all'utente le transazioni di rete in corso, supportato da un overlay di transizione opacizzante sulla scheda di analisi.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Revisione Cromatica (Soft Dark):</strong> Migrazione dell'infrastruttura di stili verso una palette desaturata (Pastel Navy) volta a ridurre l'affaticamento visivo e massimizzare il contrasto degli elementi in evidenza.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Ristrutturazione Layout Mobile:</strong> Ottimizzata la scheda analitica del comandante per dispositivi smartphone. Riorganizzati i widget statistici in un flusso verticale compatto e introdotto un meccanismo a comparsa (toggle) per la consultazione del testo Oracle.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Snellimento Intestazione:</strong> Riduzione dell'impronta verticale dell'Header su schermi ridotti, con ridimensionamento dinamico del logo e compattazione degli indicatori statistici globali.</div></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-slate-500 mb-5 border-l-4 border-slate-800 pl-4">
-                Correzioni e Stabilità (Bug Fixes)
-              </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-600 leading-relaxed">
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Persistenza del Focus:</strong> Risolta una criticità architetturale nel processo di rendering React che causava la chiusura involontaria della tastiera mobile e la perdita del focus durante la digitazione nella barra di ricerca.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Posizionamento Viewport (Scroll):</strong> Corretto un difetto di navigazione interno alle Single Page Application; ora la selezione di una carta o comandante forza fluidamente il riposizionamento della visuale all'apice della finestra.</div></li>
-                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Motore di Calcolo delle Terre:</strong> Perfezionato l'algoritmo di elaborazione backend (Python/SQLite) per riconoscere e sommare dinamicamente copie multiple di una singola carta, garantendo metriche perfette per le Terre Base.</div></li>
+                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Dismissione Pandas:</strong> Riscrittura completa dei meccanismi di elaborazione backend per abbattere i consumi di memoria. L'aggregazione statistica è ora integralmente off-boardata al motore SQLite nativo.</div></li>
+                <li className="flex gap-3"><span className="text-slate-700 font-bold">•</span> <div><strong className="text-slate-500">Gestione Anomalie UX Mobile:</strong> Sistemati bug di ritenzione focus su tastiera mobile e aggiunte rappresentazioni grafiche proporzionali per una rapida consultazione analitica in ambiente compatto.</div></li>
               </ul>
             </div>
 
