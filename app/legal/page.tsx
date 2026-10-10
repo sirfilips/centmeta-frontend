@@ -106,6 +106,9 @@ export default function Legal() {
               <p>
                 I dati statistici elaborati derivano da informazioni pubbliche, rielaborate unicamente per scopi statistici, informativi e comunitari per il formato Centurion Commander.
               </p>
+              <p>
+                CentMeta accetta donazioni volontarie (tramite Ko-fi) per coprire i costi di hosting e manutenzione. L&apos;accesso a tutte le statistiche resta gratuito per tutti gli utenti, senza funzionalità, dati o contenuti riservati a chi effettua una donazione.
+              </p>
             </div>
           </section>
 
