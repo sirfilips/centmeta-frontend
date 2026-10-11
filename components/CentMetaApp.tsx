@@ -21,6 +21,12 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue;
 }
 
+async function fetchJson(url: string): Promise<any> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
 export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { initialCommander?: string }) {
   const [filtroTempo, setFiltroTempo] = useState('Ultimi 30 giorni');
   const [homeMode, setHomeMode] = useState<'dashboard' | 'commanders' | 'cards'>('dashboard');
@@ -58,6 +64,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   const [showOracle, setShowOracle] = useState(false);
   
   const [isInitialized, setIsInitialized] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   
   // SENTINELLE PER LA CRONOLOGIA BROWSER
   const isPopState = useRef(false);
@@ -144,24 +151,31 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   useEffect(() => {
     let active = true;
     setDashboardLoading(true);
-    fetch(`/api/home/dashboard?filtro_tempo=${encodeURIComponent(filtroTempo)}`)
-      .then(res => res.json())
+    setApiError(null);
+    fetchJson(`/api/home/dashboard?filtro_tempo=${encodeURIComponent(filtroTempo)}`)
       .then(data => {
         if (!active) return;
         setDashboardData(data);
         setDashboardLoading(false);
-      }).catch(() => setDashboardLoading(false));
+      }).catch(() => {
+        if (!active) return;
+        setDashboardLoading(false);
+        setApiError("Impossibile caricare i dati. Riprova tra poco.");
+      });
     return () => { active = false; };
   }, [filtroTempo]);
 
   useEffect(() => {
     let active = true;
-    fetch(`/api/commanders?filtro_tempo=${encodeURIComponent(filtroTempo)}`)
-      .then(res => res.json())
+    setApiError(null);
+    fetchJson(`/api/commanders?filtro_tempo=${encodeURIComponent(filtroTempo)}`)
       .then(data => {
         if (!active) return;
-        setCommanders(data);
+        setCommanders(Array.isArray(data) ? data : []);
         setCacheStats({});
+      }).catch(() => {
+        if (!active) return;
+        setApiError("Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => { active = false; };
   }, [filtroTempo]);
@@ -170,52 +184,80 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     let active = true;
     setIsFlipped(false);
     setShowOracle(false);
+    setApiError(null);
     
     const cacheKey = `${filtroTempo}_${selectedCommander}`;
     if (cacheStats[cacheKey]) {
       setStatsData(cacheStats[cacheKey]);
+      setLoading(false);
       return;
     }
     setLoading(true);
     const cmdParam = selectedCommander === 'Tutti i mazzi' ? '' : `&comandante=${encodeURIComponent(selectedCommander)}`;
-    fetch(`/api/decks/stats?filtro_tempo=${encodeURIComponent(filtroTempo)}${cmdParam}`)
-      .then(res => res.json())
+    fetchJson(`/api/decks/stats?filtro_tempo=${encodeURIComponent(filtroTempo)}${cmdParam}`)
       .then(data => {
         if (!active) return;
-        setCacheStats(prev => ({ ...prev, [cacheKey]: data }));
-        setStatsData(data);
+        const normalizedData = { 
+          ...data, 
+          total_decks: data?.total_decks ?? 0, 
+          cards: Array.isArray(data?.cards) ? data.cards : [] 
+        };
+        setCacheStats(prev => ({ ...prev, [cacheKey]: normalizedData }));
+        setStatsData(normalizedData);
         setLoading(false);
+      }).catch(() => {
+        if (!active) return;
+        setLoading(false);
+        setApiError("Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => { active = false; };
   }, [filtroTempo, selectedCommander]);
 
   useEffect(() => {
     let active = true;
-    if (!selectedCardDetail) return;
+    if (!selectedCardDetail) {
+      setLoadingCardDetail(false);
+      return;
+    }
     setIsFlipped(false);
     setLoadingCardDetail(true);
     setActiveSynergyTab('Tutte');
     setVisibleCount(50);
-    fetch(`/api/card/details?card_name=${encodeURIComponent(selectedCardDetail)}&filtro_tempo=${encodeURIComponent(filtroTempo)}`)
-      .then(res => res.json())
+    setApiError(null);
+    fetchJson(`/api/card/details?card_name=${encodeURIComponent(selectedCardDetail)}&filtro_tempo=${encodeURIComponent(filtroTempo)}`)
       .then(data => {
         if (!active) return;
-        setCardDetailData(data);
+        setCardDetailData({
+          ...data,
+          commanders: Array.isArray(data?.commanders) ? data.commanders : [],
+          synergies: Array.isArray(data?.synergies) ? data.synergies : []
+        });
         setLoadingCardDetail(false);
+      }).catch(() => {
+        if (!active) return;
+        setLoadingCardDetail(false);
+        setApiError("Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => { active = false; };
   }, [selectedCardDetail, filtroTempo]);
 
   useEffect(() => {
     let active = true;
-    if (selectedCommander === 'Tutti i mazzi' || activeTab !== 'Liste Mazzi') return;
+    if (selectedCommander === 'Tutti i mazzi' || activeTab !== 'Liste Mazzi') {
+      setLoadingDecks(false);
+      return;
+    }
     setLoadingDecks(true);
-    fetch(`/api/commander/decks?comandante=${encodeURIComponent(selectedCommander)}&filtro_tempo=${encodeURIComponent(filtroTempo)}`)
-      .then(res => res.json())
+    setApiError(null);
+    fetchJson(`/api/commander/decks?comandante=${encodeURIComponent(selectedCommander)}&filtro_tempo=${encodeURIComponent(filtroTempo)}`)
       .then(data => {
         if (!active) return;
-        setCommanderDecks(data);
+        setCommanderDecks(Array.isArray(data) ? data : []);
         setLoadingDecks(false);
+      }).catch(() => {
+        if (!active) return;
+        setLoadingDecks(false);
+        setApiError("Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => { active = false; };
   }, [selectedCommander, filtroTempo, activeTab]);
@@ -445,6 +487,20 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
           onNavigate={navigateToTab}
         />
 
+        {apiError && (
+          <div className="max-w-[1600px] mx-auto px-4 md:px-8 mt-4">
+            <div className="bg-red-950/40 border border-red-900/50 text-red-200 rounded-xl px-4 py-3 text-sm flex items-center justify-between">
+              <span>{apiError}</span>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="bg-red-900/50 hover:bg-red-800 text-white font-bold py-1 px-3 rounded-lg border border-red-700/50 transition-colors"
+              >
+                Riprova
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="max-w-[1600px] w-full mx-auto px-4 md:px-8 mt-8">
           
           {selectedCardDetail ? (
@@ -474,7 +530,17 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
 
                   {homeMode === 'dashboard' && (
                     <>
-                      {dashboardLoading || !dashboardData ? (
+                      {apiError && !dashboardLoading && !dashboardData ? (
+                        <div className="mt-10 py-12 text-center text-slate-500 flex flex-col items-center animate-fade-in">
+                          <p className="text-slate-300 font-bold mb-4">{apiError}</p>
+                          <button 
+                            onClick={() => window.location.reload()} 
+                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold py-2.5 px-6 rounded-xl border border-slate-600 transition shadow-sm"
+                          >
+                            Riprova
+                          </button>
+                        </div>
+                      ) : dashboardLoading || !dashboardData ? (
                         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 mt-10">
                           {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
                         </div>
