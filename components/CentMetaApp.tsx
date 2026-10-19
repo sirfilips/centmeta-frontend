@@ -10,6 +10,7 @@ import TrendIndicator from './TrendIndicator';
 import Carousel from './Carousel';
 import HeroSection from './HeroSection';
 import { handleNav } from '../utils/navigation';
+import { handleCardDragStart } from '../utils/dragCard';
 import { RefreshCw, ArrowRight, ArrowLeft, ArrowDown, ChevronUp, ChevronDown, Search, HelpCircle, RotateCcw, Sparkles } from 'lucide-react'; 
 
 function useDebounce(value: string, delay: number) {
@@ -1030,11 +1031,19 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                 key={idx} 
                                 href={`/?card=${encodeURIComponent(card.card_name)}`}
                                 onClick={(e) => handleNav(e, () => handleSelectCard(card.card_name))}
+                                draggable={true}
+                                onDragStart={(e) => handleCardDragStart(e, card.card_name, displayImages[0])}
                                 className="flex flex-col items-center group cursor-pointer"
                               >
                                 <div className="relative w-full aspect-[2.5/3.5] flex justify-center items-center mb-2 md:mb-3">
                                   {displayImages.length === 1 ? (
-                                    <img src={displayImages[0]} className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain" />
+                                    <img 
+                                      src={displayImages[0]} 
+                                      draggable={true}
+                                      onDragStart={(e) => handleCardDragStart(e, card.card_name, displayImages[0])}
+                                      className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain" 
+                                      alt={card.card_name} 
+                                    />
                                   ) : (
                                     <div className="w-full h-full bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-center text-xs text-slate-500">{card.card_name}</div>
                                   )}

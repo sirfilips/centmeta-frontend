@@ -1,6 +1,7 @@
 import React from 'react';
 import SkeletonCard from './SkeletonCard';
 import { handleNav } from '../utils/navigation';
+import { handleCardDragStart } from '../utils/dragCard';
 import { RefreshCw } from 'lucide-react'; 
 
 interface CardDetailProps {
@@ -60,10 +61,22 @@ export default function CardDetail({
                   <div className="relative w-56 md:w-72 xl:w-80 aspect-[2.5/3.5] [perspective:1000px] group">
                     <div className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                       <div className="absolute inset-0 [backface-visibility:hidden]">
-                        <img src={cardDetailData.images[0]} className="w-full h-full object-contain rounded-2xl shadow-xl border border-slate-700/50" alt="Face 1" />
+                        <img 
+                          src={cardDetailData.images[0]} 
+                          draggable={true}
+                          onDragStart={(e) => handleCardDragStart(e, cardDetailData.card_name, cardDetailData.images[0])}
+                          className="w-full h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 cursor-grab active:cursor-grabbing" 
+                          alt="Face 1" 
+                        />
                       </div>
                       <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                        <img src={cardDetailData.images[1]} className="w-full h-full object-contain rounded-2xl shadow-xl border border-slate-700/50" alt="Face 2" />
+                        <img 
+                          src={cardDetailData.images[1]} 
+                          draggable={true}
+                          onDragStart={(e) => handleCardDragStart(e, cardDetailData.card_name, cardDetailData.images[1])}
+                          className="w-full h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 cursor-grab active:cursor-grabbing" 
+                          alt="Face 2" 
+                        />
                       </div>
                     </div>
                     {/* Pulsante Flip con Icona SVG */}
@@ -72,7 +85,13 @@ export default function CardDetail({
                     </button>
                   </div>
                 ) : cardDetailData.images && cardDetailData.images.length === 1 ? (
-                  <img src={cardDetailData.images[0]} className="w-56 md:w-72 xl:w-80 object-contain rounded-2xl shadow-xl border border-slate-700/50" alt={cardDetailData.card_name} />
+                  <img 
+                    src={cardDetailData.images[0]} 
+                    draggable={true}
+                    onDragStart={(e) => handleCardDragStart(e, cardDetailData.card_name, cardDetailData.images[0])}
+                    className="w-56 md:w-72 xl:w-80 object-contain rounded-2xl shadow-xl border border-slate-700/50 cursor-grab active:cursor-grabbing" 
+                    alt={cardDetailData.card_name} 
+                  />
                 ) : (
                   <div className="w-56 md:w-72 h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500">{cardDetailData.card_name}</div>
                 )}
@@ -91,7 +110,9 @@ export default function CardDetail({
                 <div className="relative z-10 flex flex-col gap-4 w-full">
                   <div>
                     <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-3 py-1 rounded-full border border-blue-900/50 shadow-inner">Analisi Carta ({filtroTempo})</span>
-                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mt-4 drop-shadow-md">{cardDetailData.card_name}</h2>
+                    <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+                      <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-md">{cardDetailData.card_name}</h2>
+                    </div>
                   </div>
                   
                   {cardDetailData.oracles && cardDetailData.oracles.length > 0 && (
@@ -221,11 +242,19 @@ export default function CardDetail({
                       key={idx} 
                       href={`/?card=${encodeURIComponent(syn.card_name)}`}
                       onClick={(e) => handleNav(e, () => setSelectedCardDetail(syn.card_name))}
+                      draggable={true}
+                      onDragStart={(e) => handleCardDragStart(e, syn.card_name, displayImages[0])}
                       className="flex flex-col items-center group cursor-pointer"
                     >
                       <div className="relative w-full h-80 flex justify-center items-center mb-3">
                         {displayImages.length === 1 ? (
-                          <img src={displayImages[0]} className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 transition-transform duration-300 object-contain" alt={syn.card_name} />
+                          <img 
+                            src={displayImages[0]} 
+                            draggable={true}
+                            onDragStart={(e) => handleCardDragStart(e, syn.card_name, displayImages[0])}
+                            className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 transition-transform duration-300 object-contain" 
+                            alt={syn.card_name} 
+                          />
                         ) : (
                           <div className="w-full h-full bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-center text-xs text-slate-500">{syn.card_name}</div>
                         )}

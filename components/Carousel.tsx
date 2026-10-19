@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import TrendIndicator from './TrendIndicator';
 import { handleNav } from '../utils/navigation';
+import { handleCardDragStart } from '../utils/dragCard';
 import { ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 
 const Carousel = ({ title, items, onItemClick, onViewAll, viewAllHref, isHot = false, isCard = false }: any) => {
@@ -53,16 +54,24 @@ const Carousel = ({ title, items, onItemClick, onViewAll, viewAllHref, isHot = f
                 key={idx} 
                 href={itemHref}
                 onClick={(e) => handleNav(e, () => onItemClick(item.name))}
+                draggable={isCard}
+                onDragStart={(e) => isCard && handleCardDragStart(e, item.name, item.images?.[0])}
                 className="snap-start flex-shrink-0 w-48 flex flex-col items-center cursor-pointer group/card"
               >
                 <div className="relative w-full h-64 flex justify-center items-center mb-3">
                   {isPartner && item.images.length > 1 ? (
                     <div className="relative w-full h-full flex justify-center items-center">
-                      <img src={item.images[0]} className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300" />
-                      <img src={item.images[1]} className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300" />
+                      <img src={item.images[0]} className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300" alt={item.name} />
+                      <img src={item.images[1]} className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300" alt={item.name} />
                     </div>
                   ) : item.images.length > 0 ? (
-                    <img src={item.images[0]} className="max-h-full max-w-full rounded-xl shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain" />
+                    <img 
+                      src={item.images[0]} 
+                      draggable={isCard}
+                      onDragStart={(e) => isCard && handleCardDragStart(e, item.name, item.images[0])}
+                      className="max-h-full max-w-full rounded-xl shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain" 
+                      alt={item.name} 
+                    />
                   ) : (
                     <div className="text-xs text-slate-500 w-full h-full bg-slate-900 rounded-xl flex items-center justify-center border border-slate-800">{item.name}</div>
                   )}
