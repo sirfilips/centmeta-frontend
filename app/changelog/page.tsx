@@ -35,15 +35,81 @@ export default function Changelog() {
           <p className="text-base lg:text-lg text-slate-400">Cronologia degli aggiornamenti, ottimizzazioni e nuove funzionalità di CentMeta.</p>
         </div>
 
-        {/* Blocco Versione v2.8.0 (NUOVA) */}
+        {/* Blocco Versione v3.0.0 (NUOVA) */}
         <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-700 z-10"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500 z-10"></div>
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-2">
-            <h2 className="text-2xl lg:text-3xl font-bold text-violet-400 flex items-center gap-3">
+            <h2 className="text-2xl lg:text-3xl font-bold text-emerald-400 flex items-center gap-3">
+              v3.0.0 - Architettura B-Tree, Decoupling Cache & Deep Linking
+            </h2>
+            <span className="text-sm lg:text-base bg-emerald-900/30 text-emerald-300 px-4 py-1.5 rounded-full font-bold w-fit border border-emerald-500/30">
+              19 Ottobre 2026
+            </span>
+          </div>
+          
+          <div className="space-y-10 lg:space-y-12">
+            
+            {/* Sezione Database & Query Performance */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-emerald-500 pl-4">
+                Prestazioni Database e Ricerca Indicizzata B-Tree
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-emerald-500 font-bold">•</span> <div><strong className="text-slate-200">Range Scan Diretto su B-Tree SQLite:</strong> Riscritte integralmente le interrogazioni temporali sul database, sostituendo la valutazione runtime <code>datetime(data_aggiornamento)</code> con filtri lessicografici ISO-8601 conformi (<code>strftime('%Y-%m-%dT%H:%M:%S', 'now', ...)</code>). L'ottimizzatore di SQLite passa così da una scansione lineare dell'intera tabella (<code>SCAN</code>) a una ricerca per intervallo B-Tree a tempo logaritmico (<code>SEARCH USING INDEX</code>), abbattendo drasticamente i tempi di esecuzione e l'occupazione CPU sul server.</div></li>
+                <li className="flex gap-3"><span className="text-emerald-500 font-bold">•</span> <div><strong className="text-slate-200">Copertura Completa Indici:</strong> Verificata e consolidata la topologia degli indici sulle tabelle <code>decks</code> e <code>deck_cards</code>, garantendo tempi di aggregazione sub-millisecondo e scalabilità architetturale a prova di futuro con l'aumentare dei mazzi archiviati.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Cache & Memoria */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-teal-500 pl-4">
+                Architettura Cache e Gestione Memoria (Decoupled Pagination)
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-teal-500 font-bold">•</span> <div><strong className="text-slate-200">Disaccoppiamento Cache dalla Paginazione:</strong> Riorganizzata la memorizzazione in memoria nell'endpoint delle statistiche mazzo. La cache memorizza ora l'aggregato completo per intervallo temporale e comandante; la paginazione (<code>offset</code> e <code>limit</code>) viene eseguita istantaneamente tramite slicing in memoria nello strato endpoint. Questo azzera i cache-miss quando l'utente naviga tra le pagine dei mazzi o cambia ordinamento, eliminando query ridondanti al database.</div></li>
+                <li className="flex gap-3"><span className="text-teal-500 font-bold">•</span> <div><strong className="text-slate-200">Pre-warming Deferito e Flessibile:</strong> Ottimizzata la procedura di preriscaldamento cache all'avvio dell'applicazione. Il warm-up viene avviato in background con un ritardo controllato per consentire al server FastAPI di aprire immediatamente le porte HTTP e accettare connessioni senza bloccare l'infrastruttura.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Deep Linking & UX */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-cyan-400 pl-4">
+                Navigazione, Deep Linking e Sincronizzazione Temporale
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Sincronizzazione Bidirezionale dell'Intervallo (<code>?periodo=</code>):</strong> L'intervallo temporale selezionato dall'utente è ora sincronizzato direttamente nei parametri dell'URL. Il filtro persiste con precisione al ricaricamento del browser (F5), alla navigazione nella cronologia e al clic sul pulsante "Riprova" in caso di disconnessioni di rete.</div></li>
+                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Deep Linking Comandanti Fuori Finestra:</strong> Risolta l'anomalia di condivisione dei link per comandanti presenti in archi temporali estesi (es. 3 o 6 mesi) ma privi di liste negli ultimi 30 giorni: condividendo l'URL, chi riceve il collegamento atterra direttamente sul periodo corretto senza visualizzare schermate con zero mazzi.</div></li>
+                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Disaccoppiamento Ordinamenti e Retrocompatibilità:</strong> Separati chiaramente i parametri URL per l'ordinamento dei comandanti (<code>csort</code>) e delle carte (<code>cardsort</code>), preservando piena retrocompatibilità con i link precedentemente condivisi.</div></li>
+                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Empty State Interattivo Integrato:</strong> Sviluppato un componente unificato per le ricerche senza risultati con contatore di clic, citazioni a rotazione di Fblthp e pulsante di ripristino rapido dei filtri con icone SVG native tramite <code>lucide-react</code>.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Hardening, Backup & Toolchain */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-indigo-400 pl-4">
+                Hardening Sicurezza, Backup Preventivo & Toolchain
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Protezione Amministrativa con Header Segreto:</strong> Blindato l'endpoint di rimozione mazzi (<code>/api/admin/remove-deck</code>), migrando la chiave di sicurezza dall'URL all'header HTTP <code>X-Admin-Secret</code>, occultando l'endpoint dalla documentazione OpenAPI pubblica e mascherando i messaggi di errore interni.</div></li>
+                <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Backup Preventivo Snapshot pre-scrittura:</strong> Introdotta nello scraper notturno la generazione di una copia snapshot (<code>centurion.db.bak</code>) tramite <code>sqlite3.backup()</code> prima dell'avvio della transazione di aggiornamento/rimozione, garantendo un punto di ripristino coerente in caso di anomalie di sistema.</div></li>
+                <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Resilienza Metadati Scryfall (Fail-Safe):</strong> Integrata una politica di tolleranza ai guasti: rallentamenti o rate limit transitori verso le API Scryfall non provocano più l'esclusione accidentale dei comandanti censiti dal catalogo.</div></li>
+                <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Modernizzazione Toolchain TypeScript:</strong> Aggiornata la risoluzione dei moduli in <code>tsconfig.json</code> a <code>moduleResolution: "bundler"</code>, eliminando gli avvisi di deprecazione e garantendo piena compatibilità con TypeScript 6 e 7.</div></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Blocco Versione v2.8.0 */}
+        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16 opacity-90 hover:opacity-100 transition-opacity">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-700 z-10"></div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-400 flex items-center gap-3 group-hover:text-violet-400 transition-colors">
               v2.8.0 - Concorrenza Database & Resilienza Scraper
             </h2>
-            <span className="text-sm lg:text-base bg-violet-900/30 text-violet-300 px-4 py-1.5 rounded-full font-bold w-fit border border-violet-500/30">
+            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
               09 Ottobre 2026
             </span>
           </div>
@@ -52,34 +118,34 @@ export default function Changelog() {
             
             {/* Sezione Concorrenza SQLite */}
             <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-violet-500 pl-4">
+              <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
                 Concorrenza e Zero Downtime
               </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
-                <li className="flex gap-3"><span className="text-violet-500 font-bold">•</span> <div><strong className="text-slate-200">Abilitazione WAL Mode (Write-Ahead Logging):</strong> Il database SQLite è stato migrato al protocollo WAL. Questa architettura consente ora l'accesso simultaneo di infiniti lettori mentre lo scraper notturno esegue operazioni di scrittura, eliminando i colli di bottiglia e garantendo zero tempi di inattività (downtime) durante l'allineamento dei dati.</div></li>
-                <li className="flex gap-3"><span className="text-violet-500 font-bold">•</span> <div><strong className="text-slate-200">Risoluzione Timestamp:</strong> Affinata l'estrazione dell'orario di ultimo aggiornamento esposto nella dashboard di monitoraggio, integrando la lettura del file temporaneo WAL per restituire un riscontro temporale sempre sincronizzato al secondo.</div></li>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Abilitazione WAL Mode (Write-Ahead Logging):</strong> Il database SQLite è stato migrato al protocollo WAL. Questa architettura consente ora l'accesso simultaneo di infiniti lettori mentre lo scraper notturno esegue operazioni di scrittura, eliminando i colli di bottiglia e garantendo zero tempi di inattività (downtime) durante l'allineamento dei dati.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Risoluzione Timestamp:</strong> Affinata l'estrazione dell'orario di ultimo aggiornamento esposto nella dashboard di monitoraggio, integrando la lettura del file temporaneo WAL per restituire un riscontro temporale sempre sincronizzato al secondo.</div></li>
               </ul>
             </div>
 
             {/* Sezione Resilienza Scraper */}
             <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-fuchsia-500 pl-4">
+              <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
                 Resilienza dell'Estrattore Dati
               </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
-                <li className="flex gap-3"><span className="text-fuchsia-500 font-bold">•</span> <div><strong className="text-slate-200">Prevenzione da Eliminazioni Massive:</strong> Introdotto un rigoroso meccanismo di salvaguardia (safety check). Qualora l'API di Moxfield restituisse anomalie o timeout estesi durante la paginazione, il sistema preserverà l'integrità del database locale, interrompendo la sincronizzazione e impedendo l'eliminazione accidentale dei mazzi.</div></li>
-                <li className="flex gap-3"><span className="text-fuchsia-500 font-bold">•</span> <div><strong className="text-slate-200">Ottimizzazione Dry-Run:</strong> L'ambiente di test isolato (dry-run) è stato blindato. È ora possibile avviare simulazioni di allineamento e leggere file JSON storici senza alcun rischio di alterare le tabelle SQL in produzione.</div></li>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Prevenzione da Eliminazioni Massive:</strong> Introdotto un rigoroso meccanismo di salvaguardia (safety check). Qualora l'API di Moxfield restituisse anomalie o timeout estesi durante la paginazione, il sistema preserverà l'integrità del database locale, interrompendo la sincronizzazione e impedendo l'eliminazione accidentale dei mazzi.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Ottimizzazione Dry-Run:</strong> L'ambiente di test isolato (dry-run) è stato blindato. È ora possibile avviare simulazioni di allineamento e leggere file JSON storici senza alcun rischio di alterare le tabelle SQL in produzione.</div></li>
               </ul>
             </div>
 
             {/* Sezione Thread Safety */}
             <div>
-              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-cyan-400 pl-4">
+              <h3 className="text-lg lg:text-xl font-bold text-slate-300 mb-5 border-l-4 border-slate-600 pl-4">
                 Sicurezza in Memoria e Thread-Safety
               </h3>
-              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
-                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Cache Scryfall Isolato:</strong> Ristrutturata l'architettura di scrittura dei file temporanei sfruttando il PID (Process ID) e il Thread ID univoci. Due thread concorrenti non potranno mai più sovrascrivere lo stesso blocco JSON in memoria, azzerando le probabilità di corruzione dei dati.</div></li>
-                <li className="flex gap-3"><span className="text-cyan-400 font-bold">•</span> <div><strong className="text-slate-200">Negative Cache Dinamica:</strong> Rivista la logica di memorizzazione temporanea delle carte mancanti. Un errore transitorio (timeout o 429) dai server di Scryfall non causerà più l'occultamento di una carta per 24 ore: l'API riproverà in modo proattivo al caricamento successivo.</div></li>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-400 leading-relaxed">
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Cache Scryfall Isolato:</strong> Ristrutturata l'architettura di scrittura dei file temporanei sfruttando il PID (Process ID) e il Thread ID univoci. Due thread concorrenti non potranno mai più sovrascrivere lo stesso blocco JSON in memoria, azzerando le probabilità di corruzione dei dati.</div></li>
+                <li className="flex gap-3"><span className="text-slate-500 font-bold">•</span> <div><strong className="text-slate-300">Negative Cache Dinamica:</strong> Rivista la logica di memorizzazione temporanea delle carte mancanti. Un errore transitorio (timeout o 429) dai server di Scryfall non causerà più l'occultamento di una carta per 24 ore: l'API riproverà in modo proattivo al caricamento successivo.</div></li>
               </ul>
             </div>
 

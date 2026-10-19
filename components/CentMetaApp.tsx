@@ -10,7 +10,7 @@ import TrendIndicator from './TrendIndicator';
 import Carousel from './Carousel';
 import HeroSection from './HeroSection';
 import { handleNav } from '../utils/navigation';
-import { RefreshCw, ArrowRight, ArrowLeft, ArrowDown, ChevronUp, ChevronDown, Search, HelpCircle } from 'lucide-react'; 
+import { RefreshCw, ArrowRight, ArrowLeft, ArrowDown, ChevronUp, ChevronDown, Search, HelpCircle, RotateCcw, Sparkles } from 'lucide-react'; 
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -25,6 +25,108 @@ async function fetchJson(url: string): Promise<any> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+export const CATEGORY_INFO: Record<string, { icon: string; dotColor: string }> = {
+  Creature: { icon: 'ms-creature', dotColor: 'text-emerald-500' },
+  Istantanei: { icon: 'ms-instant', dotColor: 'text-blue-500' },
+  Stregonerie: { icon: 'ms-sorcery', dotColor: 'text-red-500' },
+  Artefatti: { icon: 'ms-artifact', dotColor: 'text-slate-400' },
+  Incantesimi: { icon: 'ms-enchantment', dotColor: 'text-purple-500' },
+  Planeswalker: { icon: 'ms-planeswalker', dotColor: 'text-pink-500' },
+  Terre: { icon: 'ms-land', dotColor: 'text-yellow-600' }
+};
+
+export function matchesColorIdentity(colorsArray: string[], activeColors: string[]): boolean {
+  if (!activeColors || activeColors.length === 0) return true;
+  
+  const colors = colorsArray || [];
+  const isC = colors.length === 0;
+  const isM = colors.length > 1;
+  const baseColors = activeColors.filter(a => a !== 'C' && a !== 'M');
+  
+  if (baseColors.length === 0) {
+    return (activeColors.includes('C') && isC) || (activeColors.includes('M') && isM);
+  }
+  
+  const hasAllSelected = baseColors.every(col => colors.includes(col));
+  const hasNoExtraColors = colors.every(col => baseColors.includes(col));
+  
+  let isMatch = hasAllSelected && hasNoExtraColors;
+  if (activeColors.includes('M') && isM && hasAllSelected) {
+    isMatch = true;
+  }
+  if (activeColors.includes('C') && isC) {
+    isMatch = true;
+  }
+  return isMatch;
+}
+
+export function EmptyState({ message, onResetFilters }: { message: string; onResetFilters?: () => void }) {
+  const [clickCount, setClickCount] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const quotes = [
+    "Fblthp si è perso di nuovo... e anche la tua ricerca.",
+    "«Totally Lost!» — Ha preso la svolta sbagliata nel Dedalo Implicito.",
+    "«Non era questa la strada per Ravnica...»",
+    "«Aiuto, c'è troppa gente qui intorno!»",
+    "«Ha sempre odiato la folla. E i filtri di ricerca.»",
+    "«Se mi trovi, peschi due carte!»"
+  ];
+
+  const handleFblthpClick = () => {
+    setIsAnimating(true);
+    setClickCount((prev) => prev + 1);
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
+  const isFound = clickCount >= 5;
+  const currentQuote = isFound 
+    ? "Incredibile! Hai aiutato Fblthp a ritrovare la strada nel meta!" 
+    : quotes[clickCount % quotes.length];
+
+  return (
+    <div className="py-16 text-center text-slate-500 flex flex-col items-center animate-fade-in select-none">
+      <div className="relative group cursor-pointer inline-block" onClick={handleFblthpClick} title="Clicca su Fblthp!">
+        <img 
+          src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop" 
+          alt="Fblthp, the Lost" 
+          className={`w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-xl mb-4 transition-all duration-500 hover:border-blue-500 hover:scale-110 active:scale-95 ${
+            isAnimating ? 'rotate-[360deg] scale-125 ring-4 ring-blue-400' : 'hover:rotate-6'
+          } ${isFound ? 'border-emerald-500 shadow-emerald-500/20' : ''}`} 
+        />
+        {clickCount > 0 && (
+          <span className={`absolute -top-1 -right-1 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border shadow animate-pulse ${
+            isFound ? 'bg-emerald-600 border-emerald-400' : 'bg-blue-600 border-blue-400'
+          }`}>
+            +{clickCount}
+          </span>
+        )}
+      </div>
+      
+      <p className={`font-bold text-sm sm:text-base max-w-md transition-all duration-300 flex items-center justify-center gap-1.5 ${isFound ? 'text-emerald-400' : 'text-slate-200'}`}>
+        {isFound && <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />}
+        <span>{currentQuote}</span>
+        {isFound && <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />}
+      </p>
+      <p className="text-xs sm:text-sm mt-1.5 text-slate-500">{message}</p>
+      
+      {onResetFilters && (
+        <button 
+          onClick={onResetFilters}
+          className={`mt-4 inline-flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-full transition-all duration-300 shadow-sm ${
+            isFound 
+              ? 'bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 hover:text-white border border-emerald-500/40 animate-bounce' 
+              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700'
+          }`}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Azzera filtri di ricerca</span>
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { initialCommander?: string }) {
@@ -81,12 +183,23 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
       cmdFromUrl = decodeURIComponent(pathname.split('/')[2]);
     }
 
+    const timeParam = params.get('periodo') || params.get('time');
+    const validPeriods = ["Ultimi 7 giorni", "Ultimi 30 giorni", "Ultimi 3 mesi", "Ultimi 6 mesi", "Ultimo anno", "Tutti i tempi"];
+    if (timeParam && validPeriods.includes(timeParam)) {
+      setFiltroTempo(timeParam);
+    }
+
     setSelectedCardDetail(params.get('card') || null);
     setSelectedCommander(cmdFromUrl || initialCommander || 'Tutti i mazzi');
-    setHomeMode((params.get('view') as any) || 'dashboard');
+    const viewMode = (params.get('view') as any) || 'dashboard';
+    setHomeMode(viewMode);
     setActiveTab(params.get('tab') || 'Top Cards');
-    setCommanderSort((params.get('csort') as any) || 'top');
-    setCardSort((params.get('csort') as any) || 'top');
+    
+    // Supporta sia 'cardsort' che il vecchio 'csort' con retrocompatibilità per vecchi bookmark
+    const cmdSortParam = (params.get('csort') as any) || 'top';
+    const cardSortParam = (params.get('cardsort') || (viewMode === 'cards' ? params.get('csort') : null) || 'top') as any;
+    setCommanderSort(cmdSortParam);
+    setCardSort(cardSortParam);
     
     setIsInitialized(true);
   }, [initialCommander]);
@@ -110,11 +223,12 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     if (!isInitialized) return;
 
     const params = new URLSearchParams();
+    if (filtroTempo !== 'Ultimi 30 giorni') params.set('periodo', filtroTempo);
     if (selectedCardDetail) params.set('card', selectedCardDetail);
     if (homeMode !== 'dashboard' && selectedCommander === 'Tutti i mazzi') params.set('view', homeMode);
     if (activeTab !== 'Top Cards') params.set('tab', activeTab);
     if (commanderSort !== 'top' && homeMode === 'commanders') params.set('csort', commanderSort);
-    if (cardSort !== 'top' && (homeMode === 'cards' || selectedCommander !== 'Tutti i mazzi')) params.set('csort', cardSort);
+    if (cardSort !== 'top' && (homeMode === 'cards' || selectedCommander !== 'Tutti i mazzi')) params.set('cardsort', cardSort);
     
     let basePath = '/';
     if (selectedCommander !== 'Tutti i mazzi') {
@@ -138,7 +252,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     } else {
       isInitialUrlCorrected.current = true;
     }
-  }, [selectedCommander, selectedCardDetail, homeMode, activeTab, commanderSort, cardSort, isInitialized]);
+  }, [selectedCommander, selectedCardDetail, homeMode, activeTab, commanderSort, cardSort, filtroTempo, isInitialized]);
 
   useEffect(() => {
     if (selectedCommander !== 'Tutti i mazzi') {
@@ -321,30 +435,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
     }
     
     if (activeColors.length > 0) {
-      filtered = filtered.filter(c => {
-        const colorsArray = c.color_identity || [];
-        const isC = colorsArray.length === 0;
-        const isM = colorsArray.length > 1;
-        const baseColors = activeColors.filter(a => a !== 'C' && a !== 'M');
-        
-        if (baseColors.length === 0) {
-            return (activeColors.includes('C') && isC) || (activeColors.includes('M') && isM);
-        }
-        
-        const hasAllSelected = baseColors.every(col => colorsArray.includes(col));
-        const hasNoExtraColors = colorsArray.every(col => baseColors.includes(col));
-        
-        let isMatch = hasAllSelected && hasNoExtraColors;
-        
-        if (activeColors.includes('M') && isM && hasAllSelected) {
-            isMatch = true; 
-        }
-        if (activeColors.includes('C') && isC) {
-            isMatch = true; 
-        }
-        
-        return isMatch;
-      });
+      filtered = filtered.filter(c => matchesColorIdentity(c.color_identity, activeColors));
     }
     return filtered;
   };
@@ -380,27 +471,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
   if (activeColors.length > 0 && homeMode === 'commanders') {
     listToRender = listToRender.filter((c: any) => {
       const colorsArray = c.color_identity || c.colors || [];
-      const isC = colorsArray.length === 0;
-      const isM = colorsArray.length > 1;
-      const baseColors = activeColors.filter(a => a !== 'C' && a !== 'M');
-      
-      if (baseColors.length === 0) {
-          return (activeColors.includes('C') && isC) || (activeColors.includes('M') && isM);
-      }
-      
-      const hasAllSelected = baseColors.every(col => colorsArray.includes(col));
-      const hasNoExtraColors = colorsArray.every(col => baseColors.includes(col));
-      
-      let isMatch = hasAllSelected && hasNoExtraColors;
-      
-      if (activeColors.includes('M') && isM && hasAllSelected) {
-          isMatch = true;
-      }
-      if (activeColors.includes('C') && isC) {
-          isMatch = true;
-      }
-      
-      return isMatch;
+      return matchesColorIdentity(colorsArray, activeColors);
     });
   }
 
@@ -569,11 +640,13 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                       </div>
 
                       {listToRender.length === 0 ? (
-                        <div className="py-12 text-center text-slate-500 flex flex-col items-center animate-fade-in">
-                          <img src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop" alt="Fblthp" className="w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-lg mb-4 opacity-80 hover:opacity-100 transition-all duration-300 hover:rotate-3" />
-                          <p className="text-slate-300 font-bold">Fblthp si è perso di nuovo... e anche la tua ricerca.</p>
-                          <p className="text-sm mt-1 text-slate-500">Nessun comandante trovato con questi filtri.</p>
-                        </div>
+                        <EmptyState 
+                          message="Nessun comandante trovato con questi filtri." 
+                          onResetFilters={() => {
+                            setCommanderSearch('');
+                            setActiveColors([]);
+                          }}
+                        />
                       ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-y-10 gap-x-6">
                           {listToRender.slice(0, visibleCount).map((cmd: any) => {
@@ -804,16 +877,8 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                                       return (countB as number) - (countA as number);
                                     }) 
                                     .map(([type, count]) => {
-                                      let dotColor = 'text-slate-500';
-                                      let iconClass = '';
-                                      
-                                      if (type === 'Creature') { dotColor = 'text-emerald-500'; iconClass = 'ms-creature'; }
-                                      if (type === 'Istantanei') { dotColor = 'text-blue-500'; iconClass = 'ms-instant'; }
-                                      if (type === 'Stregonerie') { dotColor = 'text-red-500'; iconClass = 'ms-sorcery'; }
-                                      if (type === 'Artefatti') { dotColor = 'text-slate-400'; iconClass = 'ms-artifact'; }
-                                      if (type === 'Incantesimi') { dotColor = 'text-purple-500'; iconClass = 'ms-enchantment'; }
-                                      if (type === 'Planeswalker') { dotColor = 'text-pink-500'; iconClass = 'ms-planeswalker'; }
-                                      if (type === 'Terre') { dotColor = 'text-yellow-600'; iconClass = 'ms-land'; }
+                                      let dotColor = CATEGORY_INFO[type]?.dotColor || 'text-slate-500';
+                                      let iconClass = CATEGORY_INFO[type]?.icon || '';
 
                                       return (
                                         <div 
@@ -888,14 +953,7 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                       {activeTab !== 'Liste Mazzi' && (
                         <div className="flex gap-2 overflow-x-auto pb-1 w-full sm:w-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                           {categories.map((cat) => {
-                            let iconClass = '';
-                            if (cat === 'Creature') iconClass = 'ms-creature';
-                            if (cat === 'Istantanei') iconClass = 'ms-instant';
-                            if (cat === 'Stregonerie') iconClass = 'ms-sorcery';
-                            if (cat === 'Artefatti') iconClass = 'ms-artifact';
-                            if (cat === 'Incantesimi') iconClass = 'ms-enchantment';
-                            if (cat === 'Planeswalker') iconClass = 'ms-planeswalker';
-                            if (cat === 'Terre') iconClass = 'ms-land';
+                            const iconClass = CATEGORY_INFO[cat]?.icon || '';
 
                             return (
                               <div key={cat} className="relative group/tab flex items-center">
@@ -955,11 +1013,14 @@ export default function CentMetaApp({ initialCommander = 'Tutti i mazzi' }: { in
                   ) : (
                     <>
                       {visibleCardsData.length === 0 ? (
-                        <div className="py-20 text-center flex flex-col items-center animate-fade-in">
-                          <img src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop" alt="Fblthp" className="w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-lg mb-4 opacity-80 hover:opacity-100 transition-all duration-300 hover:rotate-3" />
-                          <p className="text-slate-300 font-bold">Fblthp si è perso di nuovo... e anche la tua ricerca.</p>
-                          <p className="text-sm mt-1 text-slate-500">Nessuna carta trovata con i filtri attuali.</p>
-                        </div>
+                        <EmptyState 
+                          message="Nessuna carta trovata con i filtri attuali." 
+                          onResetFilters={() => {
+                            setCardSearch('');
+                            setActiveColors([]);
+                            setActiveTab('Top Cards');
+                          }}
+                        />
                       ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-y-10 gap-x-6">
                           {visibleCardsData.slice(0, visibleCount).map((card: any, idx: number) => {
