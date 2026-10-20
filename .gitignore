@@ -8,7 +8,7 @@ build/
 
 # Variabili d'ambiente e chiavi segrete (per sicurezza)
 .env
-.env.*.local
+.env.local
 
 # Log di errore di npm
 npm-debug.log*

@@ -35,7 +35,68 @@ export default function Changelog() {
           <p className="text-base lg:text-lg text-slate-400">Cronologia degli aggiornamenti, ottimizzazioni e nuove funzionalità di CentMeta.</p>
         </div>
 
-        {/* Blocco Versione v3.0.0 (NUOVA) */}
+        {/* Blocco Versione v3.1.0 (ATTUALE) */}
+        <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 z-10"></div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-2">
+            <h2 className="text-2xl lg:text-3xl font-bold text-blue-400 flex items-center gap-3">
+              v3.1.0 - Drag & Drop Moxfield, Architettura a Componenti & Micro-Interazioni
+            </h2>
+            <span className="text-sm lg:text-base bg-blue-900/30 text-blue-300 px-4 py-1.5 rounded-full font-bold w-fit border border-blue-500/30">
+              20 Ottobre 2026
+            </span>
+          </div>
+          
+          <div className="space-y-10 lg:space-y-12">
+            
+            {/* Sezione Moxfield Drag & Drop */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-blue-500 pl-4">
+                Integrazione Nativa Drag & Drop verso Moxfield Deckbuilder
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-blue-500 font-bold">•</span> <div><strong className="text-slate-200">Deckbuilding Diretto tra Schede:</strong> Implementato il supporto nativo HTML5 Drag & Drop su tutte le carte e comandanti del portale. Trascinando un'immagine da CentMeta a una scheda aperta del deckbuilder di Moxfield, la carta viene istantaneamente inserita nella lista del mazzo senza doverne digitare il nome o copiarla manualmente.</div></li>
+                <li className="flex gap-3"><span className="text-blue-500 font-bold">•</span> <div><strong className="text-slate-200">Supporto Completo Partner e Bifronte:</strong> Gestione intelligente delle carte speciali: per i comandanti con meccanica Partner è possibile trascinare singolarmente ciascuna delle due carte, mentre per le carte trasformabili (DDFC) il trascinamento conserva il nome primario canonico riconosciuto da Moxfield.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione UX & Micro-Interazioni */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-indigo-500 pl-4">
+                Esperienza Utente & Micro-Banner Guida Deckbuilding
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-indigo-500 font-bold">•</span> <div><strong className="text-slate-200">Micro-Banner Informativo Contestuale:</strong> Introdotto un micro-banner discreto ed elegante in testa alle griglie carte e comandanti che segnala la possibilità di trascinare gli elementi direttamente su Moxfield, preservando al 100% la leggibilità visiva di immagini, nomi e costi di mana senza coperture accidentali al passaggio del cursore.</div></li>
+                <li className="flex gap-3"><span className="text-indigo-500 font-bold">•</span> <div><strong className="text-slate-200">Copertura Universale dell'Interfaccia:</strong> La funzione e i relativi suggerimenti visivi sono operativi in modo omogeneo nel Carosello della Dashboard, nella Griglia Comandanti, nel box Hero del Comandante, nella Griglia Carte e nella schermata Sinergie.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Refactoring Modulare */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-purple-500 pl-4">
+                Refactoring Modulare e Decoupling Componenti Frontend
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-purple-500 font-bold">•</span> <div><strong className="text-slate-200">Scomposizione Componenti Core:</strong> Scorporato il file monolitico <code>CentMetaApp.tsx</code> (ridotto da oltre 1100 a ~600 righe) in componenti specializzati e riutilizzabili (<code>CommandersGrid</code>, <code>CommanderOverview</code>, <code>CardsFilterBar</code>, <code>CardsGrid</code>, <code>EmptyState</code> e modulo utility <code>mtg.ts</code>).</div></li>
+                <li className="flex gap-3"><span className="text-purple-500 font-bold">•</span> <div><strong className="text-slate-200">Manutenibilità e Zero Regressioni:</strong> Mantenuta al 100% l'integrità di sincronizzazione dei parametri nell'URL (deep linking), la gestione dello stato globale e la navigazione client-side senza ricaricamento forzato.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Backend & Resilienza Connessioni */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-emerald-400 pl-4">
+                Resilienza Backend e Sanitizzazione Header Moxfield
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Sanitizzazione Header HTTP:</strong> Rafforzata la gestione dello User-Agent personalizzato per le richieste Moxfield nel modulo backend, garantendo l'eliminazione automatica di spazi bianchi o ritorni a capo involontari ed evitando allarmi nei log di connessione in produzione.</div></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Blocco Versione v3.0.0 */}
         <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500 z-10"></div>
           
