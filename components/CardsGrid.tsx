@@ -136,30 +136,56 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                           </div>
                         </>
                       ) : (
-                        <>
-                          <div className="text-[11px] text-blue-400 font-semibold">
-                            {card.Percentuale}%{" "}
+                        <div className="flex flex-col items-center">
+                          <div className="flex items-center justify-center gap-1 text-[11px]">
+                            <span
+                              className={`font-bold ${
+                                card.Percentuale >= 70
+                                  ? "text-blue-400"
+                                  : card.Percentuale >= 40
+                                  ? "text-cyan-400"
+                                  : "text-slate-300"
+                              }`}
+                            >
+                              {card.Percentuale}%
+                            </span>
                             <span className="text-slate-500 font-normal">
                               ({card.freq})
                             </span>
-                          </div>
-                          {(activeTab === "Top Sinergie" ||
-                            activeTab === "In Crescita") &&
-                            card.Sinergia > 0 && (
-                              <div className="group/syn relative flex items-center cursor-help">
-                                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">
-                                  +{card.Sinergia}%
-                                </span>
-                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
-                                  <strong className="text-emerald-400 block mb-1">
-                                    Valore Sinergia
-                                  </strong>
-                                  Indica quanto questa carta è giocata in più in
-                                  questo mazzo rispetto alla media globale.
+                            {(activeTab === "Top Sinergie" ||
+                              activeTab === "In Crescita") &&
+                              card.Sinergia > 0 && (
+                                <div className="group/syn relative flex items-center cursor-help ml-0.5">
+                                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded font-bold">
+                                    +{card.Sinergia}%
+                                  </span>
+                                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
+                                    <strong className="text-emerald-400 block mb-1">
+                                      Valore Sinergia
+                                    </strong>
+                                    Indica quanto questa carta è giocata in più in
+                                    questo mazzo rispetto alla media globale.
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                        </>
+                              )}
+                          </div>
+
+                          {/* Mini-Barra Compatta Centrata (lunghezza fissa 56px, sottile e discreta) */}
+                          <div className="w-14 bg-slate-800 rounded-full h-[2.5px] mt-1 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                card.Percentuale >= 70
+                                  ? "bg-blue-400"
+                                  : card.Percentuale >= 40
+                                  ? "bg-cyan-400"
+                                  : "bg-slate-500"
+                              }`}
+                              style={{
+                                width: `${Math.min(100, Math.max(8, card.Percentuale))}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -27,22 +27,31 @@ export default function Footer() {
         </div>
 
         {/* Link Utili */}
-        <div className="flex flex-wrap justify-center gap-4 pb-2">
+        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2.5 text-xs sm:text-sm font-semibold pb-2">
+          <a 
+            href="/about" 
+            className="text-slate-400 hover:text-blue-400 transition-colors"
+          >
+            Il Progetto
+          </a>
+          <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
           <a 
             href="/status" 
-            className="text-sm font-bold text-slate-300 hover:text-blue-400 transition-all bg-slate-900/50 border border-slate-800 hover:border-blue-900/50 px-6 py-2.5 rounded-xl shadow-sm"
+            className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Stato del Sistema
           </a>
+          <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
           <a 
             href="/changelog" 
-            className="text-sm font-bold text-slate-300 hover:text-blue-400 transition-all bg-slate-900/50 border border-slate-800 hover:border-blue-900/50 px-6 py-2.5 rounded-xl shadow-sm"
+            className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Changelog
           </a>
+          <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
           <a 
             href="/legal" 
-            className="text-sm font-bold text-slate-300 hover:text-blue-400 transition-all bg-slate-900/50 border border-slate-800 hover:border-blue-900/50 px-6 py-2.5 rounded-xl shadow-sm"
+            className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Privacy & Note Legali
           </a>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ExternalLink, ChevronDown, Trophy, Flame } from 'lucide-react';
+import { ExternalLink, ChevronDown, Trophy, Flame, Coffee } from 'lucide-react';
 
 interface HeaderProps {
   filtroTempo: string;
@@ -91,6 +91,17 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               <option value="Ultimo anno">Ultimo anno</option>
               <option value="Tutti i tempi">Tutti i tempi</option>
             </select>
+
+            <a 
+              href="https://ko-fi.com/centmeta" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              title="Supporta CentMeta su Ko-fi"
+              className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 hover:text-amber-400 px-2 sm:px-2.5 py-1.5 rounded-lg transition-colors border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-sm group h-[28px] md:h-[30px]"
+            >
+              <Coffee className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={2.5} />
+              <span className="hidden sm:inline text-[11px] md:text-xs font-bold">Supporta</span>
+            </a>
 
             <a 
               href="https://www.centurioncommander.eu/it/home-ita/" 

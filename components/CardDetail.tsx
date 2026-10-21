@@ -261,11 +261,38 @@ export default function CardDetail({
                           </span>
                           <span className="truncate">{cmd.comandante}</span>
                         </div>
-                        <div className="text-[11px] text-slate-400 font-medium mt-1">
-                          {cmd.Percentuale}%{" "}
-                          <span className="text-slate-500">
-                            ({cmd.mazzi_carta}/{cmd.totale_comandante})
-                          </span>
+                        <div className="flex flex-col items-center mt-1">
+                          <div className="text-[11px] flex items-center justify-center gap-1 font-medium">
+                            <span
+                              className={`font-bold ${
+                                cmd.Percentuale >= 70
+                                  ? "text-blue-400"
+                                  : cmd.Percentuale >= 40
+                                  ? "text-cyan-400"
+                                  : "text-slate-300"
+                              }`}
+                            >
+                              {cmd.Percentuale}%
+                            </span>
+                            <span className="text-slate-500">
+                              ({cmd.mazzi_carta}/{cmd.totale_comandante})
+                            </span>
+                          </div>
+                          {/* Mini-Barra Compatta Centrata */}
+                          <div className="w-14 bg-slate-800 rounded-full h-[2.5px] mt-1 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                cmd.Percentuale >= 70
+                                  ? "bg-blue-400"
+                                  : cmd.Percentuale >= 40
+                                  ? "bg-cyan-400"
+                                  : "bg-slate-500"
+                              }`}
+                              style={{
+                                width: `${Math.min(100, Math.max(8, cmd.Percentuale))}%`,
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </a>
@@ -400,11 +427,38 @@ export default function CardDetail({
                             >
                               {syn.card_name}
                             </div>
-                            <div className="text-[11px] text-blue-400 font-semibold mt-1">
-                              {syn.Percentuale}%{" "}
-                              <span className="text-slate-500 font-normal">
-                                ({syn.freq} mazzi)
-                              </span>
+                            <div className="flex flex-col items-center mt-1">
+                              <div className="text-[11px] flex items-center justify-center gap-1 font-semibold">
+                                <span
+                                  className={`font-bold ${
+                                    syn.Percentuale >= 70
+                                      ? "text-blue-400"
+                                      : syn.Percentuale >= 40
+                                      ? "text-cyan-400"
+                                      : "text-slate-300"
+                                  }`}
+                                >
+                                  {syn.Percentuale}%
+                                </span>
+                                <span className="text-slate-500 font-normal">
+                                  ({syn.freq} mazzi)
+                                </span>
+                              </div>
+                              {/* Mini-Barra Compatta Centrata */}
+                              <div className="w-14 bg-slate-800 rounded-full h-[2.5px] mt-1 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${
+                                    syn.Percentuale >= 70
+                                      ? "bg-blue-400"
+                                      : syn.Percentuale >= 40
+                                      ? "bg-cyan-400"
+                                      : "bg-slate-500"
+                                  }`}
+                                  style={{
+                                    width: `${Math.min(100, Math.max(8, syn.Percentuale))}%`,
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
                         </a>
