@@ -710,6 +710,12 @@ export default function CentMetaApp({
                       handleResetHome={handleResetHome}
                       commanderSort={commanderSort}
                       setCommanderSort={setCommanderSort}
+                      commanders={commanders}
+                      cards={statsData?.cards || []}
+                      onSelectCommander={handleSelectCommander}
+                      onSelectCard={handleSelectCard}
+                      setCardSearch={setCardSearch}
+                      setActiveTab={setActiveTab}
                     />
 
                     {homeMode === "dashboard" && (

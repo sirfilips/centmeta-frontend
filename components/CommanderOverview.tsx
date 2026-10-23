@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { CATEGORY_INFO } from "../utils/mtg";
@@ -10,6 +10,8 @@ import {
   ChevronDown,
   ArrowRight,
   ArrowLeft,
+  Share2,
+  Check,
 } from "lucide-react";
 
 interface CommanderOverviewProps {
@@ -55,6 +57,47 @@ export default function CommanderOverview({
 
   handleResetHome,
 }: CommanderOverviewProps) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/commander/${encodeURIComponent(selectedCommander)}`
+        : `https://centmeta.it/commander/${encodeURIComponent(selectedCommander)}`;
+
+    // Rileva se è un vero dispositivo mobile (smartphone/tablet)
+    const isMobile =
+      typeof navigator !== "undefined" &&
+      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ) ||
+        (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
+
+    // Su mobile apre la comoda condivisione nativa (WhatsApp, Telegram, ecc.)
+    if (isMobile && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${selectedCommander} | CentMeta`,
+          text: `Analisi, statistiche e migliori carte per ${selectedCommander} nel formato Centurion Commander`,
+          url: url,
+        });
+        return;
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+      }
+    }
+
+    // Su PC: copia rapida e silenziosa negli appunti senza finestre di sistema
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2500);
+      }
+    } catch (err) {
+      console.error("Impossibile copiare il link", err);
+    }
+  };
   return (
     <section
       className={`mb-8 md:mb-10 border border-slate-800 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-10 flex flex-col lg:flex-row items-center lg:items-start gap-5 md:gap-12 shadow-2xl relative overflow-hidden transition-all duration-500 ${loading ? "bg-slate-950/80" : "bg-slate-900/40 animate-fade-in"}`}
@@ -202,13 +245,38 @@ export default function CommanderOverview({
             <div className="absolute inset-0 bg-slate-950/70 md:bg-slate-950/50 backdrop-blur-sm"></div>
           </div>
           <div className="relative z-10 flex flex-col gap-2 md:gap-4 w-full">
-            <div className="text-center lg:text-left">
-              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-2.5 py-1 md:px-3 md:py-1 rounded-full border border-blue-900/50 shadow-inner">
-                Comandante Analizzato
-              </span>
-              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-white mt-3 md:mt-4 drop-shadow-md leading-tight">
-                {selectedCommander}
-              </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-center lg:text-left">
+              <div>
+                <span className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-2.5 py-1 md:px-3 md:py-1 rounded-full border border-blue-900/50 shadow-inner inline-block">
+                  Comandante Analizzato
+                </span>
+                <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-white mt-2 md:mt-3 drop-shadow-md leading-tight">
+                  {selectedCommander}
+                </h1>
+              </div>
+
+              {/* Tasto Condividi Comandante */}
+              <button
+                onClick={handleShare}
+                className={`self-center lg:self-start inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md border shrink-0 ${
+                  isCopied
+                    ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
+                    : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
+                }`}
+                title="Condividi questo comandante"
+              >
+                {isCopied ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                    <span>Link Copiato!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                    <span>Condividi</span>
+                  </>
+                )}
+              </button>
             </div>
             {selectedCmdObj?.oracles && selectedCmdObj.oracles.length > 0 && (
               <div className="flex flex-col gap-2 mt-2 md:mt-4">

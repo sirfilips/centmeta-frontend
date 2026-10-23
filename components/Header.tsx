@@ -52,7 +52,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
   };
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 py-2 md:py-3 px-3 md:px-8 shadow-md relative z-50">
+    <header className="bg-slate-900 border-b border-slate-800 py-2 md:py-3 px-3 md:px-8 shadow-md relative z-[100]">
       
       <div className="flex flex-wrap justify-between items-center lg:grid lg:grid-cols-3 gap-y-3 lg:gap-0">
         
@@ -144,7 +144,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                 Comandanti <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === 'commanders' ? 'rotate-180' : ''}`} />
               </button>
               
-              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top ${openDropdown === 'commanders' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'commanders' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
                   <a 
                     href="/?view=commanders&csort=top" 
@@ -176,7 +176,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                 Carte <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === 'cards' ? 'rotate-180' : ''}`} />
               </button>
               
-              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top ${openDropdown === 'cards' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
+              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'cards' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
                   <a 
                     href="/?view=cards&tab=Top+Cards&csort=top" 
