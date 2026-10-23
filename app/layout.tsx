@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import 'mana-font/css/mana.min.css';
 
@@ -43,6 +44,13 @@ export default function RootLayout({
     <html lang="it" className="h-full">
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-100" suppressHydrationWarning>
         {children}
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <Script
+            src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || "https://cloud.umami.is/script.js"}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

@@ -202,6 +202,19 @@ export default function HeroSection({
   }, [visibleCommanders, visibleCards]);
 
   const handleSelect = (item: { type: "commander" | "card"; data: any }) => {
+    const selectedName =
+      item.type === "commander"
+        ? item.data.comandante
+        : item.data.card_name || item.data.name;
+
+    if (typeof window !== "undefined" && (window as any).umami) {
+      try {
+        (window as any).umami.track("Ricerca", {
+          termine: selectedName,
+          tipo: item.type,
+        });
+      } catch {}
+    }
     setIsOpen(false);
     if (item.type === "commander") {
       const cmdName = item.data.comandante;

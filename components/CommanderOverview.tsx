@@ -258,6 +258,8 @@ export default function CommanderOverview({
               {/* Tasto Condividi Comandante */}
               <button
                 onClick={handleShare}
+                data-umami-event="Condividi Comandante"
+                data-umami-event-commander={selectedCommander}
                 className={`self-center lg:self-start inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md border shrink-0 ${
                   isCopied
                     ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"

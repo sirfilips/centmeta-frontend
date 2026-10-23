@@ -94,6 +94,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
 
             <a 
               href="https://ko-fi.com/centmeta" 
+              data-umami-event="Click Ko-fi Header" 
               target="_blank" 
               rel="noopener noreferrer"
               title="Supporta CentMeta su Ko-fi"
@@ -105,6 +106,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
 
             <a 
               href="https://www.centurioncommander.eu/it/home-ita/" 
+              data-umami-event="Click Sito Centurion" 
               target="_blank" 
               rel="noopener noreferrer"
               title="Sito Ufficiale Centurion"

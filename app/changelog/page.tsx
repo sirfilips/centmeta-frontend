@@ -35,15 +35,65 @@ export default function Changelog() {
           <p className="text-base lg:text-lg text-slate-400">Cronologia degli aggiornamenti, ottimizzazioni e nuove funzionalità di CentMeta.</p>
         </div>
 
-        {/* Blocco Versione v3.1.0 (ATTUALE) */}
+        {/* Blocco Versione v3.2.0 (ATTUALE) */}
         <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-4">
+            <h2 className="text-2xl lg:text-3xl font-bold text-blue-400 flex items-center gap-3 min-w-0">
+              v3.2.0 - Ricerca Unificata Hero, Condivisione Rapida & Statistiche Privacy-First
+            </h2>
+            <span className="text-sm lg:text-base bg-blue-900/30 text-blue-300 px-4 py-1.5 rounded-full font-bold w-fit border border-blue-500/30 shrink-0 whitespace-nowrap">
+              24 Ottobre 2026
+            </span>
+          </div>
+          
+          <div className="space-y-10 lg:space-y-12">
+            
+            {/* Sezione Ricerca Unificata Hero */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-blue-500 pl-4">
+                Ricerca Globale Intelligente nella Hero Section
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-blue-500 font-bold">•</span> <div><strong className="text-slate-200">Ricerca Unificata Comandanti e Carte:</strong> Integrato un motore di autocompletamento istantaneo direttamente nella Hero della homepage, che consente di accedere rapidamente sia a tutti i comandanti del meta che alle carte censite.</div></li>
+                <li className="flex gap-3"><span className="text-blue-500 font-bold">•</span> <div><strong className="text-slate-200">Navigazione da Tastiera & Filtri Rapidi:</strong> Selezione rapida dei risultati con frecce direzionali, Invio ed Escape, schede di filtro dedicate (Tutti, Comandanti, Carte), anteprime visive, identità di colore e pulsante di pulizia istantanea.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Condivisione Comandante */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-indigo-500 pl-4">
+                Condivisione Ottimizzata Comandante
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-indigo-500 font-bold">•</span> <div><strong className="text-slate-200">Condivisione Multi-Piattaforma Adattiva:</strong> Introdotto un pulsante di condivisione dedicato nella panoramica del comandante che attiva il foglio di condivisione nativo su mobile (Web Share API) e copia silenziosamente il link diretto negli appunti su desktop con feedback visivo.</div></li>
+              </ul>
+            </div>
+
+            {/* Sezione Analitiche Privacy-First e Z-Index */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-purple-500 pl-4">
+                Metriche Privacy-First & Raffinamento Interfaccia
+              </h3>
+              <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+                <li className="flex gap-3"><span className="text-purple-500 font-bold">•</span> <div><strong className="text-slate-200">Statistiche Senza Cookie (Umami Analytics):</strong> Integrato il tracciamento aggregato e anonimo delle visite e dei trend di ricerca tramite Umami, soluzione 100% esente da cookie e conforme al GDPR (nessuna memorizzazione di indirizzi IP o dati personali).</div></li>
+                <li className="flex gap-3"><span className="text-purple-500 font-bold">•</span> <div><strong className="text-slate-200">Perfezionamento Gerarchia Z-Index:</strong> Risolti i conflitti di sovrapposizione tra la barra di navigazione superiore, i menu a tendina e i caroselli della homepage, garantendo la stratificazione corretta di tutti gli elementi grafici.</div></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Blocco Versione v3.1.0 */}
+        <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 z-10"></div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-blue-400 flex items-center gap-3">
               v3.1.0 - Drag & Drop Moxfield, Architettura a Componenti & Micro-Interazioni
             </h2>
-            <span className="text-sm lg:text-base bg-blue-900/30 text-blue-300 px-4 py-1.5 rounded-full font-bold w-fit border border-blue-500/30">
+            <span className="text-sm lg:text-base bg-blue-900/30 text-blue-300 px-4 py-1.5 rounded-full font-bold w-fit border border-blue-500/30 shrink-0 whitespace-nowrap">
               20 Ottobre 2026
             </span>
           </div>
@@ -100,11 +150,11 @@ export default function Changelog() {
         <div className="bg-slate-900/50 border border-slate-700/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-6 gap-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-emerald-400 flex items-center gap-3">
               v3.0.0 - Architettura B-Tree, Decoupling Cache & Deep Linking
             </h2>
-            <span className="text-sm lg:text-base bg-emerald-900/30 text-emerald-300 px-4 py-1.5 rounded-full font-bold w-fit border border-emerald-500/30">
+            <span className="text-sm lg:text-base bg-emerald-900/30 text-emerald-300 px-4 py-1.5 rounded-full font-bold w-fit border border-emerald-500/30 shrink-0 whitespace-nowrap">
               19 Ottobre 2026
             </span>
           </div>
@@ -166,11 +216,11 @@ export default function Changelog() {
         <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16 opacity-90 hover:opacity-100 transition-opacity">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-700 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-slate-400 flex items-center gap-3 group-hover:text-violet-400 transition-colors">
               v2.8.0 - Concorrenza Database & Resilienza Scraper
             </h2>
-            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
+            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800 shrink-0 whitespace-nowrap">
               09 Ottobre 2026
             </span>
           </div>
@@ -217,11 +267,11 @@ export default function Changelog() {
         <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16 opacity-90 hover:opacity-100 transition-opacity">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-rose-700 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-slate-400 flex items-center gap-3 group-hover:text-red-400 transition-colors">
               v2.7.0 - Monitoraggio Servizi, GDPR Oblio & Fix UX
             </h2>
-            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
+            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800 shrink-0 whitespace-nowrap">
               04 Ottobre 2026
             </span>
           </div>
@@ -267,11 +317,11 @@ export default function Changelog() {
         <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden mb-12 space-y-12 lg:space-y-16 opacity-90 hover:opacity-100 transition-opacity">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-600 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-slate-400 flex items-center gap-3 group-hover:text-amber-400 transition-colors">
               v2.6.0 - Filtri Avanzati, Mana Font & Navigazione
             </h2>
-            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
+            <span className="text-sm lg:text-base bg-slate-900/50 text-slate-400 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800 shrink-0 whitespace-nowrap">
               27 Settembre 2026
             </span>
           </div>
@@ -317,11 +367,11 @@ export default function Changelog() {
         <div className="bg-slate-900/20 border border-slate-800/60 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-lg relative isolate overflow-hidden opacity-75 hover:opacity-100 transition-opacity mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-600 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-slate-500 flex items-center gap-3 group-hover:text-emerald-400 transition-colors">
               v2.5.0 - Official Moxfield API, Privacy & Backend Hardening
             </h2>
-            <span className="text-xs lg:text-sm bg-slate-900/50 text-slate-500 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
+            <span className="text-xs lg:text-sm bg-slate-900/50 text-slate-500 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800 shrink-0 whitespace-nowrap">
               23 Settembre 2026
             </span>
           </div>
@@ -367,11 +417,11 @@ export default function Changelog() {
         <div className="bg-slate-900/10 border border-slate-800/40 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-sm relative isolate overflow-hidden opacity-50 hover:opacity-100 transition-opacity mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-600 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-6 gap-4">
             <h2 className="text-xl lg:text-2xl font-bold text-slate-600 flex items-center gap-3 group-hover:text-blue-400 transition-colors">
               v2.0.1 - Quality of Life, Desktop UI e Fix Visivi
             </h2>
-            <span className="text-xs lg:text-sm bg-slate-900/50 text-slate-600 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800">
+            <span className="text-xs lg:text-sm bg-slate-900/50 text-slate-600 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800 shrink-0 whitespace-nowrap">
               21 Settembre 2026
             </span>
           </div>
@@ -396,11 +446,11 @@ export default function Changelog() {
         <div className="bg-slate-900/5 border border-slate-800/20 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-none relative isolate overflow-hidden opacity-40 hover:opacity-100 transition-opacity mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-600 to-slate-800 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/50 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/50 pb-6 gap-4">
             <h2 className="text-lg lg:text-xl font-bold text-slate-600 flex items-center gap-3">
               v2.0.0 - Architettura Dinamica, SEO e Social
             </h2>
-            <span className="text-xs bg-slate-900/30 text-slate-600 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800/50">
+            <span className="text-xs bg-slate-900/30 text-slate-600 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800/50 shrink-0 whitespace-nowrap">
               16 Settembre 2026
             </span>
           </div>
@@ -424,11 +474,11 @@ export default function Changelog() {
         <div className="bg-slate-900/5 border border-slate-800/20 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-none relative isolate overflow-hidden opacity-30 hover:opacity-100 transition-opacity mb-12 space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-600 to-slate-800 z-10"></div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/50 pb-6 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/50 pb-6 gap-4">
             <h2 className="text-lg lg:text-xl font-bold text-slate-600 flex items-center gap-3">
               v1.5.1 - Ottimizzazione Analitica e Revisione UX
             </h2>
-            <span className="text-xs bg-slate-900/30 text-slate-600 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800/50">
+            <span className="text-xs bg-slate-900/30 text-slate-600 px-4 py-1.5 rounded-full font-medium w-fit border border-slate-800/50 shrink-0 whitespace-nowrap">
               14 Settembre 2026
             </span>
           </div>

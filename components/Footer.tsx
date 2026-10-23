@@ -17,6 +17,7 @@ export default function Footer() {
           </div>
           <a
             href="https://ko-fi.com/centmeta"
+            data-umami-event="Click Ko-fi Footer"
             target="_blank"
             rel="noopener noreferrer"
             className="flex-shrink-0 flex items-center justify-center gap-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-amber-500/10 whitespace-nowrap"

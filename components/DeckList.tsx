@@ -40,6 +40,7 @@ export default function DeckList({ loadingDecks, commanderDecks, copiedDeck, set
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <button 
+                data-umami-event="Copia Link Mazzo" 
                 onClick={() => { 
                   navigator.clipboard.writeText(deck.url); 
                   setCopiedDeck(deck.id_moxfield); 
@@ -49,7 +50,7 @@ export default function DeckList({ loadingDecks, commanderDecks, copiedDeck, set
               >
                 {copiedDeck === deck.id_moxfield ? <>Copiato! <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2.5} /></> : 'Copia Link'}
               </button>
-              <a href={deck.url} target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex-1 sm:flex-none text-center flex items-center justify-center gap-1.5">
+              <a href={deck.url} data-umami-event="Apri Moxfield" target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex-1 sm:flex-none text-center flex items-center justify-center gap-1.5">
                 Apri <ExternalLink className="w-3.5 h-3.5 opacity-90" strokeWidth={2.5} />
               </a>
             </div>

@@ -35,6 +35,7 @@ export default function EmptyState({
       <div
         className="relative group cursor-pointer inline-block"
         onClick={handleFblthpClick}
+        data-umami-event="Click Fblthp Easter Egg"
         title="Clicca su Fblthp!"
       >
         <img
