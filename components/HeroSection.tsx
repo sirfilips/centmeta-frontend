@@ -252,8 +252,14 @@ export default function HeroSection({
       if (e.key === "Enter" && query.trim()) {
         e.preventDefault();
         setIsOpen(false);
-        setCommanderSearch(query.trim());
-        setHomeMode("commanders");
+        if (searchTab === "cards" && setCardSearch) {
+          setCardSearch(query.trim());
+          if (setActiveTab) setActiveTab("Top Cards");
+          setHomeMode("cards");
+        } else {
+          setCommanderSearch(query.trim());
+          setHomeMode("commanders");
+        }
       }
       return;
     }
@@ -270,6 +276,11 @@ export default function HeroSection({
         handleSelect(flatItems[highlightedIndex]);
       } else if (flatItems.length > 0) {
         handleSelect(flatItems[0]);
+      } else if (searchTab === "cards" && setCardSearch) {
+        setIsOpen(false);
+        setCardSearch(query.trim());
+        if (setActiveTab) setActiveTab("Top Cards");
+        setHomeMode("cards");
       } else {
         setIsOpen(false);
         setCommanderSearch(query.trim());

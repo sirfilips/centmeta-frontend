@@ -129,7 +129,7 @@ export default function CardsFilterBar({
                   {(cat === "In Crescita" || cat === "Top Sinergie") && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden sm:group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
                       {cat === "In Crescita"
-                        ? "Carte con il maggiore incremento globale di utilizzo negli ultimi 7 giorni."
+                        ? "Carte con il maggiore incremento percentuale di utilizzo nel periodo selezionato rispetto alla media storica globale."
                         : "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
                     </div>
                   )}

@@ -3,8 +3,8 @@ import Image from 'next/image';
 import { ExternalLink, ChevronDown, Trophy, Flame, Coffee } from 'lucide-react';
 
 interface HeaderProps {
-  filtroTempo: string;
-  setFiltroTempo: (val: string) => void;
+  filtroTempo?: string;
+  setFiltroTempo?: (val: string) => void;
   onReset: () => void;
   totalDecks?: number;
   lastUpdated?: string | null;
@@ -33,8 +33,8 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
 
   // Funzione helper per gestire il click sui link supportando il middle-click nativo
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, mode: 'commanders' | 'cards', sort: 'top' | 'hot') => {
-    // Se è un middle-click (button === 1) o un click con modificatori (Ctrl/Cmd), lascia fare al browser
-    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    // Se non c'è onNavigate (es. pagina /status), o è un middle-click / click con modificatori, lascia fare al browser
+    if (!onNavigate || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
     
     // Altrimenti (click sinistro normale) usa la navigazione veloce SPA
     e.preventDefault();
@@ -50,6 +50,11 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
   const toggleDropdown = (menu: 'commanders' | 'cards') => {
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
+
+  const periodParam =
+    filtroTempo && filtroTempo !== 'Ultimi 30 giorni'
+      ? `&periodo=${encodeURIComponent(filtroTempo)}`
+      : '';
 
   return (
     <header className="bg-slate-900 border-b border-slate-800 py-2 md:py-3 px-3 md:px-8 shadow-md relative z-[100]">
@@ -79,18 +84,20 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
         <div className="flex flex-col items-end lg:col-start-3">
           
           <div className="flex flex-row items-center justify-end gap-1.5 md:gap-2">
-            <select
-              value={filtroTempo}
-              onChange={(e) => setFiltroTempo(e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[120px] sm:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
-            >
-              <option value="Ultimi 7 giorni">7 giorni</option>
-              <option value="Ultimi 30 giorni">30 giorni</option>
-              <option value="Ultimi 3 mesi">3 mesi</option>
-              <option value="Ultimi 6 mesi">6 mesi</option>
-              <option value="Ultimo anno">Ultimo anno</option>
-              <option value="Tutti i tempi">Tutti i tempi</option>
-            </select>
+            {filtroTempo !== undefined && setFiltroTempo !== undefined && (
+              <select
+                value={filtroTempo}
+                onChange={(e) => setFiltroTempo(e.target.value)}
+                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[120px] sm:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
+              >
+                <option value="Ultimi 7 giorni">7 giorni</option>
+                <option value="Ultimi 30 giorni">30 giorni</option>
+                <option value="Ultimi 3 mesi">3 mesi</option>
+                <option value="Ultimi 6 mesi">6 mesi</option>
+                <option value="Ultimo anno">Ultimo anno</option>
+                <option value="Tutti i tempi">Tutti i tempi</option>
+              </select>
+            )}
 
             <a 
               href="https://ko-fi.com/centmeta" 
@@ -149,14 +156,14 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'commanders' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
                   <a 
-                    href="/?view=commanders&csort=top" 
+                    href={`/?view=commanders&csort=top${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'commanders', 'top')} 
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Comandanti
                   </a>
                   <a 
-                    href="/?view=commanders&csort=hot" 
+                    href={`/?view=commanders&csort=hot${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'commanders', 'hot')} 
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
@@ -181,14 +188,14 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'cards' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
                   <a 
-                    href="/?view=cards&tab=Top+Cards&csort=top" 
+                    href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'cards', 'top')} 
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Carte
                   </a>
                   <a 
-                    href="/?view=cards&tab=Top+Cards&csort=hot" 
+                    href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'cards', 'hot')} 
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >

@@ -1,34 +1,21 @@
-'use client';
 import React from 'react';
-import Image from 'next/image';
+import type { Metadata } from 'next';
 import Footer from '../../components/Footer';
 import ScrollToTop from '../../components/ScrollToTop';
+import { SubpageHeader, BackToDashboardLink } from '../../components/SubpageHeader';
+
+export const metadata: Metadata = {
+  title: 'Privacy e Note Legali | CentMeta',
+  description: 'Informativa sulla privacy (GDPR), proprietà intellettuale, fonti dei dati e Wizards of the Coast Fan Content Policy per CentMeta.',
+};
 
 export default function Legal() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
-      
-      {/* Header Allineato al Contenuto */}
-      <header className="bg-slate-900 border-b border-slate-800 shadow-lg relative z-50">
-        <div className="max-w-[1000px] w-full mx-auto py-3 md:py-4 px-4 md:px-8 flex justify-center sm:justify-start">
-          <a href="/" className="w-36 sm:w-48 cursor-pointer hover:opacity-80 transition-opacity">
-            <Image 
-              src="/logo.png" 
-              alt="CentMeta Logo" 
-              width={300} 
-              height={100} 
-              priority
-              className="w-full h-auto object-contain"
-            />
-          </a>
-        </div>
-      </header>
+      <SubpageHeader />
 
       <div className="flex-grow pb-24 max-w-[1000px] w-full mx-auto px-4 md:px-8 mt-12">
-        
-        <a href="/" className="text-sm md:text-base font-bold text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-2 mb-10 w-fit">
-          ← Torna alla Dashboard
-        </a>
+        <BackToDashboardLink />
 
         <div className="mb-12">
           <h1 className="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">Privacy e Note Legali</h1>

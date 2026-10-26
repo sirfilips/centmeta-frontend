@@ -19,6 +19,7 @@ interface CardsGridProps {
   setActiveColors: React.Dispatch<React.SetStateAction<string[]>>;
   setActiveTab: (tab: any) => void;
   handleResetHome: () => void;
+  filtroTempo?: string;
 }
 
 export const CardsGrid: React.FC<CardsGridProps> = ({
@@ -36,7 +37,12 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
   setActiveColors,
   setActiveTab,
   handleResetHome,
+  filtroTempo,
 }) => {
+  const periodParam =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `&periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
   if (loading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
@@ -76,7 +82,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
               return (
                 <a
                   key={idx}
-                  href={`/?card=${encodeURIComponent(card.card_name)}`}
+                  href={`/?card=${encodeURIComponent(card.card_name)}${periodParam}`}
                   onClick={(e) =>
                     handleNav(e, () => handleSelectCard(card.card_name))
                   }
@@ -161,10 +167,13 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                                   </span>
                                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">
                                     <strong className="text-emerald-400 block mb-1">
-                                      Valore Sinergia
+                                      {activeTab === "In Crescita"
+                                        ? "Crescita nel Periodo"
+                                        : "Valore Sinergia"}
                                     </strong>
-                                    Indica quanto questa carta è giocata in più in
-                                    questo mazzo rispetto alla media globale.
+                                    {activeTab === "In Crescita"
+                                      ? "Indica quanto questa carta è giocata in più nel periodo selezionato rispetto alla media storica globale."
+                                      : "Indica quanto questa carta è giocata in più in questo mazzo rispetto alla media globale."}
                                   </div>
                                 </div>
                               )}

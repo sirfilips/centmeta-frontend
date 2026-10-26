@@ -6,21 +6,15 @@ import Footer from "./Footer";
 import SkeletonCard from "./SkeletonCard";
 import DeckList from "./DeckList";
 import CardDetail from "./CardDetail";
-import TrendIndicator from "./TrendIndicator";
 import Carousel from "./Carousel";
 import HeroSection from "./HeroSection";
 import CommandersGrid from "./CommandersGrid";
 import CommanderOverview from "./CommanderOverview";
 import CardsFilterBar from "./CardsFilterBar";
 import { CardsGrid } from "./CardsGrid";
-import { EmptyState } from "./EmptyState";
-import { CATEGORY_INFO, matchesColorIdentity } from "../utils/mtg";
+import { COLOR_FILTERS, matchesColorIdentity } from "../utils/mtg";
 import { handleNav } from "../utils/navigation";
-import { handleCardDragStart } from "../utils/dragCard";
 import { ArrowLeft } from "lucide-react";
-
-export { CATEGORY_INFO, matchesColorIdentity } from "../utils/mtg";
-export { EmptyState } from "./EmptyState";
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -208,12 +202,14 @@ export default function CentMetaApp({
   ]);
 
   useEffect(() => {
-    if (selectedCommander !== "Tutti i mazzi") {
+    if (selectedCardDetail) {
+      document.title = `${selectedCardDetail} | Statistiche, Comandanti e Sinergie Centurion`;
+    } else if (selectedCommander !== "Tutti i mazzi") {
       document.title = `${selectedCommander} | Top Carte, Sinergie e Liste Centurion`;
     } else {
       document.title = "CentMeta | Analisi Statistiche Centurion Commander";
     }
-  }, [selectedCommander]);
+  }, [selectedCommander, selectedCardDetail]);
 
   useEffect(() => {
     let active = true;
@@ -244,7 +240,6 @@ export default function CentMetaApp({
       .then((data) => {
         if (!active) return;
         setCommanders(Array.isArray(data) ? data : []);
-        setCacheStats({});
       })
       .catch(() => {
         if (!active) return;
@@ -368,6 +363,23 @@ export default function CentMetaApp({
     cardSort,
   ]);
 
+  useEffect(() => {
+    if (selectedCommander === "Tutti i mazzi") {
+      if (activeTab === "Top Sinergie" || activeTab === "Liste Mazzi") {
+        setActiveTab("Top Cards");
+      } else if (
+        activeTab === "In Crescita" &&
+        (filtroTempo === "Tutti i tempi" || cardSort === "hot")
+      ) {
+        setActiveTab("Top Cards");
+      }
+    } else {
+      if (activeTab === "In Crescita") {
+        setActiveTab("Top Sinergie");
+      }
+    }
+  }, [selectedCommander, filtroTempo, cardSort, activeTab]);
+
   const handleSelectCard = (val: string | null) => {
     setSelectedCardDetail(val);
     if (val) {
@@ -377,10 +389,11 @@ export default function CentMetaApp({
 
   const handleSelectCommander = (val: string) => {
     setSelectedCommander(val);
-    if (val !== "Tutti i mazzi") {
-      setCommanderSearch("");
-      setActiveTab("Top Cards");
-      setActiveColors([]);
+    setCommanderSearch("");
+    setActiveTab("Top Cards");
+    setActiveColors([]);
+    if (val === "Tutti i mazzi" && homeMode === "dashboard") {
+      setHomeMode("cards");
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -410,14 +423,15 @@ export default function CentMetaApp({
     "Snow-Covered Forest",
   ];
 
-  const applyFilters = (cards: any[], tab: string) => {
+  const applyFilters = (cards: any[], tab: string, isSynergyList: boolean = false) => {
     let filtered = cards || [];
-
-    if (
+    const isHotCardsMode =
+      !isSynergyList &&
       homeMode === "cards" &&
       cardSort === "hot" &&
-      selectedCommander === "Tutti i mazzi"
-    ) {
+      selectedCommander === "Tutti i mazzi";
+
+    if (isHotCardsMode) {
       filtered = (dashboardData?.hot_cards || []).map((c: any) => ({
         card_name: c.name,
         images: c.images,
@@ -434,14 +448,26 @@ export default function CentMetaApp({
       filtered = filtered.filter(
         (c) => !terreBase.includes(c.card_name) && c.category !== "Terre",
       );
-      filtered = [...filtered].sort(
-        (a, b) => (b.Sinergia || 0) - (a.Sinergia || 0),
-      );
+      if (isHotCardsMode) {
+        filtered = [...filtered].sort(
+          (a, b) => (b.delta || 0) - (a.delta || 0),
+        );
+      } else {
+        filtered = [...filtered].sort(
+          (a, b) => (b.Sinergia || 0) - (a.Sinergia || 0),
+        );
+      }
     } else if (tab === "Top Cards") {
       filtered = filtered.filter((c) => !terreBase.includes(c.card_name));
-      filtered = [...filtered].sort(
-        (a, b) => (b.Percentuale || 0) - (a.Percentuale || 0),
-      );
+      if (isHotCardsMode) {
+        filtered = [...filtered].sort(
+          (a, b) => (b.delta || 0) - (a.delta || 0),
+        );
+      } else {
+        filtered = [...filtered].sort(
+          (a, b) => (b.Percentuale || 0) - (a.Percentuale || 0),
+        );
+      }
     } else if (tab === "Terre") {
       filtered = filtered.filter(
         (c) => c.category === "Terre" || terreBase.includes(c.card_name),
@@ -454,7 +480,7 @@ export default function CentMetaApp({
       filtered = filtered.filter((c) => c.category === tab);
     }
 
-    if (debouncedCardSearch.trim() !== "") {
+    if (!isSynergyList && debouncedCardSearch.trim() !== "") {
       filtered = filtered.filter((c) =>
         c.card_name.toLowerCase().includes(debouncedCardSearch.toLowerCase()),
       );
@@ -486,7 +512,7 @@ export default function CentMetaApp({
   ];
   if (
     selectedCommander === "Tutti i mazzi" &&
-    filtroTempo === "Tutti i tempi"
+    (filtroTempo === "Tutti i tempi" || cardSort === "hot")
   ) {
     categories = categories.filter((c) => c !== "In Crescita");
   }
@@ -502,16 +528,7 @@ export default function CentMetaApp({
     "Terre",
   ];
 
-  const colors = [
-    { label: "Tutti", val: "Tutti", icon: null },
-    { label: "White", val: "W", icon: "ms ms-w ms-cost shadow-sm" },
-    { label: "Blue", val: "U", icon: "ms ms-u ms-cost shadow-sm" },
-    { label: "Black", val: "B", icon: "ms ms-b ms-cost shadow-sm" },
-    { label: "Red", val: "R", icon: "ms ms-r ms-cost shadow-sm" },
-    { label: "Green", val: "G", icon: "ms ms-g ms-cost shadow-sm" },
-    { label: "Multi", val: "M", icon: "ms ms-multicolor ms-cost shadow-sm" },
-    { label: "Colorless", val: "C", icon: "ms ms-c ms-cost shadow-sm" },
-  ];
+  const colors = COLOR_FILTERS;
 
   const baseFilteredCommanders = commanders.filter((c) =>
     c.comandante.toLowerCase().includes(commanderSearch.toLowerCase()),
@@ -533,10 +550,11 @@ export default function CentMetaApp({
   const selectedCmdObj = commanders.find(
     (c) => c.comandante === selectedCommander,
   );
-  const visibleCardsData = applyFilters(statsData.cards, activeTab);
+  const visibleCardsData = applyFilters(statsData.cards, activeTab, false);
   const visibleSynergiesData = applyFilters(
     cardDetailData?.synergies,
     activeSynergyTab,
+    true,
   );
 
   const handleResetHome = () => {
@@ -649,11 +667,13 @@ export default function CentMetaApp({
           setFiltroTempo={setFiltroTempo}
           onReset={handleResetHome}
           totalDecks={
-            homeMode === "dashboard"
-              ? dashboardData?.total_decks
+            selectedCommander === "Tutti i mazzi"
+              ? (dashboardData?.total_decks ?? statsData.total_decks)
               : statsData.total_decks
           }
-          lastUpdated={(statsData as any).last_updated}
+          lastUpdated={
+            dashboardData?.last_updated ?? (statsData as any).last_updated
+          }
           onNavigate={navigateToTab}
         />
 
@@ -745,6 +765,7 @@ export default function CentMetaApp({
                               items={dashboardData.top_commanders}
                               isCard={false}
                               isHot={false}
+                              filtroTempo={filtroTempo}
                               viewAllHref="/?view=commanders&csort=top"
                               onViewAll={() =>
                                 navigateToTab("commanders", "Top Cards", "top")
@@ -756,6 +777,7 @@ export default function CentMetaApp({
                               items={dashboardData.hot_commanders}
                               isCard={false}
                               isHot={true}
+                              filtroTempo={filtroTempo}
                               viewAllHref="/?view=commanders&csort=hot"
                               onViewAll={() =>
                                 navigateToTab("commanders", "Top Cards", "hot")
@@ -769,7 +791,8 @@ export default function CentMetaApp({
                                 .slice(0, 25)}
                               isCard={true}
                               isHot={false}
-                              viewAllHref="/?view=cards&tab=Top+Cards&csort=top"
+                              filtroTempo={filtroTempo}
+                              viewAllHref="/?view=cards&tab=Top+Cards&cardsort=top"
                               onViewAll={() =>
                                 navigateToTab("cards", "Top Cards", "top")
                               }
@@ -782,7 +805,8 @@ export default function CentMetaApp({
                                 .slice(0, 25)}
                               isCard={true}
                               isHot={true}
-                              viewAllHref="/?view=cards&tab=Top+Cards&csort=hot"
+                              filtroTempo={filtroTempo}
+                              viewAllHref="/?view=cards&tab=Top+Cards&cardsort=hot"
                               onViewAll={() =>
                                 navigateToTab("cards", "Top Cards", "hot")
                               }
@@ -807,6 +831,7 @@ export default function CentMetaApp({
                         setCommanderSearch={setCommanderSearch}
                         setActiveColors={setActiveColors}
                         handleResetHome={handleResetHome}
+                        filtroTempo={filtroTempo}
                       />
                     )}
                   </div>
@@ -885,6 +910,7 @@ export default function CentMetaApp({
                       setActiveColors={setActiveColors}
                       setActiveTab={setActiveTab}
                       handleResetHome={handleResetHome}
+                      filtroTempo={filtroTempo}
                     />
                   )}
                 </div>

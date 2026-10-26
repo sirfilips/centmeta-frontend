@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import SkeletonCard from "./SkeletonCard";
+import { EmptyState } from "./EmptyState";
+import { CATEGORY_INFO } from "../utils/mtg";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Share2, Check } from "lucide-react";
 
 interface CardDetailProps {
   selectedCardDetail: string;
@@ -32,27 +34,86 @@ export default function CardDetail({
   setSelectedCardDetail,
   loadingCardDetail,
   cardDetailData,
-
   filtroTempo,
   isFlipped,
   setIsFlipped,
   commanders,
   setSelectedCommander,
-
   setCommanderSearch,
   setActiveTab,
   activeSynergyTab,
   setActiveSynergyTab,
-
   visibleCount,
   setVisibleCount,
   activeColors,
   toggleColor,
   colors,
-
   synergyCategories,
   visibleSynergiesData,
 }: CardDetailProps) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const periodQuery =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `?periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
+  const periodParam =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `&periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
+
+  const handleShare = async () => {
+    const cName = cardDetailData?.card_name || selectedCardDetail;
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://centmeta.it";
+    const url = `${origin}/?card=${encodeURIComponent(cName)}${periodParam}`;
+
+    const isMobile =
+      typeof navigator !== "undefined" &&
+      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ) ||
+        (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
+
+    if (isMobile && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${cName} | CentMeta`,
+          text: `Statistiche, comandanti principali e sinergie per ${cName} nel formato Centurion Commander`,
+          url,
+        });
+        return;
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+      }
+    }
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } else {
+        throw new Error("Clipboard API non supportata");
+      }
+    } catch {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } catch (fallbackErr) {
+        console.error("Impossibile copiare il link:", fallbackErr);
+      }
+    }
+  };
+
   return (
     <div>
       <a
@@ -86,7 +147,7 @@ export default function CardDetail({
                             onDragStart={(e) =>
                               handleCardDragStart(
                                 e,
-                                cardDetailData.card_name,
+                                cardDetailData.card_name || selectedCardDetail,
                                 cardDetailData.images[0],
                               )
                             }
@@ -101,7 +162,7 @@ export default function CardDetail({
                             onDragStart={(e) =>
                               handleCardDragStart(
                                 e,
-                                cardDetailData.card_name,
+                                cardDetailData.card_name || selectedCardDetail,
                                 cardDetailData.images[1],
                               )
                             }
@@ -131,17 +192,17 @@ export default function CardDetail({
                         onDragStart={(e) =>
                           handleCardDragStart(
                             e,
-                            cardDetailData.card_name,
+                            cardDetailData.card_name || selectedCardDetail,
                             cardDetailData.images[0],
                           )
                         }
                         className="w-full object-contain rounded-2xl shadow-xl border border-slate-700/50"
-                        alt={cardDetailData.card_name}
+                        alt={cardDetailData.card_name || selectedCardDetail}
                       />
                     </div>
                   ) : (
-                    <div className="w-56 md:w-72 h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500">
-                      {cardDetailData.card_name}
+                    <div className="w-56 md:w-72 h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 px-4 text-center">
+                      {cardDetailData.card_name || selectedCardDetail}
                     </div>
                   )}
                 </div>
@@ -158,12 +219,35 @@ export default function CardDetail({
                   <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm -z-10"></div>
                   <div className="relative z-10 flex flex-col gap-4 w-full">
                     <div>
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-3 py-1 rounded-full border border-blue-900/50 shadow-inner">
-                        Analisi Carta ({filtroTempo})
-                      </span>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-3 py-1 rounded-full border border-blue-900/50 shadow-inner">
+                          Analisi Carta ({filtroTempo})
+                        </span>
+                        <button
+                          onClick={handleShare}
+                          title="Condividi o copia link carta"
+                          className={`hidden lg:inline-flex text-xs font-bold px-3.5 py-1.5 rounded-full transition-all duration-300 shadow-sm border items-center gap-1.5 ${
+                            isCopied
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                              : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700"
+                          }`}
+                        >
+                          {isCopied ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2.5} />
+                              <span>Link copiato!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Share2 className="w-3.5 h-3.5 text-blue-400" strokeWidth={2.5} />
+                              <span>Condividi</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                       <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
                         <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-md">
-                          {cardDetailData.card_name}
+                          {cardDetailData.card_name || selectedCardDetail}
                         </h2>
                       </div>
                     </div>
@@ -186,14 +270,37 @@ export default function CardDetail({
                       <div className="text-sm md:text-base text-slate-200">
                         Presente in{" "}
                         <span className="text-blue-400 font-black text-xl">
-                          {cardDetailData.total_decks_with_card}
+                          {cardDetailData.total_decks_with_card ?? 0}
                         </span>{" "}
                         mazzi nella finestra temporale.
                       </div>
                       <div className="text-xs text-slate-400">
                         Totale storico registrato:{" "}
-                        {cardDetailData.total_decks_global} mazzi.
+                        {cardDetailData.total_decks_global ?? 0} mazzi.
                       </div>
+                    </div>
+                    <div className="mt-2 flex lg:hidden justify-end">
+                      <button
+                        onClick={handleShare}
+                        title="Condividi o copia link carta"
+                        className={`text-sm font-bold px-5 py-3 rounded-full transition-all duration-300 shadow-md border inline-flex items-center justify-center gap-2 w-full sm:w-auto ${
+                          isCopied
+                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                            : "bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border-slate-700"
+                        }`}
+                      >
+                        {isCopied ? (
+                          <>
+                            <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                            <span>Link copiato!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                            <span>Condividi</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -206,17 +313,17 @@ export default function CardDetail({
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
                 {cardDetailData.commanders.map((cmd: any, idx: number) => {
-                  const globalRank =
-                    commanders.findIndex(
-                      (c) => c.comandante === cmd.comandante,
-                    ) + 1;
+                  const foundIdx = commanders.findIndex(
+                    (c) => c.comandante === cmd.comandante,
+                  );
+                  const globalRank = foundIdx >= 0 ? foundIdx + 1 : idx + 1;
                   const isPartner =
                     cmd.comandante.includes(" / ") &&
                     !cmd.comandante.includes(" // ");
                   return (
                     <a
                       key={idx}
-                      href={`/?commander=${encodeURIComponent(cmd.comandante)}`}
+                      href={`/commander/${encodeURIComponent(cmd.comandante)}${periodQuery}`}
                       onClick={(e) =>
                         handleNav(e, () => {
                           setSelectedCommander(cmd.comandante);
@@ -225,6 +332,16 @@ export default function CardDetail({
                           setActiveTab("Top Cards");
                         })
                       }
+                      draggable={true}
+                      onDragStart={(e) =>
+                        handleCardDragStart(
+                          e,
+                          isPartner
+                            ? cmd.comandante.split(" / ")[0]
+                            : cmd.comandante,
+                          cmd.images?.[0],
+                        )
+                      }
                       className="flex flex-col items-center group cursor-pointer"
                     >
                       <div className="relative w-full h-72 flex justify-center items-center mb-3">
@@ -232,10 +349,28 @@ export default function CardDetail({
                           <div className="relative w-full h-full flex justify-center items-center">
                             <img
                               src={cmd.images[0]}
+                              alt={cmd.comandante.split(" / ")[0]}
+                              draggable={true}
+                              onDragStart={(e) =>
+                                handleCardDragStart(
+                                  e,
+                                  cmd.comandante.split(" / ")[0],
+                                  cmd.images[0],
+                                )
+                              }
                               className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-30 hover:scale-110 transition-all duration-300"
                             />
                             <img
                               src={cmd.images[1]}
+                              alt={cmd.comandante.split(" / ")[1]}
+                              draggable={true}
+                              onDragStart={(e) =>
+                                handleCardDragStart(
+                                  e,
+                                  cmd.comandante.split(" / ")[1],
+                                  cmd.images[1],
+                                )
+                              }
                               className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-30 hover:scale-110 transition-all duration-300"
                             />
                           </div>
@@ -243,6 +378,14 @@ export default function CardDetail({
                           <img
                             src={cmd.images[0]}
                             alt={cmd.comandante}
+                            draggable={true}
+                            onDragStart={(e) =>
+                              handleCardDragStart(
+                                e,
+                                cmd.comandante,
+                                cmd.images[0],
+                              )
+                            }
                             className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain"
                           />
                         ) : (
@@ -308,14 +451,7 @@ export default function CardDetail({
               <div className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md pt-4 pb-4 border-b border-slate-800 mb-6 flex flex-col gap-3">
                 <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {synergyCategories.map((cat) => {
-                    let iconClass = "";
-                    if (cat === "Creature") iconClass = "ms-creature";
-                    if (cat === "Istantanei") iconClass = "ms-instant";
-                    if (cat === "Stregonerie") iconClass = "ms-sorcery";
-                    if (cat === "Artefatti") iconClass = "ms-artifact";
-                    if (cat === "Incantesimi") iconClass = "ms-enchantment";
-                    if (cat === "Planeswalker") iconClass = "ms-planeswalker";
-                    if (cat === "Terre") iconClass = "ms-land";
+                    const iconClass = CATEGORY_INFO[cat]?.icon || "";
                     return (
                       <button
                         key={cat}
@@ -347,6 +483,7 @@ export default function CardDetail({
                       <button
                         key={col.val}
                         onClick={() => toggleColor(col.val)}
+                        title={col.label}
                         className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap transition-all border flex items-center justify-center min-w-[40px] h-8 ${isActive ? "bg-slate-700 text-white border-slate-500 shadow-inner" : "bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800"}`}
                       >
                         {col.icon ? (
@@ -360,19 +497,17 @@ export default function CardDetail({
                 </div>
               </div>
               {visibleSynergiesData.length === 0 ? (
-                <div className="py-16 text-center text-slate-500 flex flex-col items-center animate-fade-in">
-                  <img
-                    src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop"
-                    alt="Fblthp"
-                    className="w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-lg mb-4 opacity-80 hover:opacity-100 transition-all duration-300 hover:rotate-3"
-                  />
-                  <p className="text-slate-300 font-bold">
-                    Fblthp si è perso di nuovo... e anche la tua ricerca.
-                  </p>
-                  <p className="text-sm mt-1 text-slate-500">
-                    Nessuna carta trovata con i filtri selezionati.
-                  </p>
-                </div>
+                <EmptyState
+                  message="Nessuna carta trovata con i filtri selezionati."
+                  onResetFilters={
+                    activeSynergyTab !== "Tutte" || activeColors.length > 0
+                      ? () => {
+                          setActiveSynergyTab("Tutte");
+                          toggleColor("Tutti");
+                        }
+                      : undefined
+                  }
+                />
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-y-8 gap-x-6">
                   {visibleSynergiesData
@@ -383,7 +518,7 @@ export default function CardDetail({
                       return (
                         <a
                           key={idx}
-                          href={`/?card=${encodeURIComponent(syn.card_name)}`}
+                          href={`/?card=${encodeURIComponent(syn.card_name)}${periodParam}`}
                           onClick={(e) =>
                             handleNav(e, () =>
                               setSelectedCardDetail(syn.card_name),

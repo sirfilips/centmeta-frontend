@@ -20,6 +20,7 @@ interface CommandersGridProps {
   setCommanderSearch: (val: string) => void;
   setActiveColors: React.Dispatch<React.SetStateAction<string[]>>;
   handleResetHome: () => void;
+  filtroTempo?: string;
 }
 
 export default function CommandersGrid({
@@ -46,7 +47,12 @@ export default function CommandersGrid({
   setActiveColors,
 
   handleResetHome,
+  filtroTempo,
 }: CommandersGridProps) {
+  const periodQuery =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `?periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
   return (
     <>
       {/* Filtri Colore Comandante */}
@@ -98,7 +104,7 @@ export default function CommandersGrid({
             return (
               <a
                 key={cmdName}
-                href={`/commander/${encodeURIComponent(cmdName)}`}
+                href={`/commander/${encodeURIComponent(cmdName)}${periodQuery}`}
                 onClick={(e) =>
                   handleNav(e, () => handleSelectCommander(cmdName))
                 }

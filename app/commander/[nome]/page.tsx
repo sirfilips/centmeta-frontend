@@ -1,16 +1,19 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import CentMetaApp from '../../../components/CentMetaApp';
+import { getScryfallArtCropUrl, resolveCardArtCrop } from '../../../utils/og';
 
 type Props = {
   params: { nome: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 };
 
 // --- HELPER DI VALIDAZIONE E DECODIFICA ---
 
-// Cache in memoria: Set dei nomi validi e timestamp dell'ultimo aggiornamento
+// Cache in memoria: Set dei nomi validi, mappa art_crop e timestamp dell'ultimo aggiornamento
 const cache = {
   names: new Set<string>(),
+  artCrops: new Map<string, string>(),
   ts: 0,
 };
 
@@ -73,11 +76,15 @@ async function commanderExists(name: string): Promise<boolean> {
       return true;
     }
 
-    // Costruisci il nuovo Set a parte, senza toccare la cache esistente
+    // Costruisci il nuovo Set e la mappa art_crop a parte, senza toccare la cache esistente
     const fresh = new Set<string>();
+    const freshArtCrops = new Map<string, string>();
     for (const item of data) {
       if (item && typeof item.comandante === 'string') {
         fresh.add(item.comandante);
+        if (Array.isArray(item.art_crops) && item.art_crops.length > 0 && item.art_crops[0]) {
+          freshArtCrops.set(item.comandante, item.art_crops[0]);
+        }
       }
     }
 
@@ -89,6 +96,7 @@ async function commanderExists(name: string): Promise<boolean> {
 
     // Lista valida e popolata: aggiorna la cache e rispondi
     cache.names = fresh;
+    cache.artCrops = freshArtCrops;
     cache.ts = now;
     return fresh.has(name);
 
@@ -101,7 +109,7 @@ async function commanderExists(name: string): Promise<boolean> {
 
 
 // 1. GENERAZIONE DINAMICA DELLA SEO (Letto da Google, Telegram, WhatsApp)
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const commanderName = safeDecode(params.nome);
   
   // Validazione del comandante
@@ -109,6 +117,45 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isValid) {
     notFound();
   }
+
+  // Se nel link è presente anche il parametro ?card=..., mostra la preview della carta
+  const rawCard = searchParams?.card;
+  const cardName = (Array.isArray(rawCard) ? rawCard[0] : rawCard)?.trim();
+  if (cardName) {
+    const cardArtCrop = await resolveCardArtCrop(cardName);
+    return {
+      title: `${cardName} | Statistiche, Comandanti e Sinergie Centurion`,
+      description: `Scopri in quanti mazzi è giocata ${cardName}, i comandanti principali e le migliori sinergie nel formato Centurion Commander su CentMeta.`,
+      alternates: {
+        canonical: `https://centmeta.it/?card=${encodeURIComponent(cardName)}`,
+      },
+      openGraph: {
+        title: `${cardName} - CentMeta`,
+        description: `Statistiche di utilizzo, comandanti e sinergie per ${cardName} in Centurion Commander.`,
+        url: `https://centmeta.it/?card=${encodeURIComponent(cardName)}`,
+        siteName: 'CentMeta',
+        images: [
+          {
+            url: cardArtCrop,
+            width: 626,
+            height: 457,
+            alt: `Artwork di ${cardName}`,
+          },
+        ],
+        locale: 'it_IT',
+        type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${cardName} - CentMeta`,
+        description: `Statistiche di utilizzo, comandanti e sinergie per ${cardName} in Centurion Commander.`,
+        images: [cardArtCrop],
+      },
+    };
+  }
+
+  const commanderArtCrop =
+    cache.artCrops.get(commanderName) || getScryfallArtCropUrl(commanderName);
   
   return {
     title: `${commanderName} | Top Carte, Sinergie e Liste Centurion`,
@@ -123,15 +170,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'CentMeta',
       images: [
         {
-          url: 'https://centmeta.it/og-image.png',
-          width: 1200,
-          height: 630,
+          url: commanderArtCrop,
+          width: 626,
+          height: 457,
           alt: `Analisi per ${commanderName}`,
         },
       ],
       locale: 'it_IT',
       type: 'website',
-    }
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${commanderName} - CentMeta`,
+      description: `Analisi statistica e liste mazzi per ${commanderName}.`,
+      images: [commanderArtCrop],
+    },
   };
 }
 

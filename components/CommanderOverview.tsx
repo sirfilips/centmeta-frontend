@@ -36,33 +36,31 @@ interface CommanderOverviewProps {
 
 export default function CommanderOverview({
   loading,
-
   selectedCommander,
-
   selectedCmdObj,
-
   isFlipped,
-
   setIsFlipped,
-
   showOracle,
-
   setShowOracle,
-
   statsData,
-
   handleViewDecks,
-
   handleTypeClick,
-
   handleResetHome,
 }: CommanderOverviewProps) {
   const [isCopied, setIsCopied] = useState(false);
 
   const handleShare = async () => {
+    let shareQuery = "";
+    if (typeof window !== "undefined") {
+      const currentParams = new URLSearchParams(window.location.search);
+      const periodo = currentParams.get("periodo");
+      if (periodo && periodo !== "Ultimi 30 giorni") {
+        shareQuery = `?periodo=${encodeURIComponent(periodo)}`;
+      }
+    }
     const url =
       typeof window !== "undefined"
-        ? `${window.location.origin}/commander/${encodeURIComponent(selectedCommander)}`
+        ? `${window.location.origin}/commander/${encodeURIComponent(selectedCommander)}${shareQuery}`
         : `https://centmeta.it/commander/${encodeURIComponent(selectedCommander)}`;
 
     // Rileva se è un vero dispositivo mobile (smartphone/tablet)
@@ -255,12 +253,12 @@ export default function CommanderOverview({
                 </h1>
               </div>
 
-              {/* Tasto Condividi Comandante */}
+              {/* Tasto Condividi Comandante (Solo Desktop, in alto a destra) */}
               <button
                 onClick={handleShare}
                 data-umami-event="Condividi Comandante"
                 data-umami-event-commander={selectedCommander}
-                className={`self-center lg:self-start inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 shadow-md border shrink-0 ${
+                className={`hidden lg:inline-flex self-start items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border shrink-0 ${
                   isCopied
                     ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
                     : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
@@ -411,16 +409,8 @@ export default function CommanderOverview({
                             ).reduce((a: any, b: any) => a + b, 0) as number;
                             const perc = ((count as number) / totalCards) * 100;
                             const width = `${perc}%`;
-                            let bgColor = "bg-slate-500";
-                            if (type === "Creature") bgColor = "bg-emerald-500";
-                            if (type === "Istantanei") bgColor = "bg-blue-500";
-                            if (type === "Stregonerie") bgColor = "bg-red-500";
-                            if (type === "Artefatti") bgColor = "bg-slate-400";
-                            if (type === "Incantesimi")
-                              bgColor = "bg-purple-500";
-                            if (type === "Planeswalker")
-                              bgColor = "bg-pink-500";
-                            if (type === "Terre") bgColor = "bg-yellow-600";
+                            const bgColor =
+                              CATEGORY_INFO[type]?.bgColor || "bg-slate-500";
                             return (
                               <div
                                 key={type}
@@ -464,14 +454,41 @@ export default function CommanderOverview({
                   </div>
                 )}
             </div>
-            <a
-              href="/"
-              onClick={(e) => handleNav(e, handleResetHome)}
-              className="mt-4 md:mt-6 self-center lg:self-start bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 hover:text-white text-xs md:text-sm font-bold px-6 py-3 md:px-8 md:py-3.5 rounded-full transition-all duration-300 shadow-md border border-blue-500/30 inline-flex items-center justify-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" strokeWidth={2.5} /> Torna alla
-              Dashboard
-            </a>
+            <div className="mt-4 md:mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+              <a
+                href="/"
+                onClick={(e) => handleNav(e, handleResetHome)}
+                className="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 hover:text-white text-xs md:text-sm font-bold px-6 py-3 md:px-8 md:py-3.5 rounded-full transition-all duration-300 shadow-md border border-blue-500/30 inline-flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" strokeWidth={2.5} /> Torna alla
+                Dashboard
+              </a>
+
+              {/* Tasto Condividi Comandante (Solo Mobile/Tablet, in fondo alla box) */}
+              <button
+                onClick={handleShare}
+                data-umami-event="Condividi Comandante"
+                data-umami-event-commander={selectedCommander}
+                className={`lg:hidden inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-xs font-bold transition-all duration-300 shadow-md border shrink-0 ${
+                  isCopied
+                    ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
+                    : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 active:scale-95"
+                }`}
+                title="Condividi questo comandante"
+              >
+                {isCopied ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                    <span>Link Copiato!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                    <span>Condividi</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

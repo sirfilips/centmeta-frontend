@@ -1,10 +1,11 @@
 # Dipendenze (molto pesanti, si reinstallano automaticamente con npm install)
 node_modules/
 
-# Cartelle di build e file generati in automatico da Next.js
+# Cartelle di build e file generati in automatico da Next.js / TypeScript
 .next/
 out/
 build/
+*.tsbuildinfo
 
 # Variabili d'ambiente e chiavi segrete (per sicurezza)
 .env

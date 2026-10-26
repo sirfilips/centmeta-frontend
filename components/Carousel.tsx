@@ -12,8 +12,17 @@ const Carousel = ({
   viewAllHref,
   isHot = false,
   isCard = false,
+  filtroTempo,
 }: any) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const periodQuery =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `?periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
+  const periodParam =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `&periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
 
   const scroll = (offset: number) => {
     if (scrollRef.current)
@@ -26,7 +35,7 @@ const Carousel = ({
     <div className="mb-8 md:mb-10">
       <div className="flex items-center mb-2 md:mb-3">
         <a
-          href={viewAllHref}
+          href={`${viewAllHref}${periodParam}`}
           onClick={(e) => handleNav(e, onViewAll)}
           className="text-lg md:text-xl font-black text-slate-100 flex items-center gap-2 cursor-pointer hover:text-blue-400 transition"
         >
@@ -80,8 +89,8 @@ const Carousel = ({
             const isPartner =
               item.name.includes(" / ") && !item.name.includes(" // ");
             const itemHref = isCard
-              ? `/?card=${encodeURIComponent(item.name)}`
-              : `/?commander=${encodeURIComponent(item.name)}`;
+              ? `/?card=${encodeURIComponent(item.name)}${periodParam}`
+              : `/commander/${encodeURIComponent(item.name)}${periodQuery}`;
             return (
               <a
                 key={idx}
