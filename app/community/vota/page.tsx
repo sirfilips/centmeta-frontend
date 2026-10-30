@@ -30,6 +30,8 @@ interface CardData {
   color_identity: string[];
   decks_count: number;
   is_recent_pool: boolean;
+  is_core_staple?: boolean;
+  is_daily_spotlight?: boolean;
   community_stats: {
     total_votes: number;
     avg_score: number;
@@ -298,13 +300,17 @@ export default function VotaPage() {
             {/* INTESTAZIONE CARTA */}
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                {currentCard?.is_recent_pool ? (
+                {currentCard?.is_daily_spotlight ? (
+                  <span className="inline-flex items-center gap-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                    <Sparkles className="w-3 h-3 text-purple-400" /> Selezione del Giorno (In Rotazione)
+                  </span>
+                ) : currentCard?.is_core_staple ? (
                   <span className="inline-flex items-center gap-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                    <Flame className="w-3 h-3" /> Metagame Ultimi 30 Giorni
+                    <Flame className="w-3 h-3 text-orange-400" /> Top 100 Metagame
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                    <Sparkles className="w-3 h-3" /> Catalogo Generale CentMeta
+                    <Sparkles className="w-3 h-3 text-blue-400" /> Catalogo CentMeta
                   </span>
                 )}
 
