@@ -38,7 +38,7 @@ interface LeaderboardItem {
 
 export default function ClassificaPage() {
   const [sort, setSort] = useState<"highest" | "most_voted" | "lowest">("highest");
-  const [minVotes, setMinVotes] = useState(1);
+  const [minVotes, setMinVotes] = useState(2);
   const [search, setSearch] = useState("");
   const [activeColors, setActiveColors] = useState<string[]>([]);
 
@@ -118,11 +118,11 @@ export default function ClassificaPage() {
     });
   }, [items, search, activeColors]);
 
-  const hasActiveFilters = search !== "" || activeColors.length > 0 || minVotes > 1;
+  const hasActiveFilters = search !== "" || activeColors.length > 0 || minVotes !== 2;
   const resetFilters = () => {
     setSearch("");
     setActiveColors([]);
-    setMinVotes(1);
+    setMinVotes(2);
   };
 
   return (
