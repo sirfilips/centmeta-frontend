@@ -70,10 +70,10 @@ export default function CommunityPage() {
           <div className="bg-gradient-to-r from-blue-950/40 via-slate-900/60 to-purple-950/40 border border-blue-900/30 rounded-2xl p-6 sm:p-7 shadow-xl relative isolate overflow-hidden">
             <div className="text-3xl text-blue-400/30 font-serif leading-none absolute top-3 left-4 select-none">“</div>
             <p className="text-lg sm:text-xl font-medium text-slate-200 italic leading-relaxed px-4">
-              Tutte le carte di Magic sono scarse, tranne le carte forti.
+              “Le carte di Magic sono tutte scarse, a meno che non siano forti.”
             </p>
             <div className="mt-3 text-xs sm:text-sm font-bold text-blue-400 tracking-wide uppercase">
-              — Massima di Formato
+              — Anonimo
             </div>
           </div>
 
@@ -102,23 +102,31 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 text-center shadow-lg">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5">
+          <Link
+            href="/community/classifica?sort=highest"
+            className="bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-5 text-center shadow-lg transition-all group block cursor-pointer"
+            title="Vedi le carte con punteggio più alto"
+          >
+            <div className="text-xs font-bold text-slate-400 group-hover:text-blue-300 uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5 transition-colors">
               <Trophy className="w-3.5 h-3.5 text-blue-400" /> Top Rated
             </div>
             <div className="text-sm sm:text-base font-bold text-blue-300 truncate" title={data?.top_rated[0]?.card_name || "Nessuna"}>
               {loading ? "..." : data?.top_rated[0]?.card_name || "In attesa di voti"}
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 text-center shadow-lg">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5">
+          <Link
+            href="/community/classifica?sort=most_voted"
+            className="bg-slate-900/60 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-5 text-center shadow-lg transition-all group block cursor-pointer"
+            title="Vedi le carte più votate"
+          >
+            <div className="text-xs font-bold text-slate-400 group-hover:text-orange-300 uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5 transition-colors">
               <Flame className="w-3.5 h-3.5 text-orange-400" /> Più Votata
             </div>
             <div className="text-sm sm:text-base font-bold text-orange-300 truncate" title={data?.most_voted[0]?.card_name || "Nessuna"}>
               {loading ? "..." : data?.most_voted[0]?.card_name || "In attesa di voti"}
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* DUE CARD PRINCIPALI DI AZIONE */}
@@ -182,9 +190,11 @@ export default function CommunityPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.top_rated.map((card, idx) => (
-                <div
+                <Link
+                  href={`/community/classifica?card=${encodeURIComponent(card.card_name)}`}
                   key={card.card_name}
-                  className="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 flex items-center gap-4 hover:border-slate-700 transition-all shadow-md"
+                  className="bg-slate-900/50 border border-slate-800/80 hover:border-blue-500/50 hover:bg-slate-900/80 rounded-2xl p-4 flex items-center gap-4 transition-all shadow-md group block cursor-pointer"
+                  title={`Apri ${card.card_name} nella Classifica`}
                 >
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 relative border border-slate-700/50">
                     {card.art_crops && card.art_crops[0] ? (
@@ -194,7 +204,7 @@ export default function CommunityPage() {
                         fill
                         unoptimized
                         sizes="56px"
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs font-bold">
@@ -207,7 +217,7 @@ export default function CommunityPage() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-sm text-white truncate" title={card.card_name}>
+                    <h4 className="font-bold text-sm text-white truncate group-hover:text-blue-300 transition-colors" title={card.card_name}>
                       {card.card_name}
                     </h4>
                     <div className="flex items-center gap-2 mt-1 text-xs">
@@ -220,7 +230,7 @@ export default function CommunityPage() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Swords } from 'lucide-react';
 
 interface HeaderProps {
@@ -219,24 +220,27 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               
               <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'community' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="py-2 flex flex-col">
-                  <a 
+                  <Link 
                     href="/community" 
+                    onClick={() => setOpenDropdown(null)}
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Users className="w-4 h-4 text-blue-400" /> Panoramica
-                  </a>
-                  <a 
+                  </Link>
+                  <Link 
                     href="/community/vota" 
+                    onClick={() => setOpenDropdown(null)}
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Swords className="w-4 h-4 text-amber-400" /> Vota le Carte
-                  </a>
-                  <a 
+                  </Link>
+                  <Link 
                     href="/community/classifica" 
+                    onClick={() => setOpenDropdown(null)}
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Trophy className="w-4 h-4 text-purple-400" /> Classifica
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

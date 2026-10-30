@@ -9,6 +9,10 @@ import { ArrowLeft, Swords, Trophy, Compass } from "lucide-react";
 export default function CommunityNav() {
   const pathname = usePathname();
 
+  const isCommunityRoot = pathname === "/community";
+  const backHref = isCommunityRoot ? "/" : "/community";
+  const backLabel = isCommunityRoot ? "Dashboard" : "Hub Community";
+
   const navLinks = [
     { href: "/community", label: "Panoramica", icon: Compass },
     { href: "/community/vota", label: "Vota Carte", icon: Swords },
@@ -37,11 +41,12 @@ export default function CommunityNav() {
           </Link>
 
           <Link
-            href="/"
+            href={backHref}
             className="text-xs sm:text-sm font-semibold text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800"
+            title={`Torna a ${backLabel}`}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Dashboard</span>
+            <span>{backLabel}</span>
           </Link>
         </div>
 

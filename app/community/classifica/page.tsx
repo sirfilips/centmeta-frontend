@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -51,6 +51,116 @@ export default function ClassificaPage() {
   // Stato modale visualizzazione carta draggable
   const [selectedCard, setSelectedCard] = useState<LeaderboardItem | null>(null);
   const [isModalFlipped, setIsModalFlipped] = useState(false);
+
+  // Sincronizzazione URL e gestione storico browser
+  const isInitialized = useRef(false);
+  const isPopState = useRef(false);
+  const [initialCardParam, setInitialCardParam] = useState<string | null>(null);
+  const prevSortRef = useRef(sort);
+  const prevCardRef = useRef<string | null>(null);
+
+  // 1. Sincronizza lo stato dai parametri URL
+  const syncStateFromURL = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+
+    const sortParam = params.get("sort");
+    if (sortParam === "highest" || sortParam === "most_voted" || sortParam === "lowest") {
+      setSort(sortParam);
+    } else {
+      setSort("highest");
+    }
+
+    const minVotesParam = params.get("min_votes");
+    if (minVotesParam) {
+      const parsed = parseInt(minVotesParam, 10);
+      if ([1, 2, 5, 10].includes(parsed)) {
+        setMinVotes(parsed);
+      }
+    } else {
+      setMinVotes(2);
+    }
+
+    const searchParam = params.get("q") || params.get("search");
+    setSearch(searchParam || "");
+
+    const colorsParam = params.get("colors");
+    if (colorsParam) {
+      setActiveColors(colorsParam.split(",").filter(Boolean));
+    } else {
+      setActiveColors([]);
+    }
+
+    const cardParam = params.get("card");
+    if (cardParam) {
+      setInitialCardParam(cardParam);
+    } else {
+      setSelectedCard(null);
+    }
+  }, []);
+
+  // 2. Ascolto popstate (frecce Avanti/Indietro del browser) e prima lettura URL
+  useEffect(() => {
+    syncStateFromURL();
+    isInitialized.current = true;
+
+    const handlePopState = () => {
+      isPopState.current = true;
+      syncStateFromURL();
+      setTimeout(() => {
+        isPopState.current = false;
+      }, 100);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [syncStateFromURL]);
+
+  // 3. Apertura automatica card se presente nel parametro URL e gli items sono pronti
+  useEffect(() => {
+    if (initialCardParam && items.length > 0) {
+      const found = items.find(
+        (i) => i.card_name.toLowerCase() === initialCardParam.toLowerCase()
+      );
+      if (found) {
+        setSelectedCard(found);
+        setInitialCardParam(null);
+      }
+    }
+  }, [initialCardParam, items]);
+
+  // 4. Aggiorna l'URL quando cambiano filtri, tab o modale
+  useEffect(() => {
+    if (!isInitialized.current || typeof window === "undefined") return;
+
+    const params = new URLSearchParams();
+    if (sort !== "highest") params.set("sort", sort);
+    if (minVotes !== 2) params.set("min_votes", minVotes.toString());
+    if (search.trim()) params.set("q", search.trim());
+    if (activeColors.length > 0) params.set("colors", activeColors.join(","));
+    if (selectedCard) params.set("card", selectedCard.card_name);
+
+    const newQuery = params.toString();
+    const newUrl = newQuery ? `/community/classifica?${newQuery}` : `/community/classifica`;
+    const currentUrl = window.location.pathname + window.location.search;
+
+    if (currentUrl !== newUrl) {
+      if (!isPopState.current) {
+        const isTabChanged = prevSortRef.current !== sort;
+        const currentCardName = selectedCard?.card_name || null;
+        const isCardModalChanged = prevCardRef.current !== currentCardName;
+
+        if (isTabChanged || isCardModalChanged) {
+          window.history.pushState(null, "", newUrl);
+        } else {
+          window.history.replaceState(null, "", newUrl);
+        }
+      }
+    }
+
+    prevSortRef.current = sort;
+    prevCardRef.current = selectedCard?.card_name || null;
+  }, [sort, minVotes, search, activeColors, selectedCard]);
 
   // Chiusura modale con tasto Esc
   useEffect(() => {
