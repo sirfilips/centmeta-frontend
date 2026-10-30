@@ -43,7 +43,7 @@ jobs:
           cd /home/CenturionREC/frontend
           
           echo "[Deploy] Git pull da main..."
-          git pull origin main
+          git pull --ff-only origin main
           
           echo "[Deploy] Installazione dipendenze esatte..."
           npm ci
@@ -51,11 +51,11 @@ jobs:
           echo "[Deploy] Compilazione Next.js di produzione..."
           npm run build
           
-          echo "[Deploy] Riavvio servizio CentMeta..."
+          echo "[Deploy] Riavvio servizio CentMeta (centurionrec)..."
           if command -v sudo >/dev/null 2>&1; then
-            sudo systemctl restart centmeta.service
+            sudo systemctl restart centurionrec.service
           else
-            systemctl restart centmeta.service
+            systemctl restart centurionrec.service
           fi
           
           echo "[Deploy] Deploy frontend completato con successo!"
