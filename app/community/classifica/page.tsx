@@ -314,6 +314,7 @@ export default function ClassificaPage() {
                           src={item.art_crops[0]}
                           alt={item.card_name}
                           fill
+                          unoptimized
                           sizes="56px"
                           className="object-cover"
                         />

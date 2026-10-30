@@ -192,6 +192,7 @@ export default function CommunityPage() {
                         src={card.art_crops[0]}
                         alt={card.card_name}
                         fill
+                        unoptimized
                         sizes="56px"
                         className="object-cover"
                       />
@@ -243,3 +244,4 @@ export default function CommunityPage() {
     </main>
   );
 }
+

@@ -248,6 +248,7 @@ export default function VotaPage() {
                     src={currentImage}
                     alt={currentCard?.card_name || "MTG Card"}
                     fill
+                    unoptimized
                     sizes="(max-width: 640px) 260px, 300px"
                     priority
                     onError={() => setImageError(true)}
