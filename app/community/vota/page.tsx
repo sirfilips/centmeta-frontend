@@ -7,7 +7,8 @@ import {
   Star, 
   RotateCw, 
   SkipForward, 
-  Sparkles, 
+  CalendarDays,
+  Database,
   Info, 
   CheckCircle2, 
   AlertCircle, 
@@ -302,7 +303,7 @@ export default function VotaPage() {
               <div className="flex flex-wrap items-center gap-2">
                 {currentCard?.is_daily_spotlight ? (
                   <span className="inline-flex items-center gap-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                    <Sparkles className="w-3 h-3 text-purple-400" /> Selezione del Giorno (In Rotazione)
+                    <CalendarDays className="w-3 h-3 text-purple-400" /> Selezione del Giorno (In Rotazione)
                   </span>
                 ) : currentCard?.is_core_staple ? (
                   <span className="inline-flex items-center gap-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
@@ -310,7 +311,7 @@ export default function VotaPage() {
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                    <Sparkles className="w-3 h-3 text-blue-400" /> Catalogo CentMeta
+                    <Database className="w-3 h-3 text-blue-400" /> Catalogo CentMeta
                   </span>
                 )}
 

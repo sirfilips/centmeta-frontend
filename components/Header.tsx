@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Star } from 'lucide-react';
+import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Swords } from 'lucide-react';
 
 interface HeaderProps {
   filtroTempo?: string;
@@ -229,7 +229,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                     href="/community/vota" 
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
-                    <Star className="w-4 h-4 text-amber-400" /> Vota le Carte
+                    <Swords className="w-4 h-4 text-amber-400" /> Vota le Carte
                   </a>
                   <a 
                     href="/community/classifica" 

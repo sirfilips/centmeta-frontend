@@ -4,14 +4,14 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Sparkles, Trophy, Compass } from "lucide-react";
+import { ArrowLeft, Swords, Trophy, Compass } from "lucide-react";
 
 export default function CommunityNav() {
   const pathname = usePathname();
 
   const navLinks = [
     { href: "/community", label: "Panoramica", icon: Compass },
-    { href: "/community/vota", label: "Vota Carte", icon: Sparkles },
+    { href: "/community/vota", label: "Vota Carte", icon: Swords },
     { href: "/community/classifica", label: "Classifica", icon: Trophy },
   ];
 

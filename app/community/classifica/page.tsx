@@ -9,7 +9,8 @@ import {
   ThumbsDown, 
   Star, 
   Search, 
-  Sparkles, 
+  SearchX,
+  Swords, 
   ArrowRight,
   Filter,
   X,
@@ -262,7 +263,7 @@ export default function ClassificaPage() {
           /* EMPTY STATE */
           <div className="bg-slate-900/30 border border-slate-800 rounded-3xl p-10 text-center space-y-4 max-w-lg mx-auto mt-8">
             <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
-              <Sparkles className="w-7 h-7 text-amber-400" />
+              <SearchX className="w-7 h-7 text-slate-400" />
             </div>
             <h3 className="text-xl font-bold text-white">Nessuna carta trovata</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
@@ -419,7 +420,7 @@ export default function ClassificaPage() {
             href="/community/vota"
             className="flex-shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase px-5 py-3 rounded-xl transition-all shadow-md shadow-blue-900/30"
           >
-            <Sparkles className="w-4 h-4" />
+            <Swords className="w-4 h-4" />
             <span>Vai all&apos;Arena di Voto</span>
           </Link>
         </div>

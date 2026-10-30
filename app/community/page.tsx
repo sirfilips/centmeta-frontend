@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Trophy, Users, Star, ArrowRight, Flame, Shield, HelpCircle } from "lucide-react";
+import { Trophy, Users, Star, ArrowRight, Flame, Shield, HelpCircle, Layers, Swords, Vote } from "lucide-react";
 import CommunityNav from "../../components/CommunityNav";
 import Footer from "../../components/Footer";
 import ScrollToTop from "../../components/ScrollToTop";
@@ -86,7 +86,7 @@ export default function CommunityPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 text-center shadow-lg">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5">
-              <Star className="w-3.5 h-3.5 text-amber-400" /> Voti Totali
+              <Vote className="w-3.5 h-3.5 text-amber-400" /> Voti Totali
             </div>
             <div className="text-2xl sm:text-3xl font-black text-white">
               {loading ? "..." : data?.total_votes ?? 0}
@@ -95,7 +95,7 @@ export default function CommunityPage() {
 
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 text-center shadow-lg">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" /> Carte Valutate
+              <Layers className="w-3.5 h-3.5 text-purple-400" /> Carte Valutate
             </div>
             <div className="text-2xl sm:text-3xl font-black text-white">
               {loading ? "..." : data?.total_cards_rated ?? 0}
@@ -131,7 +131,7 @@ export default function CommunityPage() {
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                <Sparkles className="w-6 h-6" />
+                <Swords className="w-6 h-6" />
               </div>
               <h2 className="text-2xl font-black text-white group-hover:text-blue-300 transition-colors">
                 Arena di Voto
