@@ -42,7 +42,7 @@ interface CardData {
 
 const STAR_LABELS: Record<number, { title: string; desc: string; color: string }> = {
   1: { title: "Ingiocabile", desc: "Non adatta al formato Centurion", color: "text-red-400" },
-  2: { title: "Scarsa / Marginal", desc: "Giocabile solo in strategie molto ristrette", color: "text-orange-400" },
+  2: { title: "Scarsa / Marginale", desc: "Giocabile solo in strategie molto ristrette", color: "text-orange-400" },
   3: { title: "Situazionale / Buona", desc: "Valida nel mazzo giusto, bilanciata", color: "text-yellow-400" },
   4: { title: "Forte / Eccellente", desc: "Tra le migliori carte per il suo archetipo", color: "text-emerald-400" },
   5: { title: "Staple Assoluto", desc: "Colonna portante del formato, fortissima", color: "text-blue-400" }
@@ -315,8 +315,8 @@ export default function VotaPage() {
                 )}
 
                 {currentCard && (
-                  <span className="text-[11px] font-semibold text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
-                    Presente in {currentCard.decks_count} {currentCard.decks_count === 1 ? "mazzo" : "mazzi"}
+                  <span className="text-[11px] font-semibold text-slate-400 bg-slate-800/60 px-2.5 py-0.5 rounded-full border border-slate-700/50">
+                    Presente in <strong className="text-slate-200">{currentCard.decks_count}</strong> {currentCard.decks_count === 1 ? "mazzo" : "mazzi"} (ultimi 30 giorni)
                   </span>
                 )}
               </div>
