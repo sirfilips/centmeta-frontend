@@ -30,6 +30,13 @@ export default function Footer() {
         {/* Link Utili */}
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2.5 text-xs sm:text-sm font-semibold pb-2">
           <a 
+            href="/community" 
+            className="text-slate-400 hover:text-blue-400 transition-colors"
+          >
+            Community
+          </a>
+          <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
+          <a 
             href="/about" 
             className="text-slate-400 hover:text-blue-400 transition-colors"
           >
