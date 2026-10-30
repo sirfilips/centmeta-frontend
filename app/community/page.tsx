@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Trophy, Users, Star, ArrowRight, Flame, Shield, HelpCircle, Layers, Swords, Vote } from "lucide-react";
+import { Trophy, Users, Star, ArrowRight, Flame, Shield, HelpCircle, Layers, Swords, Vote, FlaskConical } from "lucide-react";
 import CommunityNav from "../../components/CommunityNav";
 import Footer from "../../components/Footer";
 import ScrollToTop from "../../components/ScrollToTop";
@@ -57,9 +57,15 @@ export default function CommunityPage() {
         
         {/* HERO SECTION CON CITAZIONE */}
         <div className="text-center space-y-5 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider shadow-sm">
-            <Users className="w-4 h-4 text-blue-400" />
-            Osservatorio Community CentMeta
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider shadow-sm">
+              <Users className="w-4 h-4 text-blue-400" />
+              Osservatorio Community CentMeta
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider shadow-sm">
+              <FlaskConical className="w-3.5 h-3.5" />
+              Beta
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
@@ -78,8 +84,16 @@ export default function CommunityPage() {
           </div>
 
           <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
-            Esprimi il tuo voto sulle carte del formato Centurion Commander. Scopri cosa ne pensano gli altri giocatori, individua gli staple indiscutibili e le carte più sottovalutate.
+            Esprimi il tuo voto sulle carte del formato Centurion Commander. Scopri cosa ne pensano gli altri giocatori, individua le staple indiscutibili e le carte più sottovalutate.
           </p>
+
+          {/* BANNER NOTA VERSIONE BETA */}
+          <div className="inline-flex items-center gap-3 bg-amber-950/20 border border-amber-500/30 text-amber-200/90 text-xs sm:text-sm px-4 py-3 rounded-2xl max-w-2xl mx-auto text-left shadow-lg">
+            <FlaskConical className="w-5 h-5 text-amber-400 shrink-0" />
+            <p className="leading-relaxed">
+              <strong className="text-amber-300 font-bold">Versione Beta:</strong> Questa sezione è attualmente in fase di test e calibrazione. Stiamo raccogliendo i primi feedback dalla community e affinando gli algoritmi di rotazione delle carte e consolidamento dei voti.
+            </p>
+          </div>
         </div>
 
         {/* CONTATORI IN TEMPO REALE */}
