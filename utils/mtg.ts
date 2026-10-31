@@ -54,6 +54,47 @@ export const COLOR_FILTERS: {
   { label: "Colorless", val: "C", icon: "ms ms-c ms-cost shadow-sm" },
 ];
 
+export const BASIC_LANDS = new Set([
+  "plains",
+  "island",
+  "swamp",
+  "mountain",
+  "forest",
+  "wastes",
+  "snow-covered plains",
+  "snow-covered island",
+  "snow-covered swamp",
+  "snow-covered mountain",
+  "snow-covered forest",
+  "snow-covered wastes",
+]);
+
+export function isBasicLand(cardName?: string): boolean {
+  if (!cardName) return false;
+  return BASIC_LANDS.has(cardName.trim().toLowerCase());
+}
+
+export const VALID_PERIODS = [
+  "Ultimi 7 giorni",
+  "Ultimi 30 giorni",
+  "Ultimi 3 mesi",
+  "Ultimi 6 mesi",
+  "Ultimo anno",
+  "Tutti i tempi",
+] as const;
+
+export function getPeriodQuery(filtroTempo?: string): string {
+  return filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+    ? `?periodo=${encodeURIComponent(filtroTempo)}`
+    : "";
+}
+
+export function getPeriodParam(filtroTempo?: string): string {
+  return filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+    ? `&periodo=${encodeURIComponent(filtroTempo)}`
+    : "";
+}
+
 export function matchesColorIdentity(
   colorsArray: string[],
   activeColors: string[],

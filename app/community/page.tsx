@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Trophy, Users, Star, ArrowRight, Flame, Shield, HelpCircle, Layers, Swords, Vote, FlaskConical } from "lucide-react";
+import { Trophy, Users, Star, ArrowRight, Flame, Shield, Layers, Swords, Vote, FlaskConical } from "lucide-react";
 import CommunityNav from "../../components/CommunityNav";
 import Footer from "../../components/Footer";
 import ScrollToTop from "../../components/ScrollToTop";
@@ -117,7 +117,11 @@ export default function CommunityPage() {
           </div>
 
           <Link
-            href="/community/classifica?sort=highest"
+            href={
+              data?.top_rated?.[0] && data.top_rated[0].total_votes < 2
+                ? "/community/classifica?sort=highest&min_votes=1"
+                : "/community/classifica?sort=highest"
+            }
             className="bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-5 text-center shadow-lg transition-all group block cursor-pointer"
             title="Vedi le carte con punteggio più alto"
           >
@@ -130,7 +134,11 @@ export default function CommunityPage() {
           </Link>
 
           <Link
-            href="/community/classifica?sort=most_voted"
+            href={
+              data?.most_voted?.[0] && data.most_voted[0].total_votes < 2
+                ? "/community/classifica?sort=most_voted&min_votes=1"
+                : "/community/classifica?sort=most_voted"
+            }
             className="bg-slate-900/60 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-5 text-center shadow-lg transition-all group block cursor-pointer"
             title="Vedi le carte più votate"
           >
@@ -203,49 +211,52 @@ export default function CommunityPage() {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.top_rated.map((card, idx) => (
-                <Link
-                  href={`/community/classifica?card=${encodeURIComponent(card.card_name)}`}
-                  key={card.card_name}
-                  className="bg-slate-900/50 border border-slate-800/80 hover:border-blue-500/50 hover:bg-slate-900/80 rounded-2xl p-4 flex items-center gap-4 transition-all shadow-md group block cursor-pointer"
-                  title={`Apri ${card.card_name} nella Classifica`}
-                >
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 relative border border-slate-700/50">
-                    {card.art_crops && card.art_crops[0] ? (
-                      <Image
-                        src={card.art_crops[0]}
-                        alt={card.card_name}
-                        fill
-                        unoptimized
-                        sizes="56px"
-                        className="object-cover group-hover:scale-105 transition-transform"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs font-bold">
-                        MTG
-                      </div>
-                    )}
-                    <span className="absolute top-1 left-1 bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-black text-amber-300">
-                      #{idx + 1}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-sm text-white truncate group-hover:text-blue-300 transition-colors" title={card.card_name}>
-                      {card.card_name}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1 text-xs">
-                      <span className="flex items-center gap-1 font-extrabold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        {card.avg_score.toFixed(1)}
-                      </span>
-                      <span className="text-slate-400 font-medium">
-                        {card.total_votes} {card.total_votes === 1 ? "voto" : "voti"}
+              {data.top_rated.map((card, idx) => {
+                const minVotesQuery = card.total_votes < 2 ? "&min_votes=1" : "";
+                return (
+                  <Link
+                    href={`/community/classifica?card=${encodeURIComponent(card.card_name)}${minVotesQuery}`}
+                    key={card.card_name}
+                    className="bg-slate-900/50 border border-slate-800/80 hover:border-blue-500/50 hover:bg-slate-900/80 rounded-2xl p-4 flex items-center gap-4 transition-all shadow-md group block cursor-pointer"
+                    title={`Apri ${card.card_name} nella Classifica`}
+                  >
+                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 relative border border-slate-700/50">
+                      {card.art_crops && card.art_crops[0] ? (
+                        <Image
+                          src={card.art_crops[0]}
+                          alt={card.card_name}
+                          fill
+                          unoptimized
+                          sizes="56px"
+                          className="object-cover group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs font-bold">
+                          MTG
+                        </div>
+                      )}
+                      <span className="absolute top-1 left-1 bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-black text-amber-300">
+                        #{idx + 1}
                       </span>
                     </div>
-                  </div>
-                </Link>
-              ))}
+
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-sm text-white truncate group-hover:text-blue-300 transition-colors" title={card.card_name}>
+                        {card.card_name}
+                      </h4>
+                      <div className="flex items-center gap-2 mt-1 text-xs">
+                        <span className="flex items-center gap-1 font-extrabold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          {card.avg_score.toFixed(1)}
+                        </span>
+                        <span className="text-slate-400 font-medium">
+                          {card.total_votes} {card.total_votes === 1 ? "voto" : "voti"}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
@@ -268,4 +279,3 @@ export default function CommunityPage() {
     </main>
   );
 }
-

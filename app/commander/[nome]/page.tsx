@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import CentMetaApp from '../../../components/CentMetaApp';
-import { getScryfallArtCropUrl, resolveCardArtCrop } from '../../../utils/og';
+import { buildCardMetadata, getScryfallArtCropUrl } from '../../../utils/og';
 
 type Props = {
   params: { nome: string };
@@ -122,36 +122,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const rawCard = searchParams?.card;
   const cardName = (Array.isArray(rawCard) ? rawCard[0] : rawCard)?.trim();
   if (cardName) {
-    const cardArtCrop = await resolveCardArtCrop(cardName);
-    return {
-      title: `${cardName} | Statistiche, Comandanti e Sinergie Centurion`,
-      description: `Scopri in quanti mazzi è giocata ${cardName}, i comandanti principali e le migliori sinergie nel formato Centurion Commander su CentMeta.`,
-      alternates: {
-        canonical: `https://centmeta.it/?card=${encodeURIComponent(cardName)}`,
-      },
-      openGraph: {
-        title: `${cardName} - CentMeta`,
-        description: `Statistiche di utilizzo, comandanti e sinergie per ${cardName} in Centurion Commander.`,
-        url: `https://centmeta.it/?card=${encodeURIComponent(cardName)}`,
-        siteName: 'CentMeta',
-        images: [
-          {
-            url: cardArtCrop,
-            width: 626,
-            height: 457,
-            alt: `Artwork di ${cardName}`,
-          },
-        ],
-        locale: 'it_IT',
-        type: 'website',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: `${cardName} - CentMeta`,
-        description: `Statistiche di utilizzo, comandanti e sinergie per ${cardName} in Centurion Commander.`,
-        images: [cardArtCrop],
-      },
-    };
+    return buildCardMetadata(cardName);
   }
 
   const commanderArtCrop =

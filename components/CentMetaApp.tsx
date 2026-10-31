@@ -12,7 +12,12 @@ import CommandersGrid from "./CommandersGrid";
 import CommanderOverview from "./CommanderOverview";
 import CardsFilterBar from "./CardsFilterBar";
 import { CardsGrid } from "./CardsGrid";
-import { COLOR_FILTERS, matchesColorIdentity } from "../utils/mtg";
+import {
+  COLOR_FILTERS,
+  VALID_PERIODS,
+  isBasicLand,
+  matchesColorIdentity,
+} from "../utils/mtg";
 import { handleNav } from "../utils/navigation";
 import { ArrowLeft } from "lucide-react";
 
@@ -51,6 +56,7 @@ export default function CentMetaApp({
   const [commanders, setCommanders] = useState<any[]>([]);
 
   const [selectedCommander, setSelectedCommander] = useState(initialCommander);
+  const [searchPreloadRequested, setSearchPreloadRequested] = useState(false);
 
   const [statsData, setStatsData] = useState<{
     total_decks: number;
@@ -103,15 +109,7 @@ export default function CentMetaApp({
     }
 
     const timeParam = params.get("periodo") || params.get("time");
-    const validPeriods = [
-      "Ultimi 7 giorni",
-      "Ultimi 30 giorni",
-      "Ultimi 3 mesi",
-      "Ultimi 6 mesi",
-      "Ultimo anno",
-      "Tutti i tempi",
-    ];
-    if (timeParam && validPeriods.includes(timeParam)) {
+    if (timeParam && (VALID_PERIODS as readonly string[]).includes(timeParam)) {
       setFiltroTempo(timeParam);
     }
 
@@ -250,11 +248,14 @@ export default function CentMetaApp({
     };
   }, [filtroTempo]);
 
+  const needsFullStats =
+    selectedCommander !== "Tutti i mazzi" ||
+    homeMode === "cards" ||
+    searchPreloadRequested;
+
   useEffect(() => {
-    let active = true;
     setIsFlipped(false);
     setShowOracle(false);
-    setApiError(null);
 
     const cacheKey = `${filtroTempo}_${selectedCommander}`;
     if (cacheStats[cacheKey]) {
@@ -262,6 +263,14 @@ export default function CentMetaApp({
       setLoading(false);
       return;
     }
+
+    if (!needsFullStats) {
+      setLoading(false);
+      return;
+    }
+
+    let active = true;
+    setApiError(null);
     setLoading(true);
     const cmdParam =
       selectedCommander === "Tutti i mazzi"
@@ -289,7 +298,7 @@ export default function CentMetaApp({
     return () => {
       active = false;
     };
-  }, [filtroTempo, selectedCommander]);
+  }, [filtroTempo, selectedCommander, needsFullStats, cacheStats]);
 
   useEffect(() => {
     let active = true;
@@ -410,19 +419,6 @@ export default function CentMetaApp({
     setVisibleCount(50);
   };
 
-  const terreBase = [
-    "Plains",
-    "Island",
-    "Swamp",
-    "Mountain",
-    "Forest",
-    "Snow-Covered Plains",
-    "Snow-Covered Island",
-    "Snow-Covered Swamp",
-    "Snow-Covered Mountain",
-    "Snow-Covered Forest",
-  ];
-
   const applyFilters = (cards: any[], tab: string, isSynergyList: boolean = false) => {
     let filtered = cards || [];
     const isHotCardsMode =
@@ -446,7 +442,7 @@ export default function CentMetaApp({
 
     if (tab === "Top Sinergie" || tab === "In Crescita") {
       filtered = filtered.filter(
-        (c) => !terreBase.includes(c.card_name) && c.category !== "Terre",
+        (c) => !isBasicLand(c.card_name) && c.category !== "Terre",
       );
       if (isHotCardsMode) {
         filtered = [...filtered].sort(
@@ -458,7 +454,7 @@ export default function CentMetaApp({
         );
       }
     } else if (tab === "Top Cards") {
-      filtered = filtered.filter((c) => !terreBase.includes(c.card_name));
+      filtered = filtered.filter((c) => !isBasicLand(c.card_name));
       if (isHotCardsMode) {
         filtered = [...filtered].sort(
           (a, b) => (b.delta || 0) - (a.delta || 0),
@@ -470,7 +466,7 @@ export default function CentMetaApp({
       }
     } else if (tab === "Terre") {
       filtered = filtered.filter(
-        (c) => c.category === "Terre" || terreBase.includes(c.card_name),
+        (c) => c.category === "Terre" || isBasicLand(c.card_name),
       );
     } else if (
       tab !== "Tutte" &&
@@ -736,6 +732,7 @@ export default function CentMetaApp({
                       onSelectCard={handleSelectCard}
                       setCardSearch={setCardSearch}
                       setActiveTab={setActiveTab}
+                      onSearchFocus={() => setSearchPreloadRequested(true)}
                     />
 
                     {homeMode === "dashboard" && (

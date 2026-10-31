@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import SkeletonCard from "./SkeletonCard";
 import { EmptyState } from "./EmptyState";
-import { CATEGORY_INFO } from "../utils/mtg";
+import { CATEGORY_INFO, getPeriodParam, getPeriodQuery } from "../utils/mtg";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
+import { shareOrCopyUrl } from "../utils/share";
 import { RefreshCw, Share2, Check } from "lucide-react";
 
 interface CardDetailProps {
@@ -53,14 +54,8 @@ export default function CardDetail({
 }: CardDetailProps) {
   const [isCopied, setIsCopied] = useState(false);
 
-  const periodQuery =
-    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
-      ? `?periodo=${encodeURIComponent(filtroTempo)}`
-      : "";
-  const periodParam =
-    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
-      ? `&periodo=${encodeURIComponent(filtroTempo)}`
-      : "";
+  const periodQuery = getPeriodQuery(filtroTempo);
+  const periodParam = getPeriodParam(filtroTempo);
 
   const handleShare = async () => {
     const cName = cardDetailData?.card_name || selectedCardDetail;
@@ -70,47 +65,14 @@ export default function CardDetail({
         : "https://centmeta.it";
     const url = `${origin}/?card=${encodeURIComponent(cName)}${periodParam}`;
 
-    const isMobile =
-      typeof navigator !== "undefined" &&
-      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent,
-      ) ||
-        (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
-
-    if (isMobile && navigator.share) {
-      try {
-        await navigator.share({
-          title: `${cName} | CentMeta`,
-          text: `Statistiche, comandanti principali e sinergie per ${cName} nel formato Centurion Commander`,
-          url,
-        });
-        return;
-      } catch (err: any) {
-        if (err.name === "AbortError") return;
-      }
-    }
-
-    try {
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      } else {
-        throw new Error("Clipboard API non supportata");
-      }
-    } catch {
-      try {
-        const textArea = document.createElement("textarea");
-        textArea.value = url;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      } catch (fallbackErr) {
-        console.error("Impossibile copiare il link:", fallbackErr);
-      }
+    const copied = await shareOrCopyUrl({
+      title: `${cName} | CentMeta`,
+      text: `Statistiche, comandanti principali e sinergie per ${cName} nel formato Centurion Commander`,
+      url,
+    });
+    if (copied) {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     }
   };
 
@@ -132,11 +94,11 @@ export default function CardDetail({
       ) : (
         cardDetailData && (
           <div className="space-y-12">
-            <div className="border border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12 shadow-2xl relative bg-slate-900/40">
-              <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12 w-full">
-                <div className="flex justify-center items-center flex-shrink-0 mx-auto md:mx-0 w-full md:w-auto xl:w-[350px]">
+            <div className="border border-slate-800 rounded-3xl p-5 sm:p-6 md:p-8 3xl:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 3xl:gap-12 shadow-2xl relative bg-slate-900/40">
+              <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 3xl:gap-12 w-full">
+                <div className="flex justify-center items-center flex-shrink-0 mx-auto md:mx-0 w-full md:w-auto xl:w-[270px] 2xl:w-[290px] 3xl:w-[350px]">
                   {cardDetailData.images && cardDetailData.images.length > 1 ? (
-                    <div className="relative w-56 md:w-72 xl:w-80 aspect-[2.5/3.5] [perspective:1000px] group">
+                    <div className="relative w-56 md:w-64 xl:w-[270px] 2xl:w-[290px] 3xl:w-80 aspect-[2.5/3.5] [perspective:1000px] group">
                       <div
                         className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${isFlipped ? "[transform:rotateY(180deg)]" : ""}`}
                       >
@@ -185,7 +147,7 @@ export default function CardDetail({
                     </div>
                   ) : cardDetailData.images &&
                     cardDetailData.images.length === 1 ? (
-                    <div className="relative group w-56 md:w-72 xl:w-80">
+                    <div className="relative group w-56 md:w-64 xl:w-[270px] 2xl:w-[290px] 3xl:w-80">
                       <img
                         src={cardDetailData.images[0]}
                         draggable={true}
@@ -201,13 +163,13 @@ export default function CardDetail({
                       />
                     </div>
                   ) : (
-                    <div className="w-56 md:w-72 h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 px-4 text-center">
+                    <div className="w-56 md:w-64 xl:w-[270px] 2xl:w-[290px] 3xl:w-80 h-72 md:h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 px-4 text-center">
                       {cardDetailData.card_name || selectedCardDetail}
                     </div>
                   )}
                 </div>
                 {/* PANNELLO ESTESO (flex-1) */}
-                <div className="flex flex-col gap-4 w-full flex-1 relative isolate overflow-hidden rounded-3xl p-6 md:p-10 border border-slate-700/50 shadow-xl min-h-[320px] justify-center">
+                <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate overflow-hidden rounded-3xl p-5 sm:p-6 md:p-8 3xl:p-10 border border-slate-700/50 shadow-xl min-h-[auto] md:min-h-[280px] 3xl:min-h-[320px] justify-center">
                   {cardDetailData.art_crops?.[0] && (
                     <div
                       className="absolute inset-0 bg-cover bg-center filter blur-md scale-110 opacity-80 -z-20 pointer-events-none"
@@ -246,7 +208,7 @@ export default function CardDetail({
                         </button>
                       </div>
                       <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-md">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl 3xl:text-6xl font-black text-white drop-shadow-md">
                           {cardDetailData.card_name || selectedCardDetail}
                         </h2>
                       </div>
@@ -258,7 +220,7 @@ export default function CardDetail({
                             (oracle: string, idx: number) => (
                               <p
                                 key={idx}
-                                className="text-slate-200 text-sm md:text-base bg-slate-950/60 p-5 rounded-xl border border-slate-800/80 whitespace-pre-line leading-relaxed shadow-inner"
+                                className="text-slate-200 text-xs md:text-sm 3xl:text-base bg-slate-950/60 p-3.5 md:p-4 3xl:p-5 rounded-xl border border-slate-800/80 whitespace-pre-line leading-relaxed shadow-inner"
                               >
                                 {oracle}
                               </p>
@@ -266,7 +228,7 @@ export default function CardDetail({
                           )}
                         </div>
                       )}
-                    <div className="mt-4 bg-slate-800/50 p-5 rounded-xl border border-slate-700/50 flex flex-col gap-1 shadow-sm">
+                    <div className="mt-3 md:mt-4 bg-slate-800/50 p-4 3xl:p-5 rounded-xl border border-slate-700/50 flex flex-col gap-1 shadow-sm">
                       <div className="text-sm md:text-base text-slate-200">
                         Presente in{" "}
                         <span className="text-blue-400 font-black text-xl">
@@ -350,6 +312,8 @@ export default function CardDetail({
                             <img
                               src={cmd.images[0]}
                               alt={cmd.comandante.split(" / ")[0]}
+                              loading="lazy"
+                              decoding="async"
                               draggable={true}
                               onDragStart={(e) =>
                                 handleCardDragStart(
@@ -363,6 +327,8 @@ export default function CardDetail({
                             <img
                               src={cmd.images[1]}
                               alt={cmd.comandante.split(" / ")[1]}
+                              loading="lazy"
+                              decoding="async"
                               draggable={true}
                               onDragStart={(e) =>
                                 handleCardDragStart(
@@ -378,6 +344,8 @@ export default function CardDetail({
                           <img
                             src={cmd.images[0]}
                             alt={cmd.comandante}
+                            loading="lazy"
+                            decoding="async"
                             draggable={true}
                             onDragStart={(e) =>
                               handleCardDragStart(
@@ -538,6 +506,8 @@ export default function CardDetail({
                             {displayImages.length === 1 ? (
                               <img
                                 src={displayImages[0]}
+                                loading="lazy"
+                                decoding="async"
                                 draggable={true}
                                 onDragStart={(e) =>
                                   handleCardDragStart(

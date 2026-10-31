@@ -1,6 +1,14 @@
 'use client';
 import React from 'react';
 
+function escapeHtmlAttr(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 /**
  * Gestisce l'inizio del trascinamento (drag) di una carta.
  * Configura il dataTransfer per essere compatibile al 100% con Moxfield, Archidekt e Scryfall,
@@ -26,7 +34,9 @@ export function handleCardDragStart(
   }
 
   // 3. text/html: Tag <a> e <img> compatibile con Scryfall ed EDHREC
-  const htmlPayload = `<a href="${scryfallSearchUrl}"><img src="${imageUrl || ''}" alt="${cardName}" data-card-name="${cardName}" /></a>`;
+  const safeName = escapeHtmlAttr(cardName);
+  const safeImg = escapeHtmlAttr(imageUrl || '');
+  const htmlPayload = `<a href="${scryfallSearchUrl}"><img src="${safeImg}" alt="${safeName}" data-card-name="${safeName}" /></a>`;
   e.dataTransfer.setData('text/html', htmlPayload);
 
   // 4. custom MTG mime type se supportato
@@ -38,4 +48,3 @@ export function handleCardDragStart(
 
   e.dataTransfer.effectAllowed = 'copyLink';
 }
-

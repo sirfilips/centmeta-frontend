@@ -29,6 +29,7 @@ interface HeroSectionProps {
   onSelectCard?: (name: string) => void;
   setCardSearch?: (val: string) => void;
   setActiveTab?: (val: string) => void;
+  onSearchFocus?: () => void;
 }
 
 const BACKGROUND_IMAGES = [
@@ -70,9 +71,13 @@ export default function HeroSection({
   onSelectCard,
   setCardSearch,
   setActiveTab,
+  onSearchFocus,
 }: HeroSectionProps) {
   const isDashboard = homeMode === "dashboard";
   const [bgIndex, setBgIndex] = useState(0);
+  const [loadedBgIndices, setLoadedBgIndices] = useState<Set<number>>(
+    () => new Set([0, 1]),
+  );
 
   // Stato ricerca ed autocomplete
   const [query, setQuery] = useState(commanderSearch || "");
@@ -90,12 +95,23 @@ export default function HeroSection({
     }
   }, [commanderSearch, isDashboard]);
 
-  // Carosello sfondi
+  // Carosello sfondi con precaricamento progressivo dell'immagine successiva
   useEffect(() => {
     if (!isDashboard) return;
 
     const intervalId = setInterval(() => {
-      setBgIndex((prevIndex) => (prevIndex + 1) % BACKGROUND_IMAGES.length);
+      setBgIndex((prevIndex) => {
+        const nextIndex = (prevIndex + 1) % BACKGROUND_IMAGES.length;
+        const preloadIndex = (nextIndex + 1) % BACKGROUND_IMAGES.length;
+        setLoadedBgIndices((prevSet) => {
+          if (prevSet.has(nextIndex) && prevSet.has(preloadIndex)) return prevSet;
+          const nextSet = new Set(prevSet);
+          nextSet.add(nextIndex);
+          nextSet.add(preloadIndex);
+          return nextSet;
+        });
+        return nextIndex;
+      });
     }, CAROUSEL_INTERVAL);
 
     return () => clearInterval(intervalId);
@@ -238,6 +254,7 @@ export default function HeroSection({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
+    if (onSearchFocus) onSearchFocus();
     setQuery(val);
     setIsOpen(val.trim().length >= 2);
     setHighlightedIndex(-1);
@@ -247,19 +264,28 @@ export default function HeroSection({
     }
   };
 
+  const routeSearchFallback = (trimmedQuery: string) => {
+    const shouldRouteToCards =
+      searchTab === "cards" ||
+      (searchTab === "all" &&
+        matchingCommanders.length === 0 &&
+        matchingCards.length > 0);
+    if (shouldRouteToCards && setCardSearch) {
+      setCardSearch(trimmedQuery);
+      if (setActiveTab) setActiveTab("Top Cards");
+      setHomeMode("cards");
+    } else {
+      setCommanderSearch(trimmedQuery);
+      setHomeMode("commanders");
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isOpen || flatItems.length === 0) {
       if (e.key === "Enter" && query.trim()) {
         e.preventDefault();
         setIsOpen(false);
-        if (searchTab === "cards" && setCardSearch) {
-          setCardSearch(query.trim());
-          if (setActiveTab) setActiveTab("Top Cards");
-          setHomeMode("cards");
-        } else {
-          setCommanderSearch(query.trim());
-          setHomeMode("commanders");
-        }
+        routeSearchFallback(query.trim());
       }
       return;
     }
@@ -276,15 +302,9 @@ export default function HeroSection({
         handleSelect(flatItems[highlightedIndex]);
       } else if (flatItems.length > 0) {
         handleSelect(flatItems[0]);
-      } else if (searchTab === "cards" && setCardSearch) {
-        setIsOpen(false);
-        setCardSearch(query.trim());
-        if (setActiveTab) setActiveTab("Top Cards");
-        setHomeMode("cards");
       } else {
         setIsOpen(false);
-        setCommanderSearch(query.trim());
-        setHomeMode("commanders");
+        routeSearchFallback(query.trim());
       }
     } else if (e.key === "Escape") {
       setIsOpen(false);
@@ -318,7 +338,11 @@ export default function HeroSection({
               className={`absolute inset-[-10%] bg-cover bg-[center_33%] transition-opacity duration-1000 ease-in-out ${
                 index === bgIndex ? "opacity-70" : "opacity-0"
               }`}
-              style={{ backgroundImage: `url("/background/${image}")` }}
+              style={
+                loadedBgIndices.has(index)
+                  ? { backgroundImage: `url("/background/${image}")` }
+                  : undefined
+              }
             ></div>
           ))}
           <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[12px]"></div>
@@ -411,6 +435,7 @@ export default function HeroSection({
             value={query}
             onChange={handleInputChange}
             onFocus={() => {
+              if (onSearchFocus) onSearchFocus();
               if (cleanQ.length >= 2) setIsOpen(true);
             }}
             onKeyDown={handleKeyDown}
@@ -540,6 +565,8 @@ export default function HeroSection({
                                 <img
                                   src={img}
                                   alt={cmd.comandante}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-9 h-9 rounded-full object-cover border border-slate-700/80 shrink-0 bg-slate-800"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = "none";
@@ -619,6 +646,8 @@ export default function HeroSection({
                                 <img
                                   src={img}
                                   alt={cardName}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-9 h-9 rounded-lg object-cover border border-slate-700/80 shrink-0 bg-slate-800"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = "none";

@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1921px', // Schermi 1440p (2560px), 4K e ultrawide oltre il classico FHD 1080p
+      },
       colors: {
         // IL NUOVO TEMA "SLAVATO" E POLVEROSO
         slate: {
@@ -43,6 +46,5 @@ const config: Config = {
   },
   plugins: [],
 };
-export default config;
 
 export default config;

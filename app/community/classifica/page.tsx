@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -12,6 +12,7 @@ import {
   SearchX,
   Swords, 
   ArrowRight,
+  ArrowDown,
   Filter,
   X,
   RotateCw,
@@ -21,7 +22,7 @@ import {
 import CommunityNav from "../../../components/CommunityNav";
 import Footer from "../../../components/Footer";
 import ScrollToTop from "../../../components/ScrollToTop";
-import { COLOR_FILTERS, matchesColorIdentity } from "../../../utils/mtg";
+import { COLOR_FILTERS } from "../../../utils/mtg";
 import { handleCardDragStart } from "../../../utils/dragCard";
 
 interface LeaderboardItem {
@@ -37,15 +38,28 @@ interface LeaderboardItem {
   color_identity: string[];
 }
 
+function useDebounce(value: string, delay: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
+
+const PAGE_LIMIT = 100;
+
 export default function ClassificaPage() {
   const [sort, setSort] = useState<"highest" | "most_voted" | "lowest">("highest");
   const [minVotes, setMinVotes] = useState(2);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 250);
   const [activeColors, setActiveColors] = useState<string[]>([]);
 
   const [items, setItems] = useState<LeaderboardItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Stato modale visualizzazione carta draggable
@@ -116,18 +130,49 @@ export default function ClassificaPage() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [syncStateFromURL]);
 
-  // 3. Apertura automatica card se presente nel parametro URL e gli items sono pronti
+  // 3. Apertura automatica card se presente nel parametro URL
   useEffect(() => {
-    if (initialCardParam && items.length > 0) {
-      const found = items.find(
-        (i) => i.card_name.toLowerCase() === initialCardParam.toLowerCase()
-      );
-      if (found) {
-        setSelectedCard(found);
-        setInitialCardParam(null);
-      }
+    if (!initialCardParam || loading) return;
+
+    const found = items.find(
+      (i) => i.card_name.toLowerCase() === initialCardParam.toLowerCase()
+    );
+    if (found) {
+      setSelectedCard(found);
+      setInitialCardParam(null);
+      return;
     }
-  }, [initialCardParam, items]);
+
+    // Se non è nei primi 100 o ha 1 solo voto, facciamo una ricerca mirata sul backend con min_votes=1
+    let active = true;
+    const lookupParams = new URLSearchParams({
+      sort: "highest",
+      min_votes: "1",
+      limit: "20",
+      offset: "0",
+      search: initialCardParam,
+    });
+    fetch(`/api/community/leaderboard?${lookupParams.toString()}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!active) return;
+        const exact = (data?.items || []).find(
+          (i: LeaderboardItem) =>
+            i.card_name.toLowerCase() === initialCardParam.toLowerCase()
+        );
+        if (exact) {
+          setSelectedCard(exact);
+        }
+        setInitialCardParam(null);
+      })
+      .catch(() => {
+        if (active) setInitialCardParam(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [initialCardParam, items, loading]);
 
   // 4. Aggiorna l'URL quando cambiano filtri, tab o modale
   useEffect(() => {
@@ -139,6 +184,7 @@ export default function ClassificaPage() {
     if (search.trim()) params.set("q", search.trim());
     if (activeColors.length > 0) params.set("colors", activeColors.join(","));
     if (selectedCard) params.set("card", selectedCard.card_name);
+    else if (initialCardParam) params.set("card", initialCardParam);
 
     const newQuery = params.toString();
     const newUrl = newQuery ? `/community/classifica?${newQuery}` : `/community/classifica`;
@@ -160,7 +206,7 @@ export default function ClassificaPage() {
 
     prevSortRef.current = sort;
     prevCardRef.current = selectedCard?.card_name || null;
-  }, [sort, minVotes, search, activeColors, selectedCard]);
+  }, [sort, minVotes, search, activeColors, selectedCard, initialCardParam]);
 
   // Chiusura modale con tasto Esc
   useEffect(() => {
@@ -173,7 +219,7 @@ export default function ClassificaPage() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
-  // Fetch dei dati dalla classifica
+  // Fetch dei dati dalla classifica (con ricerca e filtro colori lato server)
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -182,9 +228,15 @@ export default function ClassificaPage() {
     const params = new URLSearchParams({
       sort: sort,
       min_votes: minVotes.toString(),
-      limit: "100",
+      limit: PAGE_LIMIT.toString(),
       offset: "0",
     });
+    if (debouncedSearch.trim()) {
+      params.set("search", debouncedSearch.trim());
+    }
+    if (activeColors.length > 0) {
+      params.set("colors", activeColors.join(","));
+    }
 
     fetch(`/api/community/leaderboard?${params.toString()}`)
       .then((res) => {
@@ -207,7 +259,43 @@ export default function ClassificaPage() {
     return () => {
       active = false;
     };
-  }, [sort, minVotes]);
+  }, [sort, minVotes, debouncedSearch, activeColors]);
+
+  const handleLoadMore = () => {
+    if (loadingMore || items.length >= totalCount) return;
+    setLoadingMore(true);
+
+    const params = new URLSearchParams({
+      sort: sort,
+      min_votes: minVotes.toString(),
+      limit: PAGE_LIMIT.toString(),
+      offset: items.length.toString(),
+    });
+    if (debouncedSearch.trim()) {
+      params.set("search", debouncedSearch.trim());
+    }
+    if (activeColors.length > 0) {
+      params.set("colors", activeColors.join(","));
+    }
+
+    fetch(`/api/community/leaderboard?${params.toString()}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        const nextItems: LeaderboardItem[] = data.items || [];
+        setItems((prev) => {
+          const existing = new Set(prev.map((i) => i.card_name));
+          return [...prev, ...nextItems.filter((i) => !existing.has(i.card_name))];
+        });
+        setTotalCount(data.total || 0);
+        setLoadingMore(false);
+      })
+      .catch(() => {
+        setLoadingMore(false);
+      });
+  };
 
   // Gestione filtro colori
   const toggleColor = (colorVal: string) => {
@@ -219,15 +307,6 @@ export default function ClassificaPage() {
       prev.includes(colorVal) ? prev.filter((c) => c !== colorVal) : [...prev, colorVal]
     );
   };
-
-  // Filtraggio locale per ricerca testuale e colori
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const matchSearch = item.card_name.toLowerCase().includes(search.toLowerCase());
-      const matchColor = matchesColorIdentity(item.color_identity || [], activeColors);
-      return matchSearch && matchColor;
-    });
-  }, [items, search, activeColors]);
 
   const hasActiveFilters = search !== "" || activeColors.length > 0 || minVotes !== 2;
   const resetFilters = () => {
@@ -369,7 +448,7 @@ export default function ClassificaPage() {
               />
             ))}
           </div>
-        ) : filteredItems.length === 0 ? (
+        ) : items.length === 0 ? (
           /* EMPTY STATE */
           <div className="bg-slate-900/30 border border-slate-800 rounded-3xl p-10 text-center space-y-4 max-w-lg mx-auto mt-8">
             <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
@@ -404,11 +483,11 @@ export default function ClassificaPage() {
           /* LISTA DELLE CARTE */
           <div className="space-y-3">
             <div className="text-xs text-slate-400 font-semibold px-2 flex justify-between items-center">
-              <span>Mostrando {filteredItems.length} carte ({totalCount} totali nel database)</span>
+              <span>Mostrando {items.length} carte ({totalCount} totali trovate)</span>
               <span>Punteggio medio su 5.0 ★</span>
             </div>
 
-            {filteredItems.map((item, index) => {
+            {items.map((item, index) => {
               const rank = index + 1;
               const isTop3 = rank <= 3 && sort === "highest";
 
@@ -515,6 +594,24 @@ export default function ClassificaPage() {
                 </div>
               );
             })}
+
+            {items.length < totalCount && (
+              <div className="pt-6 text-center">
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-200 text-xs sm:text-sm font-bold py-3 px-8 rounded-full border border-slate-700 transition shadow-lg inline-flex items-center justify-center gap-2"
+                >
+                  <span>
+                    {loadingMore
+                      ? "Caricamento..."
+                      : `Mostra altre carte (${items.length} di ${totalCount})`}
+                  </span>
+                  <ArrowDown className="w-4 h-4" strokeWidth={2.5} />
+                </button>
+              </div>
+            )}
           </div>
         )}
 

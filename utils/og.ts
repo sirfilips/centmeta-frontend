@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 /**
  * Restituisce l'URL deterministico di Scryfall per ottenere l'art_crop
  * di una carta o di un comandante (gestendo Partner " / " e carte bifronte " // ").
@@ -43,3 +45,41 @@ export async function resolveCardArtCrop(cardName: string): Promise<string> {
   return fallback;
 }
 
+/**
+ * Costruisce i metadati OpenGraph e Twitter condivisi per una singola carta (?card=...).
+ */
+export async function buildCardMetadata(cardName: string): Promise<Metadata> {
+  const cardArtCrop = await resolveCardArtCrop(cardName);
+  const canonicalUrl = `https://centmeta.it/?card=${encodeURIComponent(cardName)}`;
+  const description = `Statistiche di utilizzo, comandanti e sinergie per ${cardName} in Centurion Commander.`;
+
+  return {
+    title: `${cardName} | Statistiche, Comandanti e Sinergie Centurion`,
+    description: `Scopri in quanti mazzi è giocata ${cardName}, i comandanti principali e le migliori sinergie nel formato Centurion Commander su CentMeta.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${cardName} - CentMeta`,
+      description,
+      url: canonicalUrl,
+      siteName: "CentMeta",
+      images: [
+        {
+          url: cardArtCrop,
+          width: 626,
+          height: 457,
+          alt: `Artwork di ${cardName}`,
+        },
+      ],
+      locale: "it_IT",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${cardName} - CentMeta`,
+      description,
+      images: [cardArtCrop],
+    },
+  };
+}

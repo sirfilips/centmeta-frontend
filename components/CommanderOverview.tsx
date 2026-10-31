@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { CATEGORY_INFO } from "../utils/mtg";
+import { shareOrCopyUrl } from "../utils/share";
 import {
   RefreshCw,
   ChevronUp,
@@ -63,42 +64,19 @@ export default function CommanderOverview({
         ? `${window.location.origin}/commander/${encodeURIComponent(selectedCommander)}${shareQuery}`
         : `https://centmeta.it/commander/${encodeURIComponent(selectedCommander)}`;
 
-    // Rileva se è un vero dispositivo mobile (smartphone/tablet)
-    const isMobile =
-      typeof navigator !== "undefined" &&
-      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent,
-      ) ||
-        (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
-
-    // Su mobile apre la comoda condivisione nativa (WhatsApp, Telegram, ecc.)
-    if (isMobile && navigator.share) {
-      try {
-        await navigator.share({
-          title: `${selectedCommander} | CentMeta`,
-          text: `Analisi, statistiche e migliori carte per ${selectedCommander} nel formato Centurion Commander`,
-          url: url,
-        });
-        return;
-      } catch (err: any) {
-        if (err.name === "AbortError") return;
-      }
-    }
-
-    // Su PC: copia rapida e silenziosa negli appunti senza finestre di sistema
-    try {
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2500);
-      }
-    } catch (err) {
-      console.error("Impossibile copiare il link", err);
+    const copied = await shareOrCopyUrl({
+      title: `${selectedCommander} | CentMeta`,
+      text: `Analisi, statistiche e migliori carte per ${selectedCommander} nel formato Centurion Commander`,
+      url,
+    });
+    if (copied) {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2500);
     }
   };
   return (
     <section
-      className={`mb-8 md:mb-10 border border-slate-800 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-10 flex flex-col lg:flex-row items-center lg:items-start gap-5 md:gap-12 shadow-2xl relative overflow-hidden transition-all duration-500 ${loading ? "bg-slate-950/80" : "bg-slate-900/40 animate-fade-in"}`}
+      className={`mb-8 md:mb-10 border border-slate-800 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 3xl:p-10 flex flex-col lg:flex-row items-center lg:items-start gap-5 md:gap-8 3xl:gap-12 shadow-2xl relative overflow-hidden transition-all duration-500 ${loading ? "bg-slate-950/80" : "bg-slate-900/40 animate-fade-in"}`}
     >
       {/* Loading overlay */}
       <div
@@ -132,10 +110,10 @@ export default function CommanderOverview({
       </div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-indigo-900 z-10"></div>
       <div
-        className={`relative z-10 flex flex-col lg:flex-row items-center lg:items-start gap-5 md:gap-12 w-full transition-opacity duration-300 ${loading ? "opacity-40 grayscale-[30%]" : "opacity-100"}`}
+        className={`relative z-10 flex flex-col lg:flex-row items-center lg:items-start gap-5 md:gap-8 3xl:gap-12 w-full transition-opacity duration-300 ${loading ? "opacity-40 grayscale-[30%]" : "opacity-100"}`}
       >
         {/* Immagine Comandante (Partner / Flip / Singola con Drag & Drop) */}
-        <div className="relative group flex justify-center items-center flex-shrink-0 mx-auto lg:mx-0 w-44 sm:w-56 md:w-64 xl:w-[350px]">
+        <div className="relative group flex justify-center items-center flex-shrink-0 mx-auto lg:mx-0 w-44 sm:w-56 md:w-60 lg:w-64 xl:w-[270px] 2xl:w-[290px] 3xl:w-[350px]">
           {selectedCommander.includes(" / ") &&
           !selectedCommander.includes(" // ") ? (
             <div className="relative w-full aspect-[2.5/3.5] flex-shrink-0 flex justify-center items-center">
@@ -149,7 +127,7 @@ export default function CommanderOverview({
                     selectedCmdObj?.images?.[0],
                   )
                 }
-                className="absolute w-[75%] max-h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 -translate-x-4 md:-translate-x-8 -translate-y-3 md:-translate-y-6 -rotate-6 z-10 hover:z-30 hover:scale-105 transition-all duration-300"
+                className="absolute w-[75%] max-h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 -translate-x-4 md:-translate-x-6 3xl:-translate-x-8 -translate-y-3 md:-translate-y-5 3xl:-translate-y-6 -rotate-6 z-10 hover:z-30 hover:scale-105 transition-all duration-300"
                 alt="Partner 1"
               />
               <img
@@ -162,7 +140,7 @@ export default function CommanderOverview({
                     selectedCmdObj?.images?.[1],
                   )
                 }
-                className="absolute w-[75%] max-h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 translate-x-4 md:translate-x-8 translate-y-3 md:translate-y-6 rotate-6 z-20 hover:z-30 hover:scale-105 transition-all duration-300"
+                className="absolute w-[75%] max-h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 translate-x-4 md:translate-x-6 3xl:translate-x-8 translate-y-3 md:translate-y-5 3xl:translate-y-6 rotate-6 z-20 hover:z-30 hover:scale-105 transition-all duration-300"
                 alt="Partner 2"
               />
             </div>
@@ -230,7 +208,7 @@ export default function CommanderOverview({
           ) : null}
         </div>
         {/* Pannello Dati: Titolo, Oracle, Mazzi, Mana Curve, Composizione */}
-        <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-10 border border-slate-700/50 shadow-xl min-h-[auto] lg:min-h-[320px] justify-start">
+        <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 3xl:p-10 border border-slate-700/50 shadow-xl min-h-[auto] lg:min-h-[280px] 3xl:min-h-[320px] justify-start">
           <div className="absolute inset-0 rounded-2xl md:rounded-3xl overflow-hidden -z-20 pointer-events-none [mask-image:linear-gradient(white,white)] [transform:translateZ(0)]">
             {selectedCmdObj?.art_crops?.[0] && (
               <div
@@ -248,7 +226,7 @@ export default function CommanderOverview({
                 <span className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-2.5 py-1 md:px-3 md:py-1 rounded-full border border-blue-900/50 shadow-inner inline-block">
                   Comandante Analizzato
                 </span>
-                <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-white mt-2 md:mt-3 drop-shadow-md leading-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl 3xl:text-6xl font-black text-white mt-2 md:mt-2.5 drop-shadow-md leading-tight">
                   {selectedCommander}
                 </h1>
               </div>
@@ -303,7 +281,7 @@ export default function CommanderOverview({
                   {selectedCmdObj.oracles.map((oracle: string, idx: number) => (
                     <p
                       key={idx}
-                      className="text-slate-200 text-xs md:text-base bg-slate-950/80 md:bg-slate-950/60 p-4 md:p-5 rounded-xl border border-slate-800 whitespace-pre-line leading-relaxed shadow-inner"
+                      className="text-slate-200 text-xs md:text-sm 3xl:text-base bg-slate-950/80 md:bg-slate-950/60 p-3.5 md:p-4 3xl:p-5 rounded-xl border border-slate-800 whitespace-pre-line leading-relaxed shadow-inner"
                     >
                       {oracle}
                     </p>
@@ -314,11 +292,11 @@ export default function CommanderOverview({
             <div className="flex flex-col xl:flex-row flex-wrap items-stretch gap-3 md:gap-4 mt-3 md:mt-5">
               {/* Box Mazzi Trovati */}
               <div className="bg-slate-800/80 rounded-xl border border-slate-700/50 shadow-sm flex flex-col w-full xl:w-auto xl:min-w-[160px] overflow-hidden">
-                <div className="px-4 py-3 md:px-6 md:py-5 flex-1 flex flex-col justify-center items-center xl:items-start text-center xl:text-left">
+                <div className="px-4 py-3 md:px-5 md:py-4 3xl:px-6 3xl:py-5 flex-1 flex flex-col justify-center items-center xl:items-start text-center xl:text-left">
                   <span className="text-[10px] md:text-xs text-slate-400 block mb-0.5 md:mb-2 font-medium">
                     Mazzi Trovati
                   </span>
-                  <span className="text-3xl md:text-4xl font-black text-blue-400">
+                  <span className="text-2xl md:text-3xl 3xl:text-4xl font-black text-blue-400">
                     {statsData.total_decks}
                   </span>
                 </div>
@@ -341,11 +319,11 @@ export default function CommanderOverview({
               {/* Grafico Curva del Mana */}
               {statsData.mana_curve &&
                 Object.keys(statsData.mana_curve).length > 0 && (
-                  <div className="bg-slate-800/80 px-4 py-4 md:px-6 md:py-5 rounded-xl border border-slate-700/50 shadow-sm flex flex-col flex-1 w-full xl:max-w-[450px]">
+                  <div className="bg-slate-800/80 px-4 py-3.5 md:px-5 md:py-4 3xl:px-6 3xl:py-5 rounded-xl border border-slate-700/50 shadow-sm flex flex-col flex-1 w-full xl:max-w-[450px]">
                     <span className="text-[10px] md:text-xs text-slate-400 block mb-2 md:mb-4 font-medium text-center xl:text-left">
                       Curva del Mana Media
                     </span>
-                    <div className="flex flex-col h-16 md:h-24 w-full">
+                    <div className="flex flex-col h-16 md:h-20 3xl:h-24 w-full">
                       <div className="flex items-end justify-start gap-1 sm:gap-2 h-full w-full border-b border-slate-700/50 pb-1">
                         {[0, 1, 2, 3, 4, 5, 6].map((cmc) => {
                           const val = statsData.mana_curve[cmc] || 0;
@@ -391,7 +369,7 @@ export default function CommanderOverview({
               {/* Grafico Composizione Media */}
               {statsData.type_distribution &&
                 Object.keys(statsData.type_distribution).length > 0 && (
-                  <div className="bg-slate-800/80 px-4 py-4 md:px-6 md:py-5 rounded-xl border border-slate-700/50 shadow-sm flex flex-col flex-1 w-full xl:max-w-[450px]">
+                  <div className="bg-slate-800/80 px-4 py-3.5 md:px-5 md:py-4 3xl:px-6 3xl:py-5 rounded-xl border border-slate-700/50 shadow-sm flex flex-col flex-1 w-full xl:max-w-[450px]">
                     <span className="text-[10px] md:text-xs text-slate-400 block mb-2 md:mb-4 font-medium text-center xl:text-left">
                       Composizione Media
                     </span>

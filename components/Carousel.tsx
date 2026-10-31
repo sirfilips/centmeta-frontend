@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import TrendIndicator from "./TrendIndicator";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
+import { getPeriodParam, getPeriodQuery } from "../utils/mtg";
 import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-react";
 
 const Carousel = ({
@@ -15,14 +16,8 @@ const Carousel = ({
   filtroTempo,
 }: any) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const periodQuery =
-    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
-      ? `?periodo=${encodeURIComponent(filtroTempo)}`
-      : "";
-  const periodParam =
-    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
-      ? `&periodo=${encodeURIComponent(filtroTempo)}`
-      : "";
+  const periodQuery = getPeriodQuery(filtroTempo);
+  const periodParam = getPeriodParam(filtroTempo);
 
   const scroll = (offset: number) => {
     if (scrollRef.current)

@@ -3,6 +3,7 @@
 import React from "react";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
+import { getPeriodQuery } from "../utils/mtg";
 import EmptyState from "./EmptyState";
 import TrendIndicator from "./TrendIndicator";
 import { ArrowLeft, ArrowDown } from "lucide-react";
@@ -25,34 +26,20 @@ interface CommandersGridProps {
 
 export default function CommandersGrid({
   colors,
-
   activeColors,
-
   toggleColor,
-
   listToRender,
-
   visibleCount,
-
   setVisibleCount,
-
   commanderSort,
-
   commanders,
-
   handleSelectCommander,
-
   setCommanderSearch,
-
   setActiveColors,
-
   handleResetHome,
   filtroTempo,
 }: CommandersGridProps) {
-  const periodQuery =
-    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
-      ? `?periodo=${encodeURIComponent(filtroTempo)}`
-      : "";
+  const periodQuery = getPeriodQuery(filtroTempo);
   return (
     <>
       {/* Filtri Colore Comandante */}
@@ -123,6 +110,8 @@ export default function CommandersGrid({
                     <div className="relative w-full h-full flex justify-center items-center">
                       <img
                         src={cmd.images[0]}
+                        loading="lazy"
+                        decoding="async"
                         draggable={true}
                         onDragStart={(e) =>
                           handleCardDragStart(
@@ -136,6 +125,8 @@ export default function CommandersGrid({
                       />
                       <img
                         src={cmd.images[1]}
+                        loading="lazy"
+                        decoding="async"
                         draggable={true}
                         onDragStart={(e) =>
                           handleCardDragStart(
@@ -151,6 +142,8 @@ export default function CommandersGrid({
                   ) : cmd.images?.length > 0 ? (
                     <img
                       src={cmd.images[0]}
+                      loading="lazy"
+                      decoding="async"
                       draggable={true}
                       onDragStart={(e) =>
                         handleCardDragStart(e, cmdName, cmd.images[0])
