@@ -16,6 +16,7 @@ import {
   Flame,
   Award
 } from "lucide-react";
+import { getVoterToken } from "../../../utils/voterToken";
 import CommunityNav from "../../../components/CommunityNav";
 import Footer from "../../../components/Footer";
 import ScrollToTop from "../../../components/ScrollToTop";
@@ -96,7 +97,11 @@ export default function VotaPage() {
     setShowOracle(false);
     setFeedback(null);
 
-    fetch("/api/community/card/random")
+    const token = getVoterToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["X-Voter-Token"] = token;
+
+    fetch("/api/community/card/random", { headers })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -133,9 +138,13 @@ export default function VotaPage() {
     setIsSubmitting(true);
     setSelectedScore(score);
 
+    const token = getVoterToken();
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["X-Voter-Token"] = token;
+
     fetch("/api/community/rate", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         card_name: currentCard.card_name,
         score: score
