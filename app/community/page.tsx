@@ -91,7 +91,7 @@ export default function CommunityPage() {
           <div className="inline-flex items-center gap-3 bg-amber-950/20 border border-amber-500/30 text-amber-200/90 text-xs sm:text-sm px-4 py-3 rounded-2xl max-w-2xl mx-auto text-left shadow-lg">
             <FlaskConical className="w-5 h-5 text-amber-400 shrink-0" />
             <p className="leading-relaxed">
-              <strong className="text-amber-300 font-bold">Versione Beta:</strong> Questa sezione è in fase di test. Per salvare i tuoi voti senza richiedere registrazione né usare cookie, utilizziamo un identificativo anonimo nella memoria locale del browser.
+              <strong className="text-amber-300 font-bold">Versione Beta:</strong> Questa sezione è attualmente in fase di test e calibrazione. Stiamo raccogliendo i primi feedback dalla community e affinando gli algoritmi di rotazione delle carte e consolidamento dei voti.
             </p>
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function CommunityPage() {
           <div className="space-y-1">
             <span className="font-bold text-slate-200">Voto Anonimo e Privacy-First</span>
             <p className="leading-relaxed">
-              Il sistema di voto di CentMeta non utilizza cookie di tracciamento né cookie tecnici memorizzati nel tuo browser. La protezione anti-spam opera tramite un identificatore crittografico unidirezionale anonimo (SHA-256) elaborato unicamente al momento del voto.
+              Il sistema di voto di CentMeta non utilizza cookie né richiede registrazione. Per memorizzare le carte che hai già votato ed evitare di riproportele, utilizziamo esclusivamente un identificativo anonimo salvato nella memoria locale del browser.
             </p>
           </div>
         </div>
