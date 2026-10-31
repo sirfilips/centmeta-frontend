@@ -87,14 +87,11 @@ export default function CommunityPage() {
             Esprimi il tuo voto sulle carte del formato Centurion Commander. Scopri cosa ne pensano gli altri giocatori, individua le staple indiscutibili e le carte più sottovalutate.
           </p>
 
-          {/* BANNER NOTA VERSIONE BETA & PRIVACY */}
-          <div className="bg-amber-950/25 border border-amber-500/30 text-amber-200/90 text-xs sm:text-sm p-4 sm:p-5 rounded-2xl max-w-2xl mx-auto text-left shadow-lg space-y-2">
-            <div className="flex items-center gap-2 text-amber-300 font-bold">
-              <FlaskConical className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Versione Beta & Rispetto della Privacy</span>
-            </div>
-            <p className="leading-relaxed text-slate-300 text-xs">
-              Questa sezione è in fase di test e calibrazione. Per garantirti la massima privacy <strong>senza cookie pubblicitari né registrazione obbligatoria</strong>, il sistema memorizza un identificatore tecnico anonimo nella memoria locale del tuo browser (con fallback sull&apos;IP). In questo modo il tuo progresso giornaliero e le carte già votate restano salvati anche se navighi da rete mobile (4G/5G).
+          {/* BANNER NOTA VERSIONE BETA */}
+          <div className="inline-flex items-center gap-3 bg-amber-950/20 border border-amber-500/30 text-amber-200/90 text-xs sm:text-sm px-4 py-3 rounded-2xl max-w-2xl mx-auto text-left shadow-lg">
+            <FlaskConical className="w-5 h-5 text-amber-400 shrink-0" />
+            <p className="leading-relaxed">
+              <strong className="text-amber-300 font-bold">Versione Beta:</strong> Questa sezione è in fase di test. Per salvare i tuoi voti senza richiedere registrazione né usare cookie, utilizziamo un identificativo anonimo nella memoria locale del browser.
             </p>
           </div>
         </div>
