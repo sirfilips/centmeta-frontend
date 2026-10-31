@@ -224,7 +224,7 @@ export default function About() {
             <div className="flex items-center gap-3 text-xs md:text-sm text-slate-400 pt-2">
               <Mail className="w-4 h-4 text-blue-400 shrink-0" />
               <span>
-                Hai idee per nuovi filtri, anomalie da segnalare o suggerimenti sul metagame? Scrivi a <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline font-medium">privacy@centmeta.it</a>.
+                Hai idee per nuovi filtri, anomalie da segnalare o suggerimenti sul metagame? Scrivi a <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline font-medium">privacy@centmeta.it</a> oppure <a href="https://github.com/sirfilips/centmeta-frontend/issues/new" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline font-medium">apri una segnalazione su GitHub</a>.
               </span>
             </div>
           </section>
