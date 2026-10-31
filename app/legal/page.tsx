@@ -67,10 +67,35 @@ export default function Legal() {
             </h2>
             <div className="space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
               <p>
-                <strong className="text-slate-200">Autore:</strong> L&apos;infrastruttura backend (Python/FastAPI), l&apos;algoritmo di elaborazione dati, il codice sorgente frontend (Next.js/React) e il marchio &quot;CentMeta&quot; sono stati interamente ideati e sviluppati da Filippo Zanardi.
+                <strong className="text-slate-200">Autore e Paternità:</strong> L&apos;infrastruttura backend (Python/FastAPI), l&apos;algoritmo di elaborazione dati, il codice sorgente frontend (Next.js/React) e il marchio &quot;CentMeta&quot; sono stati interamente ideati e sviluppati da Filippo Zanardi.
               </p>
               <p>
-                Fatti salvi i diritti legati ai contenuti di gioco (come indicato nella Policy ufficiale WotC in calce), l&apos;architettura del software e il design dell&apos;interfaccia sono proprietà intellettuale del suo autore.
+                <strong className="text-slate-200">Licenza Software (MIT):</strong> Il codice sorgente del progetto è open source e distribuito con licenza <strong className="text-slate-100">MIT</strong>. I repository di sviluppo sono liberamente consultabili su GitHub:
+              </p>
+              <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+                <li>
+                  <a 
+                    href="https://github.com/sirfilips/centmeta-frontend" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-blue-400 hover:underline font-medium"
+                  >
+                    Frontend Next.js (GitHub)
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://github.com/sirfilips/centmeta-backend" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-blue-400 hover:underline font-medium"
+                  >
+                    Backend FastAPI &amp; Worker analitico (GitHub)
+                  </a>
+                </li>
+              </ul>
+              <p>
+                Fatti salvi i diritti legati ai contenuti di gioco (come indicato nella Policy ufficiale WotC in calce), l&apos;architettura del software e il design dell&apos;interfaccia sono proprietà intellettuale del suo autore. Il marchio e l&apos;identità visiva di CentMeta non possono essere utilizzati per contraddistinguere servizi terzi o generare confusione nella community.
               </p>
             </div>
           </section>
