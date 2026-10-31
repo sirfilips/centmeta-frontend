@@ -119,7 +119,7 @@ const Carousel = ({
                             item.images[0],
                           )
                         }
-                        className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300"
+                        loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300"
                         alt={item.name}
                       />
                       <img
@@ -132,7 +132,7 @@ const Carousel = ({
                             item.images[1],
                           )
                         }
-                        className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300"
+                        loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300"
                         alt={item.name}
                       />
                     </div>
@@ -143,7 +143,7 @@ const Carousel = ({
                       onDragStart={(e) =>
                         handleCardDragStart(e, item.name, item.images[0])
                       }
-                      className="max-h-full max-w-full rounded-xl shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain"
+                      loading="lazy" decoding="async" className="max-h-full max-w-full rounded-xl shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain"
                       alt={item.name}
                     />
                   ) : (

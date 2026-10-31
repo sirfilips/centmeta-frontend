@@ -544,7 +544,7 @@ export default function ClassificaPage() {
           onClick={() => setSelectedCard(null)}
         >
           <div 
-            className="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative flex flex-col md:flex-row gap-6 items-center md:items-start"
+            className="bg-slate-900 border border-slate-700 rounded-3xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col md:flex-row gap-5 sm:gap-6 items-center md:items-start"
             onClick={(e) => e.stopPropagation()}
           >
             {/* PULSANTE CHIUDI */}
@@ -558,7 +558,7 @@ export default function ClassificaPage() {
 
             {/* IMMAGINE CARTA DRAGGABLE */}
             <div className="flex flex-col items-center gap-3 flex-shrink-0">
-              <div className="relative w-[240px] sm:w-[280px] h-[335px] sm:h-[391px] rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group">
+              <div className="relative w-[180px] xs:w-[210px] sm:w-[250px] md:w-[280px] h-[251px] xs:h-[293px] sm:h-[349px] md:h-[391px] rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group">
                 {selectedCard.images && selectedCard.images.length > 0 ? (
                   <img
                     src={

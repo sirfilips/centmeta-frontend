@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'CentMeta | Analisi Centurion Commander',
   description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
+  referrer: 'no-referrer',
   
   openGraph: {
     title: 'CentMeta | Analisi Centurion Commander',
