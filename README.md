@@ -9,12 +9,15 @@
   <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
   <a href="https://www.moxfield.com/"><img src="https://img.shields.io/badge/Decklists-Moxfield-582CD6?style=for-the-badge" alt="Moxfield" /></a>
   <a href="https://scryfall.com/"><img src="https://img.shields.io/badge/Cards-Scryfall_API-2B2D42?style=for-the-badge" alt="Scryfall API" /></a>
+  <a href="https://github.com/sirfilips/centmeta-backend"><img src="https://img.shields.io/badge/Backend_Repo-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="Backend Repo" /></a>
   <a href="https://ko-fi.com/centmeta"><img src="https://img.shields.io/badge/Support_on-Ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white" alt="Support on Ko-fi" /></a>
 </p>
 
 CentMeta è un'applicazione web indipendente e open-source dedicata all'analisi statistica e al monitoraggio del metagame per il formato Centurion Commander di Magic: The Gathering. 
 
 Questo repository contiene esclusivamente il codice sorgente del frontend, progettato per offrire un'interfaccia utente fluida, reattiva e priva di cookie di profilazione (cookie-free).
+
+> 🔗 **Repository Backend Correlato**: Il motore analitico, lo scraper per Moxfield e le REST API in FastAPI sono disponibili su [sirfilips/centmeta-backend](https://github.com/sirfilips/centmeta-backend).
 
 ## Funzionalità Principali
 
