@@ -46,6 +46,9 @@ jobs:
           echo "[Deploy] Navigazione nella directory frontend..."
           cd /home/CenturionREC/frontend
           
+          echo "[Deploy] Reset modifiche locali ai file tracciati (es. package-lock.json)..."
+          git checkout -- .
+          
           echo "[Deploy] Git pull da main..."
           git pull --ff-only origin main
           
