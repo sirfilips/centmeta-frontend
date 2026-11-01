@@ -281,9 +281,9 @@ export default function VotaPage() {
         {/* CARD CONTAINER PRINCIPALE (OTTIMIZZATO MOBILE E DESKTOP) */}
         <div className="w-full bg-slate-900/60 border border-slate-800 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl relative isolate overflow-hidden flex flex-col md:flex-row gap-5 sm:gap-7 md:gap-8 items-center md:items-start justify-center">
           
-          {/* LATO SINISTRO: IMMAGINE CARTA MTG (COMPATTA SU MOBILE) */}
-          <div className="flex flex-col items-center gap-2.5 flex-shrink-0">
-            <div className="relative w-[190px] xs:w-[220px] sm:w-[250px] md:w-[280px] h-[265px] xs:h-[307px] sm:h-[349px] md:h-[391px] rounded-2xl overflow-hidden bg-slate-800/80 border border-slate-700/60 shadow-xl group">
+          {/* LATO SINISTRO: IMMAGINE CARTA MTG */}
+          <div className="flex flex-col items-center gap-2.5 shrink-0">
+            <div className="relative w-[240px] sm:w-[280px] h-[335px] sm:h-[391px] rounded-2xl overflow-hidden bg-slate-800/80 border border-slate-700/60 shadow-xl group shrink-0">
               {loading ? (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-slate-500 animate-pulse">
                   <div className="w-10 h-10 rounded-full border-2 border-slate-600 border-t-blue-500 animate-spin" />

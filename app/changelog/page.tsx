@@ -73,14 +73,71 @@ export default function Changelog() {
           </p>
         </div>
 
-        {/* Blocco Versione v4.0.0 (ATTUALE - Espanso di default) */}
+        {/* Blocco Versione v5.0.0 (ATTUALE - Espanso di default) */}
+        <ReleaseCard
+          title="v5.0.0 - Osservatorio Community, Hardening Architetturale & Sicurezza ePrivacy/GDPR"
+          date="1 Novembre 2026"
+          gradient="from-blue-500 via-indigo-500 to-emerald-400"
+          titleColor="text-blue-400"
+          badgeStyle="bg-blue-900/30 text-blue-300 border-blue-500/30"
+          defaultOpen={true}
+        >
+          {/* Sezione Community & Rating System */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-blue-500 pl-4">
+              Osservatorio Community: Arena di Voto &amp; Classifica Generale
+            </h3>
+            <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Hub Panoramico e Vetrina Statistica (<code>/community</code>):</strong> Introdotto il nuovo centro di controllo della community con indicatori telemetrici in tempo reale (voti totali, carte censite, top rated e carte più votate), radar live a impulsi, collegamenti rapidi orizzontali e vetrina MTG panoramica con artwork Scryfall widescreen.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Arena di Voto a Pool Dinamico (<code>/community/vota</code>):</strong> Sistema di rotazione deterministica giornaliera che propone a rotazione le <strong>100 staple fisse</strong> del metagame e <strong>50 carte emergenti</strong> pescate ogni 24 ore. Valutazione istantanea 1-Click da 1 a 5 stelle, supporto a rotazione per carte bifronte (tasto rapido <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-xs text-slate-300 font-mono">F</kbd>), consultazione testo Oracle ed avanzamento quotidiano.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Classifica Live &amp; Filtri Colore (<code>/community/classifica</code>):</strong> Graduatoria completa con quorum minimo dinamico (default 2 voti), ordinamento per punteggio medio o volume di voti, filtri per identità di colore MTG (W, U, B, R, G, Incolore, Multicolore), ricerca testuale in tempo reale e modale di dettaglio con istogramma di distribuzione delle stelle.</div></li>
+            </ul>
+          </div>
+
+          {/* Sezione Sicurezza, GDPR & Privacy */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-emerald-500 pl-4">
+              Hardening di Sicurezza, Anti-Ballot Stuffing &amp; Conformità GDPR
+            </h3>
+            <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Voto Anonimo e Token Pseudonimo (ePrivacy/GDPR):</strong> Nessun dato personale o profilo utente memorizzato. L&apos;applicazione genera un token pseudorandom conservato in locale (<code>localStorage</code>) esclusivamente per memorizzare i progressi ed evitare carte già votate. I voti vengono associati a un <code>voter_hash</code> crittografico SHA-256 alimentato da un salt casuale persistito su file a permessi restrittivi (<code>.community_salt</code> <code>0o600</code>).</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Anti-Ballot Stuffing &amp; Validazione IP:</strong> Implementato un rate limit temporale sul voto (massimo 1 voto per carta/IP ogni 24 ore), affiancato dalla sanificazione e validazione RFC rigorosa degli indirizzi IP (<code>ipaddress</code>) estratti dal percorso inverso dell&apos;header <code>X-Forwarded-For</code> contro attacchi di spoofing.</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Protezione Brute-Force Endpoint Admin &amp; Timing Attack:</strong> Protezione degli endpoint di gestione con confronto di password a tempo costante (<code>secrets.compare_digest</code>) e blocco con codice HTTP <code>429 Too Many Requests</code> al superamento della soglia di tentativi falliti. Aggiornata l&apos;informativa in <code>/legal</code> con contatto dedicato <a href="mailto:privacy@centmeta.it" className="text-blue-400 hover:underline">privacy@centmeta.it</a>.</div></li>
+            </ul>
+          </div>
+
+          {/* Sezione Concorrenza Deploy & Resilienza Scraper */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-indigo-500 pl-4">
+              Concorrenza Deploy, OS File Locking &amp; Resilienza Scraper
+            </h3>
+            <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Serializzazione CI/CD Multi-Repository (<code>flock</code>):</strong> Integrato un meccanismo di mutua esclusione nei workflow GitHub Actions di frontend e backend (<code>exec 200&gt;/tmp/centmeta_deploy.lock; flock 200</code>) per prevenire conflitti, corruzioni o reload concorrenti durante deploy simultanei sul server di produzione.</div></li>
+              <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Lock di Processo Scraper (<code>ScraperProcessLock</code>):</strong> Introdotto un file lock a livello di sistema operativo (<code>fcntl</code> / <code>msvcrt</code>) per impedire tassativamente l&apos;esecuzione concorrente di istanze multiple dello scraper, affiancato dalla configurazione SQLite <code>WAL</code> e <code>PRAGMA busy_timeout = 30000</code> per eliminare i rischi di database locked.</div></li>
+              <li className="flex gap-3"><span className="text-indigo-400 font-bold">•</span> <div><strong className="text-slate-200">Strict Rate Limiting &amp; Protezione Moxfield:</strong> Rate limiter a 1.2 secondi condiviso e applicato rigorosamente a ogni singola richiesta in uscita, compresi i controlli periodici di integrità e deduplicazione delle chiamate di health check, a tutela degli accordi di scraping stabiliti con Moxfield.</div></li>
+            </ul>
+          </div>
+
+          {/* Sezione Layout & Ottimizzazioni UX */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-5 border-l-4 border-purple-500 pl-4">
+              Raffinamento UX, Aspect Ratio Rigido &amp; Dipendenze
+            </h3>
+            <ul className="list-none space-y-4 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-purple-400 font-bold">•</span> <div><strong className="text-slate-200">Risoluzione Aspect Ratio Carta in Arena di Voto:</strong> Corretto il dimensionamento dell&apos;illustrazione della carta in <code>/community/vota</code> rimuovendo classi non standard di Tailwind e vincolando rigidamente il contenitore all&apos;aspect ratio <code>5:7</code> con <code>shrink-0</code>, scongiurando qualsiasi anomalia di espansione a pieno schermo o distorsione orizzontale.</div></li>
+              <li className="flex gap-3"><span className="text-purple-400 font-bold">•</span> <div><strong className="text-slate-200">Design System Coerente &amp; Aggiornamento Sicurezza Pacchetti:</strong> Allineata l&apos;estetica di tutte le schermate community al design dark slate di CentMeta, risolte le vulnerabilità segnalate da <code>npm audit</code> con l&apos;aggiornamento di <code>source-map-js</code> e <code>postcss-selector-parser</code>, e introdotti vincoli di versione semantici nei requisiti backend.</div></li>
+            </ul>
+          </div>
+        </ReleaseCard>
+
+        {/* Blocco Versione v4.0.0 */}
         <ReleaseCard
           title="v4.0.0 - Motore Covering Index (-80% Latenza), Social Preview Art Crop & Strict Architecture"
           date="26 Ottobre 2026"
           gradient="from-amber-400 via-blue-500 to-purple-600"
           titleColor="text-amber-400"
           badgeStyle="bg-amber-900/30 text-amber-300 border-amber-500/30"
-          defaultOpen={true}
+          defaultOpen={false}
         >
           {/* Sezione Performance SQLite & Backend */}
           <div>

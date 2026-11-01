@@ -39,6 +39,10 @@ jobs:
     steps:
       - name: Pull, build and reload service
         run: |
+          echo "[Deploy] Acquisizione lock esclusivo per prevenire deploy concorrenti..."
+          exec 200>/tmp/centmeta_deploy.lock
+          flock 200
+
           echo "[Deploy] Navigazione nella directory frontend..."
           cd /home/CenturionREC/frontend
           
