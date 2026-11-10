@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { trackEvent } from './analytics';
 
 function escapeHtmlAttr(value: string): string {
   return value
@@ -20,6 +21,8 @@ export function handleCardDragStart(
   imageUrl?: string
 ) {
   if (!cardName) return;
+
+  trackEvent('Drag Card', { card: cardName });
 
   const scryfallSearchUrl = `https://scryfall.com/search?q=%21%22${encodeURIComponent(cardName)}%22`;
 

@@ -78,18 +78,21 @@ export default function CardsFilterBar({
             <div className="flex flex-wrap bg-slate-900/50 p-1 rounded-lg border border-slate-800">
               <button
                 onClick={() => setCardSort("top")}
+                data-umami-event="Filtro Carte - Top"
                 className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${cardSort === "top" ? "bg-blue-600 text-white shadow" : "text-slate-400 hover:text-slate-200"}`}
               >
                 Top
               </button>
               <button
                 onClick={() => setCardSort("hot")}
+                data-umami-event="Filtro Carte - Hot"
                 className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex items-center gap-1.5 ${cardSort === "hot" ? "bg-orange-500 text-white shadow" : "text-slate-400 hover:text-slate-200"}`}
               >
                 Hot (7gg)
               </button>
               <button
                 onClick={() => setCardSort("expansions")}
+                data-umami-event="Filtro Carte - Ultime Espansioni"
                 className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex items-center gap-1.5 ${cardSort === "expansions" ? "bg-purple-600 text-white shadow" : "text-slate-400 hover:text-slate-200"}`}
               >
                 Ultime Espansioni
@@ -146,6 +149,8 @@ export default function CardsFilterBar({
                     if (setSelectedExpansion) setSelectedExpansion(exp.code);
                     setVisibleCount(50);
                   }}
+                  data-umami-event="Filtro Set Espansione"
+                  data-umami-event-set={exp.code}
                   className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border shrink-0 ${
                     isSelected
                       ? "bg-purple-600/20 text-white border-purple-500/60 shadow-md shadow-purple-950/40"
@@ -233,6 +238,8 @@ export default function CardsFilterBar({
                 <button
                   key={col.val}
                   onClick={() => toggleColor(col.val)}
+                  data-umami-event="Filtro Colore Carte"
+                  data-umami-event-color={col.val}
                   title={col.label}
                   className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap transition-all border flex items-center justify-center min-w-[40px] h-8 ${
                     isActive

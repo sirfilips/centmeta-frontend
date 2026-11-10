@@ -145,7 +145,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                         <div className="flex flex-col items-center">
                           <div className="flex items-center justify-center gap-1.5 text-[11px]">
                             {card.set_code && (
-                              <span className="text-[9px] bg-slate-800 text-slate-300 border border-slate-700/70 px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
+                              <span className="text-[9px] bg-slate-800 text-slate-300 border border-slate-700/70 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
                                 {card.set_code}
                               </span>
                             )}
@@ -167,7 +167,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                               activeTab === "In Crescita") &&
                               card.Sinergia > 0 && (
                                 <div className="group/syn relative flex items-center cursor-help ml-0.5">
-                                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded font-bold">
+                                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded font-bold">
                                     +{card.Sinergia}%
                                   </span>
                                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden sm:group-hover/syn:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center font-normal">

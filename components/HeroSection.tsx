@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { handleNav } from "../utils/navigation";
 import { CATEGORY_INFO } from "../utils/mtg";
+import { trackEvent } from "../utils/analytics";
 
 interface HeroSectionProps {
   homeMode: "dashboard" | "commanders" | "cards";
@@ -223,14 +224,10 @@ export default function HeroSection({
         ? item.data.comandante
         : item.data.card_name || item.data.name;
 
-    if (typeof window !== "undefined" && (window as any).umami) {
-      try {
-        (window as any).umami.track("Ricerca", {
-          termine: selectedName,
-          tipo: item.type,
-        });
-      } catch {}
-    }
+    trackEvent("Ricerca", {
+      termine: selectedName,
+      tipo: item.type,
+    });
     setIsOpen(false);
     if (item.type === "commander") {
       const cmdName = item.data.comandante;

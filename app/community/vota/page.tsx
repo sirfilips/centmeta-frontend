@@ -17,6 +17,7 @@ import {
   Award
 } from "lucide-react";
 import { getVoterToken } from "../../../utils/voterToken";
+import { trackEvent } from "../../../utils/analytics";
 import CommunityNav from "../../../components/CommunityNav";
 import Footer from "../../../components/Footer";
 import ScrollToTop from "../../../components/ScrollToTop";
@@ -155,6 +156,12 @@ export default function VotaPage() {
         return res.json();
       })
       .then((data) => {
+        trackEvent("Community Voto", { card: currentCard.card_name, score });
+        const newVoted = data.daily_progress?.voted_today ?? ((dailyProgress?.voted_today ?? 0) + 1);
+        if (newVoted === 50) {
+          trackEvent("Community Obiettivo Giornaliero Raggiunto");
+        }
+
         if (data.daily_progress) {
           setDailyProgress(data.daily_progress);
         } else {
@@ -177,6 +184,13 @@ export default function VotaPage() {
         setIsSubmitting(false);
         setError("Errore durante l'invio del voto. Riprova.");
       });
+  }, [currentCard, loadNextCard, dailyProgress]);
+
+  const handleSkip = useCallback(() => {
+    if (currentCard) {
+      trackEvent("Community Salta Carta", { card: currentCard.card_name });
+    }
+    loadNextCard();
   }, [currentCard, loadNextCard]);
 
   // Scorciatoie da tastiera
@@ -189,7 +203,7 @@ export default function VotaPage() {
         handleVote(parseInt(e.key, 10));
       } else if (e.key === " " || e.key === "ArrowRight") {
         e.preventDefault();
-        loadNextCard();
+        handleSkip();
       } else if (e.key.toLowerCase() === "f" && currentCard && currentCard.images.length > 1) {
         e.preventDefault();
         setIsFlipped((prev) => !prev);
@@ -198,7 +212,7 @@ export default function VotaPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleVote, loadNextCard, currentCard]);
+  }, [handleVote, handleSkip, currentCard]);
 
   // Calcolo immagine corrente (supporto bifronte)
   const currentImage = currentCard?.images?.length
@@ -450,7 +464,8 @@ export default function VotaPage() {
               <button
                 type="button"
                 disabled={loading || isSubmitting}
-                onClick={loadNextCard}
+                onClick={handleSkip}
+                data-umami-event="Community Salta Carta"
                 className="w-full sm:flex-1 flex items-center justify-center gap-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-xl border border-slate-700/80 transition-all shadow-sm group disabled:opacity-50"
               >
                 <SkipForward className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />

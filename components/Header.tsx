@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Swords, Sparkles } from 'lucide-react';
+import { trackEvent } from '../utils/analytics';
 
 interface HeaderProps {
   filtroTempo?: string;
@@ -88,7 +89,10 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
             {filtroTempo !== undefined && setFiltroTempo !== undefined && (
               <select
                 value={filtroTempo}
-                onChange={(e) => setFiltroTempo(e.target.value)}
+                onChange={(e) => {
+                  trackEvent("Cambio Periodo Temporale", { periodo: e.target.value });
+                  setFiltroTempo(e.target.value);
+                }}
                 className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[120px] sm:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
               >
                 <option value="Ultimi 7 giorni">7 giorni</option>
@@ -172,6 +176,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                   <a 
                     href={`/?view=commanders&csort=top${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'commanders', 'top')} 
+                    data-umami-event="Header Menu - Top Comandanti"
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Comandanti
@@ -179,6 +184,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                   <a 
                     href={`/?view=commanders&csort=hot${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'commanders', 'hot')} 
+                    data-umami-event="Header Menu - Hot Comandanti"
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
@@ -204,6 +210,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                   <a 
                     href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'cards', 'top')} 
+                    data-umami-event="Header Menu - Top Carte"
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Carte
@@ -211,6 +218,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                   <a 
                     href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'cards', 'hot')} 
+                    data-umami-event="Header Menu - Hot Carte"
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
@@ -218,6 +226,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                   <a 
                     href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`} 
                     onClick={(e) => handleLinkClick(e, 'cards', 'expansions')} 
+                    data-umami-event="Header Menu - Ultime Espansioni"
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700/50"
                   >
                     <Sparkles className="w-4 h-4 text-purple-400" /> Ultime Espansioni

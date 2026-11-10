@@ -5,6 +5,7 @@ import { CATEGORY_INFO, getPeriodParam, getPeriodQuery } from "../utils/mtg";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { shareOrCopyUrl } from "../utils/share";
+import { trackEvent } from "../utils/analytics";
 import { RefreshCw, Share2, Check } from "lucide-react";
 
 interface CardDetailProps {
@@ -59,6 +60,7 @@ export default function CardDetail({
 
   const handleShare = async () => {
     const cName = cardDetailData?.card_name || selectedCardDetail;
+    trackEvent("Condividi Carta", { card: cName });
     const origin =
       typeof window !== "undefined"
         ? window.location.origin
@@ -188,6 +190,8 @@ export default function CardDetail({
                         <button
                           onClick={handleShare}
                           title="Condividi o copia link carta"
+                          data-umami-event="Condividi Carta"
+                          data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
                           className={`hidden lg:inline-flex text-xs font-bold px-3.5 py-1.5 rounded-full transition-all duration-300 shadow-sm border items-center gap-1.5 ${
                             isCopied
                               ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
@@ -245,6 +249,8 @@ export default function CardDetail({
                       <button
                         onClick={handleShare}
                         title="Condividi o copia link carta"
+                        data-umami-event="Condividi Carta"
+                        data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
                         className={`text-sm font-bold px-5 py-3 rounded-full transition-all duration-300 shadow-md border inline-flex items-center justify-center gap-2 w-full sm:w-auto ${
                           isCopied
                             ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"

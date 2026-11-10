@@ -117,6 +117,8 @@ export default function ExpansionsCarousel({
           <a
             href={viewAllHref}
             onClick={(e) => handleNav(e, () => onViewAll(activeExp.code))}
+            data-umami-event="Vedi Tutte Carte Espansione"
+            data-umami-event-set={activeExp.code}
             className="text-lg md:text-xl font-black text-slate-100 flex items-center gap-2 cursor-pointer hover:text-purple-400 transition"
           >
             <span className="w-1.5 h-6 rounded-full bg-purple-500"></span>
@@ -151,6 +153,8 @@ export default function ExpansionsCarousel({
                 key={exp.code}
                 type="button"
                 onClick={() => handleSelectExpansion(idx)}
+                data-umami-event="Cambio Tab Espansione"
+                data-umami-event-set={exp.code}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border shrink-0 ${
                   isSelected
                     ? "bg-purple-600/20 text-white border-purple-500/60 shadow-md shadow-purple-950/40"
@@ -258,7 +262,7 @@ export default function ExpansionsCarousel({
                     </div>
                     <div className="flex items-center justify-center gap-1.5 mt-1">
                       {isAllSelected && item.set_code && (
-                        <span className="text-[9px] bg-slate-800 text-slate-300 border border-slate-700/70 px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
+                        <span className="text-[9px] bg-slate-800 text-slate-300 border border-slate-700/70 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
                           {item.set_code}
                         </span>
                       )}

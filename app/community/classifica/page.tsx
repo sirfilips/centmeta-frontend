@@ -340,6 +340,7 @@ export default function ClassificaPage() {
           <div className="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 text-xs sm:text-sm font-bold">
             <button
               onClick={() => setSort("highest")}
+              data-umami-event="Community Classifica - Più Forti"
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all ${
                 sort === "highest"
                   ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
@@ -352,6 +353,7 @@ export default function ClassificaPage() {
 
             <button
               onClick={() => setSort("most_voted")}
+              data-umami-event="Community Classifica - Più Votate"
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all ${
                 sort === "most_voted"
                   ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
@@ -364,6 +366,7 @@ export default function ClassificaPage() {
 
             <button
               onClick={() => setSort("lowest")}
+              data-umami-event="Community Classifica - Flop Scarse"
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all ${
                 sort === "lowest"
                   ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
@@ -381,6 +384,7 @@ export default function ClassificaPage() {
             <select
               value={minVotes}
               onChange={(e) => setMinVotes(parseInt(e.target.value, 10))}
+              data-umami-event="Community Classifica - Soglia Voti"
               className="bg-slate-900 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 shadow-inner cursor-pointer"
             >
               <option value={1}>Almeno 1 voto</option>
@@ -418,6 +422,8 @@ export default function ClassificaPage() {
                   type="button"
                   onClick={() => toggleColor(f.val)}
                   title={f.label}
+                  data-umami-event="Community Classifica - Filtro Colore"
+                  data-umami-event-color={f.val}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                     isSelected
                       ? "bg-blue-600/30 border-blue-500 text-blue-300 shadow-sm"

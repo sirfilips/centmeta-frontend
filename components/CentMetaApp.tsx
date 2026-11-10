@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import ScrollToTop from "./ScrollToTop";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -129,10 +129,6 @@ export default function CentMetaApp({
     setCommanderSort(cmdSortParam);
     setCardSort(cardSortParam);
     setSelectedExpansion(params.get("exp") || "");
-    setIsInitialized(true);
-    setCardSort(cardSortParam);
-    setIsInitialized(true);
-
     setIsInitialized(true);
   }, [initialCommander]);
 
@@ -428,7 +424,21 @@ export default function CentMetaApp({
     setVisibleCount(50);
   };
 
-  const displayExpansions = buildDisplayExpansions(dashboardData?.recent_expansions || []);
+  const displayExpansions = useMemo(
+    () => buildDisplayExpansions(dashboardData?.recent_expansions || []),
+    [dashboardData?.recent_expansions],
+  );
+
+  useEffect(() => {
+    if (
+      cardSort === "expansions" &&
+      homeMode === "cards" &&
+      displayExpansions.length > 0 &&
+      (!selectedExpansion || !displayExpansions.some((e) => e.code === selectedExpansion))
+    ) {
+      setSelectedExpansion(displayExpansions[0].code);
+    }
+  }, [cardSort, homeMode, displayExpansions, selectedExpansion]);
 
   const applyFilters = (cards: any[], tab: string, isSynergyList: boolean = false) => {
     let filtered = cards || [];
@@ -950,7 +960,7 @@ export default function CentMetaApp({
                         homeMode === "cards" &&
                         cardSort === "expansions" &&
                         selectedCommander === "Tutti i mazzi"
-                          ? dashboardLoading
+                          ? dashboardLoading || !dashboardData
                           : loading
                       }
                       visibleCardsData={visibleCardsData}
