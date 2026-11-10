@@ -7,6 +7,7 @@ import SkeletonCard from "./SkeletonCard";
 import DeckList from "./DeckList";
 import CardDetail from "./CardDetail";
 import Carousel from "./Carousel";
+import ExpansionsCarousel, { buildDisplayExpansions } from "./ExpansionsCarousel";
 import HeroSection from "./HeroSection";
 import CommandersGrid from "./CommandersGrid";
 import CommanderOverview from "./CommanderOverview";
@@ -48,7 +49,8 @@ export default function CentMetaApp({
     "dashboard" | "commanders" | "cards"
   >("dashboard");
   const [commanderSort, setCommanderSort] = useState<"top" | "hot">("top");
-  const [cardSort, setCardSort] = useState<"top" | "hot">("top");
+  const [cardSort, setCardSort] = useState<"top" | "hot" | "expansions">("top");
+  const [selectedExpansion, setSelectedExpansion] = useState<string>("");
 
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -126,6 +128,10 @@ export default function CentMetaApp({
       "top") as any;
     setCommanderSort(cmdSortParam);
     setCardSort(cardSortParam);
+    setSelectedExpansion(params.get("exp") || "");
+    setIsInitialized(true);
+    setCardSort(cardSortParam);
+    setIsInitialized(true);
 
     setIsInitialized(true);
   }, [initialCommander]);
@@ -163,6 +169,8 @@ export default function CentMetaApp({
       (homeMode === "cards" || selectedCommander !== "Tutti i mazzi")
     )
       params.set("cardsort", cardSort);
+    if (cardSort === "expansions" && homeMode === "cards" && selectedExpansion)
+      params.set("exp", selectedExpansion);
 
     let basePath = "/";
     if (selectedCommander !== "Tutti i mazzi") {
@@ -195,6 +203,7 @@ export default function CentMetaApp({
     activeTab,
     commanderSort,
     cardSort,
+    selectedExpansion,
     filtroTempo,
     isInitialized,
   ]);
@@ -378,7 +387,7 @@ export default function CentMetaApp({
         setActiveTab("Top Cards");
       } else if (
         activeTab === "In Crescita" &&
-        (filtroTempo === "Tutti i tempi" || cardSort === "hot")
+        (filtroTempo === "Tutti i tempi" || cardSort === "hot" || cardSort === "expansions")
       ) {
         setActiveTab("Top Cards");
       }
@@ -419,6 +428,8 @@ export default function CentMetaApp({
     setVisibleCount(50);
   };
 
+  const displayExpansions = buildDisplayExpansions(dashboardData?.recent_expansions || []);
+
   const applyFilters = (cards: any[], tab: string, isSynergyList: boolean = false) => {
     let filtered = cards || [];
     const isHotCardsMode =
@@ -438,7 +449,31 @@ export default function CentMetaApp({
         category: c.category,
         color_identity: c.color_identity || [],
       }));
+    } else if (
+      !isSynergyList &&
+      homeMode === "cards" &&
+      cardSort === "expansions" &&
+      selectedCommander === "Tutti i mazzi"
+    ) {
+      const activeExp =
+        displayExpansions.find((e) => e.code === selectedExpansion) ||
+        displayExpansions[0];
+      const isAllExp = activeExp?.code === "ALL";
+      const totDecks = dashboardData?.total_decks || statsData?.total_decks || 0;
+      filtered = (activeExp?.cards || []).map((c: any) => ({
+        card_name: c.name,
+        images: c.images,
+        freq: c.val1,
+        Percentuale:
+          totDecks > 0 ? Number(((c.val1 / totDecks) * 100).toFixed(1)) : 0,
+        Sinergia: 0,
+        delta: c.delta,
+        category: c.category,
+        color_identity: c.color_identity || [],
+        set_code: isAllExp ? c.set_code : null,
+      }));
     }
+
 
     if (tab === "Top Sinergie" || tab === "In Crescita") {
       filtered = filtered.filter(
@@ -508,7 +543,7 @@ export default function CentMetaApp({
   ];
   if (
     selectedCommander === "Tutti i mazzi" &&
-    (filtroTempo === "Tutti i tempi" || cardSort === "hot")
+    (filtroTempo === "Tutti i tempi" || cardSort === "hot" || cardSort === "expansions")
   ) {
     categories = categories.filter((c) => c !== "In Crescita");
   }
@@ -566,7 +601,8 @@ export default function CentMetaApp({
   const navigateToTab = (
     mode: "commanders" | "cards",
     tab: string = "Top Cards",
-    sort: "top" | "hot" = "top",
+    sort: "top" | "hot" | "expansions" = "top",
+    expCode?: string,
   ) => {
     // 1. Azzera la navigazione profonda per forzare il ritorno alla "Home" (/)
     setSelectedCommander("Tutti i mazzi");
@@ -577,8 +613,14 @@ export default function CentMetaApp({
     // 2. Imposta la nuova visualizzazione globale richiesta dalle tendine
     setHomeMode(mode);
     setActiveTab(tab);
-    if (mode === "commanders") setCommanderSort(sort);
-    if (mode === "cards") setCardSort(sort);
+    if (mode === "commanders") setCommanderSort(sort === "hot" ? "hot" : "top");
+    if (mode === "cards") {
+      setCardSort(sort);
+      if (sort === "expansions") {
+        setSelectedExpansion(expCode || displayExpansions[0]?.code || "");
+      }
+    }
+
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -809,6 +851,14 @@ export default function CentMetaApp({
                               }
                               onItemClick={handleSelectCard}
                             />
+                            <ExpansionsCarousel
+                              expansions={dashboardData.recent_expansions || []}
+                              filtroTempo={filtroTempo}
+                              onItemClick={handleSelectCard}
+                              onViewAll={(expCode) =>
+                                navigateToTab("cards", "Top Cards", "expansions", expCode)
+                              }
+                            />
                           </>
                         )}
                       </>
@@ -858,6 +908,9 @@ export default function CentMetaApp({
                     selectedCommander={selectedCommander}
                     cardSort={cardSort}
                     setCardSort={setCardSort}
+                    expansions={displayExpansions}
+                    selectedExpansion={selectedExpansion || displayExpansions[0]?.code || ""}
+                    setSelectedExpansion={setSelectedExpansion}
                     commanders={commanders}
                     handleSelectCommander={handleSelectCommander}
                     cardSearch={cardSearch}
@@ -893,7 +946,13 @@ export default function CentMetaApp({
                     </div>
                   ) : (
                     <CardsGrid
-                      loading={loading}
+                      loading={
+                        homeMode === "cards" &&
+                        cardSort === "expansions" &&
+                        selectedCommander === "Tutti i mazzi"
+                          ? dashboardLoading
+                          : loading
+                      }
                       visibleCardsData={visibleCardsData}
                       visibleCount={visibleCount}
                       setVisibleCount={setVisibleCount}

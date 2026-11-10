@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Swords } from 'lucide-react';
+import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Swords, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   filtroTempo?: string;
@@ -9,7 +9,7 @@ interface HeaderProps {
   onReset: () => void;
   totalDecks?: number;
   lastUpdated?: string | null;
-  onNavigate?: (mode: 'commanders' | 'cards', tab: string, sort: 'top' | 'hot') => void; 
+  onNavigate?: (mode: 'commanders' | 'cards', tab: string, sort: 'top' | 'hot' | 'expansions') => void; 
 }
 
 export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDecks, lastUpdated, onNavigate }: HeaderProps) {
@@ -25,7 +25,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
     }
   };
 
-  const handleNavClick = (mode: 'commanders' | 'cards', sort: 'top' | 'hot') => {
+  const handleNavClick = (mode: 'commanders' | 'cards', sort: 'top' | 'hot' | 'expansions') => {
     setOpenDropdown(null);
     if (onNavigate) {
       onNavigate(mode, 'Top Cards', sort);
@@ -33,7 +33,7 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
   };
 
   // Funzione helper per gestire il click sui link supportando il middle-click nativo
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, mode: 'commanders' | 'cards', sort: 'top' | 'hot') => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, mode: 'commanders' | 'cards', sort: 'top' | 'hot' | 'expansions') => {
     // Se non c'è onNavigate (es. pagina /status), o è un middle-click / click con modificatori, lascia fare al browser
     if (!onNavigate || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
     
@@ -214,6 +214,13 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
                     className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
+                  </a>
+                  <a 
+                    href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`} 
+                    onClick={(e) => handleLinkClick(e, 'cards', 'expansions')} 
+                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700/50"
+                  >
+                    <Sparkles className="w-4 h-4 text-purple-400" /> Ultime Espansioni
                   </a>
                 </div>
               </div>

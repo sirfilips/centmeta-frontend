@@ -1,15 +1,25 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import 'mana-font/css/mana.min.css';
 
 const siteUrl = 'https://centmeta.it';
 
+export const viewport: Viewport = {
+  themeColor: '#0f172a', // slate-900 (match con l'Header in alto)
+  colorScheme: 'dark',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'CentMeta | Analisi Centurion Commander',
   description: 'Statistiche per il formato di Magic: The Gathering - Centurion Commander.',
   referrer: 'no-referrer',
+  appleWebApp: {
+    capable: true,
+    title: 'CentMeta',
+    statusBarStyle: 'black-translucent',
+  },
   
   openGraph: {
     title: 'CentMeta | Analisi Centurion Commander',

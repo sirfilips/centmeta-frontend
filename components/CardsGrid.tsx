@@ -13,7 +13,7 @@ interface CardsGridProps {
   handleSelectCard: (name: string) => void;
   handleNav: (e: React.MouseEvent, action: () => void) => void;
   homeMode: "dashboard" | "commanders" | "cards";
-  cardSort: "top" | "hot";
+  cardSort: "top" | "hot" | "expansions";
   selectedCommander: string;
   activeTab: string;
   setCardSearch: (val: string) => void;
@@ -143,7 +143,12 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                         </>
                       ) : (
                         <div className="flex flex-col items-center">
-                          <div className="flex items-center justify-center gap-1 text-[11px]">
+                          <div className="flex items-center justify-center gap-1.5 text-[11px]">
+                            {card.set_code && (
+                              <span className="text-[9px] bg-slate-800 text-slate-300 border border-slate-700/70 px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
+                                {card.set_code}
+                              </span>
+                            )}
                             <span
                               className={`font-bold ${
                                 card.Percentuale >= 70
