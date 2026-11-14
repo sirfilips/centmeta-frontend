@@ -1,31 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Newsreader, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import "@fontsource/newsreader/600.css";
+import "@fontsource/newsreader/700.css";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "@fontsource/jetbrains-mono/500.css";
+import "@fontsource/jetbrains-mono/700.css";
 import PwaTracker from "../components/PwaTracker";
 import "./globals.css";
 import "mana-font/css/mana.min.css";
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-display",
-  display: "swap",
-  adjustFontFallback: false,
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["500", "700"],
-  variable: "--font-mono",
-  display: "swap",
-});
 
 const siteUrl = "https://centmeta.it";
 
@@ -109,10 +94,7 @@ export default function RootLayout({
   };
 
   return (
-    <html
-      lang="it"
-      className={`h-full ${newsreader.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="it" className="h-full">
       <body
         className="min-h-full flex flex-col bg-slate-900 text-slate-100 font-sans"
         suppressHydrationWarning

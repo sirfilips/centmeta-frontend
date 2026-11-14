@@ -13,9 +13,9 @@ const config: Config = {
         "3xl": "1921px",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+        sans: ['"Plus Jakarta Sans"', "system-ui", "-apple-system", "sans-serif"],
+        display: ['"Newsreader"', "Georgia", "serif"],
+        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
       borderRadius: {
         lg: "0.25rem",
