@@ -32,13 +32,13 @@ const Carousel = ({
         <a
           href={`${viewAllHref}${periodParam}`}
           onClick={(e) => handleNav(e, onViewAll)}
-          className="text-lg md:text-xl font-black text-slate-100 flex items-center gap-2 cursor-pointer hover:text-blue-400 transition"
+          className="font-display text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2.5 cursor-pointer hover:text-blue-400 transition tracking-tight"
         >
           <span
-            className={`w-1.5 h-6 rounded-full ${isHot ? "bg-orange-500" : "bg-blue-500"}`}
+            className={`w-1 h-5 rounded-sm ${isHot ? "bg-orange-500" : "bg-blue-400"}`}
           ></span>{" "}
           {title}
-          <span className="text-slate-500 hover:text-blue-400 ml-1">➔</span>
+          <span className="text-slate-500 hover:text-blue-400 ml-1 font-sans">➔</span>
         </a>
         {/* Tooltip Didattico per i titoli */}
         <div className="group/info relative inline-flex items-center justify-center cursor-help ml-3">
@@ -114,7 +114,7 @@ const Carousel = ({
                             item.images[0],
                           )
                         }
-                        loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300"
+                        loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300"
                         alt={item.name}
                       />
                       <img
@@ -127,7 +127,7 @@ const Carousel = ({
                             item.images[1],
                           )
                         }
-                        loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300"
+                        loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300"
                         alt={item.name}
                       />
                     </div>
@@ -138,7 +138,7 @@ const Carousel = ({
                       onDragStart={(e) =>
                         handleCardDragStart(e, item.name, item.images[0])
                       }
-                      loading="lazy" decoding="async" className="max-h-full max-w-full rounded-xl shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain"
+                      loading="lazy" decoding="async" className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain"
                       alt={item.name}
                     />
                   ) : (

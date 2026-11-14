@@ -9,6 +9,9 @@ import { BackToDashboardLink } from '../../components/SubpageHeader';
 export const metadata: Metadata = {
   title: 'Note di Rilascio | CentMeta',
   description: 'Cronologia degli aggiornamenti, ottimizzazioni architetturali e nuove funzionalità della piattaforma CentMeta per Centurion Commander.',
+  alternates: {
+    canonical: 'https://centmeta.it/changelog',
+  },
 };
 
 interface ReleaseCardProps {
@@ -68,20 +71,63 @@ export default function Changelog() {
         <BackToDashboardLink />
 
         <div className="mb-10">
-          <h1 className="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">Note di Rilascio</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">Note di Rilascio</h1>
           <p className="text-base lg:text-lg text-slate-400">
             Cronologia degli aggiornamenti, ottimizzazioni e nuove funzionalità di CentMeta. Clicca su una versione per espanderne i dettagli.
           </p>
         </div>
 
-        {/* Blocco Versione v5.0.0 (ATTUALE - Espanso di default) */}
+        {/* Blocco Versione v5.3.0 (ATTUALE - Espanso di default) */}
+        <ReleaseCard
+          title="v5.3.0 - Storico Metagame, Nuova Identità Grafica & Ottimizzazione SEO"
+          date="14 Novembre 2026"
+          gradient="from-blue-400 via-sky-500 to-amber-400"
+          titleColor="text-blue-400"
+          badgeStyle="bg-blue-900/30 text-blue-300 border-blue-500/30"
+          defaultOpen={true}
+        >
+          {/* Sezione Storico Metagame */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-emerald-500 pl-4">
+              Storico del Metagame &amp; Grafici Interattivi
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Nuova Pagina Storico (<code>/storico</code>):</strong> Introdotta la sezione dedicata all&apos;evoluzione del formato nel tempo, con andamento delle quote dei comandanti principali e confronto tra volume dei mazzi e varietà del metagame.</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Distribuzione Colori &amp; Orizzonte Esteso:</strong> Aggiunto il grafico storico per identità di colore e migliorata la lettura sui periodi fino a 24 mesi, con ordinamento a partire dal mese più recente.</div></li>
+            </ul>
+          </div>
+
+          {/* Sezione Design & Navigazione */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-blue-500 pl-4">
+              Restyling Grafico, Tipografia &amp; Menu di Navigazione
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Nuova Palette &amp; Tipografia:</strong> Rinnovata l&apos;interfaccia con fondi grigio carbone neutro, accenti azzurro coordinati al logo CentMeta e dettagli oro sui podi. Adottato un nuovo set di font per titoli, testi e dati numerici, con illustrazioni più nitide e visibili nelle intestazioni.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Menu Unificato &amp; Coerenza Pagine:</strong> Inserito il nuovo menu di navigazione nell&apos;header (ottimizzato per tutte le risoluzioni desktop e mobile), uniformati i pannelli di dettaglio carta e l&apos;intera sezione Community, e corretto il ritorno alla pagina di provenienza dalle schede dei comandanti.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Rifinitura Carte:</strong> Uniformato il taglio degli angoli sulle immagini di carte e comandanti per eliminare i bordini bianchi residui.</div></li>
+            </ul>
+          </div>
+
+          {/* Sezione SEO */}
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-amber-500 pl-4">
+              Indicizzazione &amp; Visibilità sui Motori di Ricerca
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-amber-400 font-bold">•</span> <div><strong className="text-slate-200">Metadata, Canonical &amp; Dati Strutturati:</strong> Aggiunti titoli e descrizioni dedicati a tutte le sezioni del sito, URL canonici per evitare duplicati, inclusione della pagina <code>/storico</code> nella sitemap e dati strutturati per migliorare la presentazione nei risultati di ricerca.</div></li>
+            </ul>
+          </div>
+        </ReleaseCard>
+
+        {/* Blocco Versione v5.0.0 */}
         <ReleaseCard
           title="v5.0.0 - Osservatorio Community, Hardening Architetturale & Sicurezza ePrivacy/GDPR"
           date="1 Novembre 2026"
           gradient="from-blue-500 via-indigo-500 to-emerald-400"
           titleColor="text-blue-400"
           badgeStyle="bg-blue-900/30 text-blue-300 border-blue-500/30"
-          defaultOpen={true}
+          defaultOpen={false}
         >
           {/* Sezione Community & Rating System */}
           <div>

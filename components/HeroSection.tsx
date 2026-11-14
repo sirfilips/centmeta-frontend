@@ -320,20 +320,20 @@ export default function HeroSection({
 
   return (
     <div
-      className={`relative z-30 transition-all duration-500 ease-in-out flex ${
+      className={`relative z-30 transition-all duration-300 ease-in-out flex ${
         isDashboard
-          ? "mb-12 mt-4 w-full flex-col items-center justify-center py-12 md:py-24 px-4 rounded-3xl border border-slate-800/50 overflow-visible shadow-2xl bg-slate-950"
-          : "flex-col sm:flex-row items-start sm:items-center gap-4 justify-between mb-8 mt-2 border-transparent bg-transparent"
+          ? "mb-8 mt-4 w-full flex-col items-center justify-center py-10 md:py-16 px-4 rounded-xl border border-slate-700 overflow-visible shadow-lg bg-slate-950"
+          : "flex-col sm:flex-row items-start sm:items-center gap-4 justify-between mb-6 mt-2 border-transparent bg-transparent"
       }`}
     >
-      {/* SFONDO GLASSMORPHISM CON CAROSELLO (Visibile solo in Dashboard) */}
+      {/* SFONDO CON CAROSELLO (Visibile solo in Dashboard) */}
       {isDashboard && (
-        <div className="absolute inset-0 -z-20 pointer-events-none rounded-3xl overflow-hidden">
+        <div className="absolute inset-0 -z-20 pointer-events-none rounded-xl overflow-hidden">
           {BACKGROUND_IMAGES.map((image, index) => (
             <div
               key={image}
-              className={`absolute inset-[-10%] bg-cover bg-[center_33%] transition-opacity duration-1000 ease-in-out ${
-                index === bgIndex ? "opacity-70" : "opacity-0"
+              className={`absolute inset-0 bg-cover bg-[center_33%] transition-opacity duration-1000 ease-in-out ${
+                index === bgIndex ? "opacity-80" : "opacity-0"
               }`}
               style={
                 loadedBgIndices.has(index)
@@ -342,23 +342,22 @@ export default function HeroSection({
               }
             ></div>
           ))}
-          <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[12px]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-slate-950/40 to-slate-950/75"></div>
         </div>
       )}
 
-      {/* TESTI E GLOW */}
+      {/* TESTI */}
       {isDashboard && (
         <div className="flex flex-col items-center w-full max-w-4xl animate-fade-in order-1 sm:order-none relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[300px] bg-blue-600/20 blur-[120px] rounded-[100%] pointer-events-none -z-10"></div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white text-center mb-3 sm:mb-5 z-10 drop-shadow-lg tracking-tight">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-3 z-10 tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
             Il Meta del{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+            <span className="text-blue-400">
               Centurion Commander
             </span>
           </h1>
-          <p className="text-slate-200 text-sm md:text-base lg:text-lg text-center mb-8 md:mb-10 z-10 max-w-3xl px-2 leading-relaxed drop-shadow-md font-medium">
-            Esplora il meta del formato 1v1 italiano di <strong>Magic: The Gathering</strong>.
-            Analizziamo migliaia di decklist della community per offrirti sinergie e statistiche sempre aggiornate.
+          <p className="text-slate-100 text-sm md:text-base text-center mb-7 md:mb-8 z-10 max-w-2xl px-2 leading-relaxed drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
+            Esplora il metagame del formato 1v1 italiano di <strong>Magic: The Gathering</strong>.
+            Statistiche, sinergie e trend estratti direttamente dalle decklist della community.
           </p>
         </div>
       )}

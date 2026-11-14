@@ -8,6 +8,9 @@ import { BackToDashboardLink } from '../../components/SubpageHeader';
 export const metadata: Metadata = {
   title: 'Privacy e Note Legali | CentMeta',
   description: 'Informativa sulla privacy (GDPR), proprietà intellettuale, fonti dei dati e Wizards of the Coast Fan Content Policy per CentMeta.',
+  alternates: {
+    canonical: 'https://centmeta.it/legal',
+  },
 };
 
 export default function Legal() {
@@ -19,7 +22,7 @@ export default function Legal() {
         <BackToDashboardLink />
 
         <div className="mb-10">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">Privacy e Note Legali</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">Privacy e Note Legali</h1>
           <p className="text-sm sm:text-base lg:text-lg text-slate-400">Informazioni sul trattamento dei dati, copyright e termini di utilizzo di CentMeta.</p>
         </div>
 

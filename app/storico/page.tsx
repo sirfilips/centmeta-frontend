@@ -139,13 +139,13 @@ export default function StoricoMetagamePage() {
         />
 
         <main className="max-w-[1600px] w-full mx-auto px-4 md:px-8 mt-8 space-y-8">
-          {/* Intestazione coerente con CommanderOverview / HeroSection */}
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-5 sm:p-7 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-3 py-1 rounded-full border border-blue-900/50 inline-flex items-center gap-1.5">
+          {/* Intestazione editoriale pulita (senza box chiuso) */}
+          <div className="border-b border-slate-700/70 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-1.5">
+              <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-400 font-bold inline-flex items-center gap-1.5">
                 <BarChart3 className="w-3.5 h-3.5" /> Evoluzione del Formato
               </span>
-              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              <h1 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-wide">
                 Storico del Metagame
               </h1>
               <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
@@ -154,14 +154,14 @@ export default function StoricoMetagamePage() {
             </div>
             <Link
               href="/"
-              className="self-start md:self-center bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 hover:text-white text-xs md:text-sm font-bold px-6 py-3 rounded-full transition-all duration-300 shadow-md border border-blue-500/30 inline-flex items-center gap-2 shrink-0"
+              className="self-start md:self-auto bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 hover:text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-full transition-all duration-300 border border-blue-500/35 inline-flex items-center gap-2 shrink-0"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={2.5} /> Torna alla Dashboard
             </Link>
           </div>
 
-          {/* Barra controlli nello stile del sito */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-800/40 border border-slate-700/50 rounded-2xl p-3 sm:p-4 shadow-md">
+          {/* Barra controlli pulita */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5 mr-1">
                 <Calendar className="w-3.5 h-3.5 text-blue-400" /> Raggruppa:
@@ -245,47 +245,47 @@ export default function StoricoMetagamePage() {
             </div>
           ) : (
             <>
-              {/* KPI sintetici */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-md">
+              {/* KPI sintetici: griglia aperta separata da bordi */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-slate-700/60 border border-slate-700/70 rounded-xl overflow-hidden">
+                <div className="bg-slate-800/80 p-4 sm:p-5">
                   <p className="text-[11px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-blue-400" /> Mazzi nella Finestra
                   </p>
-                  <p className="text-2xl sm:text-3xl font-black text-white mt-1.5">
+                  <p className="font-mono tabular-nums text-2xl sm:text-3xl font-bold text-white mt-1.5">
                     {data.summary.total_decks}
                   </p>
                 </div>
-                <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-md">
+                <div className="bg-slate-800/80 p-4 sm:p-5">
                   <p className="text-[11px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5 text-emerald-400" /> Comandanti Unici
                   </p>
-                  <p className="text-2xl sm:text-3xl font-black text-white mt-1.5">
+                  <p className="font-mono tabular-nums text-2xl sm:text-3xl font-bold text-white mt-1.5">
                     {data.summary.unique_commanders}
                   </p>
                 </div>
-                <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-md">
+                <div className="bg-slate-800/80 p-4 sm:p-5">
                   <p className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
                     Picco di Attività
                   </p>
-                  <p className="text-lg sm:text-xl font-black text-blue-400 mt-1.5 truncate">
+                  <p className="font-display text-lg sm:text-xl font-bold text-blue-400 mt-1.5 truncate">
                     {data.summary.peak_period?.label || "N/D"}
                   </p>
                   {data.summary.peak_period && (
-                    <p className="text-xs text-slate-400">
-                      {data.summary.peak_period.total_decks} mazzi registrati
+                    <p className="font-mono tabular-nums text-xs text-slate-400">
+                      {data.summary.peak_period.total_decks} mazzi
                     </p>
                   )}
                 </div>
-                <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 sm:p-5 shadow-md">
+                <div className="bg-slate-800/80 p-4 sm:p-5">
                   <p className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
                     Massima Varietà
                   </p>
-                  <p className="text-lg sm:text-xl font-black text-purple-400 mt-1.5 truncate">
+                  <p className="font-display text-lg sm:text-xl font-bold text-blue-300 mt-1.5 truncate">
                     {data.summary.most_diverse_period?.label || "N/D"}
                   </p>
                   {data.summary.most_diverse_period && (
-                    <p className="text-xs text-slate-400">
-                      {data.summary.most_diverse_period.unique_commanders} comandanti unici
+                    <p className="font-mono tabular-nums text-xs text-slate-400">
+                      {data.summary.most_diverse_period.unique_commanders} comandanti
                     </p>
                   )}
                 </div>

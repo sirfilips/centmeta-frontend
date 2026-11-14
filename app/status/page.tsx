@@ -114,7 +114,7 @@ export default function StatusPage() {
         <BackToDashboardLink />
 
         <div className="mb-10 text-center md:text-left">
-          <h1 className="text-3xl md:text-5xl font-black text-white flex items-center justify-center md:justify-start gap-4 mb-4">
+          <h1 className="font-display text-3xl md:text-5xl font-bold text-white flex items-center justify-center md:justify-start gap-4 mb-4 tracking-wide">
             <Activity className="w-10 h-10 text-blue-500" strokeWidth={2.5} />
             Stato dei Servizi
           </h1>

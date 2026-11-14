@@ -10,41 +10,50 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        '3xl': '1921px', // Schermi 1440p (2560px), 4K e ultrawide oltre il classico FHD 1080p
+        "3xl": "1921px",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+      },
+      borderRadius: {
+        lg: "0.25rem",
+        xl: "0.375rem",
+        "2xl": "0.5rem",
       },
       colors: {
-        // IL NUOVO TEMA "SLAVATO" E POLVEROSO
+        // Scala grigio carbone neutro (zero tinta blu, stile Moxfield Dark-Neutral)
         slate: {
-          50: '#f5f7fa',
-          100: '#eaedf3',
-          200: '#d1d8e5',
-          300: '#b0bad0', // Testo principale: grigio perla/azzurro, leggibilissimo ma morbido
-          400: '#8a98b5',
-          500: '#667796',
-          600: '#4d5c7a',
-          700: '#3d4a63',
-          800: '#2f394d', // Bordi e hover: staccano il giusto senza essere "pesanti"
-          900: '#242b3b', // Card e Header: un grigio/blu antracite molto slavato
-          950: '#1b202c', // Sfondo base: "lavagna opaca", decisamente più chiaro del buio
+          50: "#fafafa",
+          100: "#f3f4f6",
+          200: "#e2e5ea",
+          300: "#c2c7cf",
+          400: "#989fa9",
+          500: "#727883",
+          600: "#525760",
+          700: "#393d44",
+          800: "#282b2f",
+          900: "#1f2124",
+          950: "#16171a",
         },
-        // Smorziamo anche gli accenti blu per farli sposare col nuovo sfondo
+        // Accento Azzurro Sky coordinato al logo CentMeta
         blue: {
-          50: '#f0f5fe',
-          100: '#dee9fd',
-          200: '#c4d8fa',
-          300: '#9bbef6',
-          400: '#75a6f2', // Le scritte azzurre (es. text-blue-400) diventano pastello
-          500: '#5288eb', // I bottoni primari sono visibili ma non accecanti
-          600: '#3b6dd6', // Hover dei bottoni
-          700: '#3057b5',
-          800: '#2a4894',
-          900: '#1e3863', // Sfondi badge (es. bg-blue-900/50) molto eleganti
-          950: '#152445', 
-        }
+          50: "#f0f9ff",
+          100: "#e0f2fe",
+          200: "#bae6fd",
+          300: "#7dd3fc",
+          400: "#38bdf8",
+          500: "#0ea5e9",
+          600: "#0284c7",
+          700: "#0369a1",
+          800: "#075985",
+          900: "#0c4a6e",
+          950: "#082f49",
+        },
       },
     },
   },
   plugins: [],
 };
-
 export default config;

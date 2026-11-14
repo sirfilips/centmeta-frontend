@@ -32,14 +32,14 @@ interface MetagameHistoryChartProps {
 }
 
 const SERIES_COLORS = [
-  "#3b82f6", // blue
-  "#f59e0b", // amber
-  "#10b981", // emerald
-  "#f43f5e", // rose
-  "#a855f7", // purple
-  "#06b6d4", // cyan
-  "#f97316", // orange
-  "#ec4899", // pink
+  "#0ea5e9", // azzurro sky (brand)
+  "#f59e0b", // ambra
+  "#10b981", // smeraldo
+  "#f43f5e", // cremisi
+  "#a855f7", // viola
+  "#06b6d4", // ciano
+  "#f97316", // arancio
+  "#ec4899", // rosa
 ];
 
 const MTG_COLORS: Array<{
@@ -152,27 +152,27 @@ export default function MetagameHistoryChart({
   return (
     <div className="space-y-6">
       {/* 1. Grafico Principale: Andamento Top Comandanti */}
-      <section className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-4 sm:p-6 shadow-xl space-y-5">
+      <section className="bg-slate-800/50 border border-slate-700/70 rounded-xl p-4 sm:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-lg sm:text-xl font-black text-white">
+            <h2 className="font-display text-lg sm:text-xl font-bold text-white tracking-wide">
               Andamento dei Top Comandanti
             </h2>
             <p className="text-xs text-slate-400">
               Tocca o passa il mouse su un periodo per ispezionare le quote esatte. Clicca un comandante per isolare la sua curva.
             </p>
           </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700/60">
+          <div className="flex items-center gap-2 self-start sm:self-auto bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700">
             <button
               type="button"
               onClick={() => setSelectedIdx((prev) => Math.max(0, prev - 1))}
               disabled={selectedIdx <= 0}
               aria-label="Periodo precedente"
-              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-slate-200 transition"
+              className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-slate-200 transition"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-xs sm:text-sm font-extrabold text-blue-400 min-w-[68px] text-center">
+            <span className="font-mono tabular-nums text-xs sm:text-sm font-bold text-blue-400 min-w-[68px] text-center">
               {activeBucket?.label}
             </span>
             <button
@@ -182,14 +182,14 @@ export default function MetagameHistoryChart({
               }
               disabled={selectedIdx >= buckets.length - 1}
               aria-label="Periodo successivo"
-              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-slate-200 transition"
+              className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-slate-200 transition"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-3 sm:p-4">
+        <div className="pt-1">
           <svg
             viewBox={`0 0 ${width} ${height}`}
             className="w-full h-auto select-none overflow-visible"
@@ -203,7 +203,7 @@ export default function MetagameHistoryChart({
                   y1={t.y}
                   x2={width - padRight}
                   y2={t.y}
-                  stroke="#334155"
+                  stroke="#393d44"
                   strokeDasharray="4 4"
                   strokeWidth="1"
                   opacity="0.55"
@@ -225,7 +225,7 @@ export default function MetagameHistoryChart({
                 y1={padTop}
                 x2={getX(selectedIdx)}
                 y2={padTop + innerH}
-                stroke="#60a5fa"
+                stroke="#38bdf8"
                 strokeDasharray="3 3"
                 strokeWidth="1.5"
                 opacity="0.7"
@@ -293,7 +293,7 @@ export default function MetagameHistoryChart({
                         cy={getY(v)}
                         r={isActive ? 5 : 3}
                         fill={color}
-                        stroke="#0f172a"
+                        stroke="#16171a"
                         strokeWidth="1.5"
                       />
                     );
@@ -402,10 +402,10 @@ export default function MetagameHistoryChart({
       {/* 2. Sezione Secondaria a 2 Colonne: Volume/Varietà + Concentrazione Meta */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Grafico Volume Mazzi vs Comandanti Unici */}
-        <section className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between space-y-4 min-w-0 overflow-hidden">
+        <section className="bg-slate-800/50 border border-slate-700/70 rounded-xl p-4 sm:p-6 flex flex-col justify-between space-y-4 min-w-0 overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 className="text-base sm:text-lg font-black text-white">
+              <h3 className="font-display text-base sm:text-lg font-bold text-white tracking-wide">
                 Volume Mazzi vs Comandanti Unici
               </h3>
               <p className="text-xs text-slate-400">
@@ -457,7 +457,7 @@ export default function MetagameHistoryChart({
                           y1={y}
                           x2={vw - vPadRight}
                           y2={y}
-                          stroke="#334155"
+                          stroke="#393d44"
                           strokeDasharray={ratio === 0 ? undefined : "4 4"}
                           strokeWidth="1"
                           opacity={ratio === 0 ? 0.9 : 0.5}
@@ -500,18 +500,18 @@ export default function MetagameHistoryChart({
                           y={vPadTop}
                           width={slotW}
                           height={vInnerH}
-                          fill={isActive ? "#1e293b" : "transparent"}
+                          fill={isActive ? "#282b2f" : "transparent"}
                           opacity={isActive ? 0.7 : 0}
                           rx={3}
                         />
-                        {/* Barra totale mazzi (blu) */}
+                        {/* Barra totale mazzi (sky) */}
                         <rect
                           x={barX}
                           y={baseY - deckH}
                           width={barW}
                           height={deckH}
                           rx={2}
-                          fill={isActive ? "#60a5fa" : "#3b82f6"}
+                          fill={isActive ? "#38bdf8" : "#0ea5e9"}
                           opacity={isActive ? 0.95 : 0.65}
                         />
                         {/* Barra sovrapposta comandanti unici sulla stessa scala (smeraldo) */}
@@ -577,10 +577,10 @@ export default function MetagameHistoryChart({
         </section>
 
         {/* Grafico Concentrazione Meta (Top N vs Resto del Formato) */}
-        <section className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col justify-between space-y-4 min-w-0">
+        <section className="bg-slate-800/50 border border-slate-700/70 rounded-xl p-4 sm:p-6 flex flex-col justify-between space-y-4 min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 className="text-base sm:text-lg font-black text-white">
+              <h3 className="font-display text-base sm:text-lg font-bold text-white tracking-wide">
                 Concentrazione del Metagame
               </h3>
               <p className="text-xs text-slate-400">
@@ -636,10 +636,10 @@ export default function MetagameHistoryChart({
       </div>
 
       {/* 3. Grafico Distribuzione Colori nel Tempo (W / U / B / R / G) */}
-      <section className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
+      <section className="bg-slate-800/50 border border-slate-700/70 rounded-xl p-4 sm:p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-base sm:text-lg font-black text-white">
+            <h3 className="font-display text-base sm:text-lg font-bold text-white tracking-wide">
               Presenza dei Colori nel Meta
             </h3>
             <p className="text-xs text-slate-400">
@@ -688,7 +688,7 @@ export default function MetagameHistoryChart({
                     y1={y}
                     x2={width - padRight}
                     y2={y}
-                    stroke="#334155"
+                    stroke="#393d44"
                     strokeDasharray="4 4"
                     strokeWidth="1"
                     opacity="0.5"

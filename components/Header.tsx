@@ -138,14 +138,14 @@ export default function Header({
   );
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 py-2 md:py-3 px-3 md:px-8 shadow-md relative z-[100]">
-      <div className="flex flex-wrap justify-between items-center lg:grid lg:grid-cols-3 gap-y-2.5 lg:gap-0">
+    <header className="bg-slate-900 border-b border-slate-800 py-2 md:py-3 px-3 md:px-6 xl:px-8 shadow-md relative z-[100]">
+      <div className="flex flex-wrap justify-between items-center lg:grid lg:grid-cols-[auto_1fr_auto] xl:grid-cols-[1fr_auto_1fr] gap-y-2.5 lg:gap-4">
         {/* 1. LATO SINISTRO: Logo */}
-        <div className="flex justify-start items-center">
+        <div className="flex justify-start items-center shrink-0">
           <a
             href="/"
             onClick={handleLogoClick}
-            className="block w-28 md:w-36 lg:w-44 transition-transform hover:scale-105"
+            className="block w-28 md:w-32 xl:w-44 transition-transform hover:scale-105"
             title="Torna alla Dashboard"
           >
             <Image
@@ -160,7 +160,7 @@ export default function Header({
         </div>
 
         {/* 2. LATO DESTRO: Controlli (e Statistiche Desktop) */}
-        <div className="flex flex-col items-end lg:col-start-3">
+        <div className="flex flex-col items-end shrink-0 lg:col-start-3">
           <div className="flex flex-row items-center justify-end gap-1.5 md:gap-2">
             {filtroTempo !== undefined && setFiltroTempo !== undefined && (
               <select
@@ -171,7 +171,7 @@ export default function Header({
                   });
                   setFiltroTempo(e.target.value);
                 }}
-                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[112px] sm:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
+                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[104px] sm:w-28 xl:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
               >
                 <option value="Ultimi 7 giorni">7 giorni</option>
                 <option value="Ultimi 30 giorni">30 giorni</option>
@@ -243,10 +243,10 @@ export default function Header({
         </div>
 
         {/* 3. CENTRO: Navigazione Desktop + Barra Mobile */}
-        <div className="flex flex-row justify-between lg:justify-center items-center w-full lg:w-auto lg:col-start-2 lg:row-start-1">
+        <div className="flex flex-row justify-between lg:justify-center items-center w-full lg:w-auto lg:col-start-2 lg:row-start-1 min-w-0">
           {/* Menu Desktop (>= lg) */}
           <nav
-            className="hidden lg:flex items-center gap-6 z-50"
+            className="hidden lg:flex items-center gap-3.5 xl:gap-6 z-50 whitespace-nowrap"
             aria-label="Navigazione principale"
           >
             {/* Comandanti */}

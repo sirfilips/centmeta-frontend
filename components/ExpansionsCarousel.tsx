@@ -244,7 +244,7 @@ export default function ExpansionsCarousel({
                         }
                         loading="lazy"
                         decoding="async"
-                        className="max-h-full max-w-full rounded-xl shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-purple-900/50 transition-all duration-300 object-contain"
+                        className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-purple-900/50 transition-all duration-300 object-contain"
                         alt={item.name}
                       />
                     ) : (

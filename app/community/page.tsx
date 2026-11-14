@@ -86,7 +86,7 @@ export default function CommunityPage() {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-wide">
             Il Giudizio della Community
           </h1>
 

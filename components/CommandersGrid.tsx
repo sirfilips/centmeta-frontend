@@ -120,7 +120,7 @@ export default function CommandersGrid({
                             cmd.images[0],
                           )
                         }
-                        className="absolute w-[65%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-4 -translate-y-2 -rotate-6 z-10 hover:z-30 hover:scale-110 transition-all duration-300"
+                        className="absolute w-[65%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg -translate-x-4 -translate-y-2 -rotate-6 z-10 hover:z-30 hover:scale-110 transition-all duration-300"
                         alt="Partner 1"
                       />
                       <img
@@ -135,7 +135,7 @@ export default function CommandersGrid({
                             cmd.images[1],
                           )
                         }
-                        className="absolute w-[65%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-4 translate-y-2 rotate-6 z-20 hover:z-30 hover:scale-110 transition-all duration-300"
+                        className="absolute w-[65%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg translate-x-4 translate-y-2 rotate-6 z-20 hover:z-30 hover:scale-110 transition-all duration-300"
                         alt="Partner 2"
                       />
                     </div>
@@ -148,7 +148,7 @@ export default function CommandersGrid({
                       onDragStart={(e) =>
                         handleCardDragStart(e, cmdName, cmd.images[0])
                       }
-                      className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/40 transition-all duration-300 object-contain"
+                      className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/40 transition-all duration-300 object-contain"
                       alt={cmdName}
                     />
                   ) : (
@@ -162,8 +162,14 @@ export default function CommandersGrid({
                     className="font-bold text-sm text-slate-200 truncate flex items-center justify-center gap-1.5"
                     title={cmdName}
                   >
-                    {!isHotSort && (
-                      <span className="bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-black">
+                    {!isHotSort && globalRank !== null && (
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tabular-nums border ${
+                          globalRank <= 3
+                            ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                            : "bg-blue-500/15 text-blue-400 border-blue-500/25"
+                        }`}
+                      >
                         #{globalRank}
                       </span>
                     )}

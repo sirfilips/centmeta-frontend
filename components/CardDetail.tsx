@@ -115,7 +115,7 @@ export default function CardDetail({
                                 cardDetailData.images[0],
                               )
                             }
-                            className="w-full h-full object-contain rounded-2xl shadow-xl border border-slate-700/50"
+                            className="w-full h-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50"
                             alt="Face 1"
                           />
                         </div>
@@ -130,7 +130,7 @@ export default function CardDetail({
                                 cardDetailData.images[1],
                               )
                             }
-                            className="w-full h-full object-contain rounded-2xl shadow-xl border border-slate-700/50"
+                            className="w-full h-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50"
                             alt="Face 2"
                           />
                         </div>
@@ -160,7 +160,7 @@ export default function CardDetail({
                             cardDetailData.images[0],
                           )
                         }
-                        className="w-full object-contain rounded-2xl shadow-xl border border-slate-700/50"
+                        className="w-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50"
                         alt={cardDetailData.card_name || selectedCardDetail}
                       />
                     </div>
@@ -171,20 +171,22 @@ export default function CardDetail({
                   )}
                 </div>
                 {/* PANNELLO ESTESO (flex-1) */}
-                <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate overflow-hidden rounded-3xl p-5 sm:p-6 md:p-8 3xl:p-10 border border-slate-700/50 shadow-xl min-h-[auto] md:min-h-[280px] 3xl:min-h-[320px] justify-center">
-                  {cardDetailData.art_crops?.[0] && (
-                    <div
-                      className="absolute inset-0 bg-cover bg-center filter blur-md scale-110 opacity-80 -z-20 pointer-events-none"
-                      style={{
-                        backgroundImage: `url("${cardDetailData.art_crops[0]}")`,
-                      }}
-                    ></div>
-                  )}
-                  <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm -z-10"></div>
-                  <div className="relative z-10 flex flex-col gap-4 w-full">
+                <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate rounded-xl p-4 sm:p-6 md:p-7 border border-slate-700 shadow-lg min-h-[auto] lg:min-h-[280px] justify-start">
+                  <div className="absolute inset-0 rounded-xl overflow-hidden -z-20 pointer-events-none [mask-image:linear-gradient(white,white)] [transform:translateZ(0)]">
+                    {cardDetailData.art_crops?.[0] && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center opacity-75"
+                        style={{
+                          backgroundImage: `url("${cardDetailData.art_crops[0]}")`,
+                        }}
+                      ></div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/50 to-slate-950/40"></div>
+                  </div>
+                  <div className="relative z-10 flex flex-col gap-3 md:gap-4 w-full">
                     <div>
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-3 py-1 rounded-full border border-blue-900/50 shadow-inner">
+                        <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-blue-400 font-bold inline-block">
                           Analisi Carta ({filtroTempo})
                         </span>
                         <button
@@ -192,39 +194,39 @@ export default function CardDetail({
                           title="Condividi o copia link carta"
                           data-umami-event="Condividi Carta"
                           data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
-                          className={`hidden lg:inline-flex text-xs font-bold px-3.5 py-1.5 rounded-full transition-all duration-300 shadow-sm border items-center gap-1.5 ${
+                          className={`hidden lg:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border ${
                             isCopied
-                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                              : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700"
+                              ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
+                              : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
                           }`}
                         >
                           {isCopied ? (
                             <>
-                              <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2.5} />
-                              <span>Link copiato!</span>
+                              <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                              <span>Link Copiato!</span>
                             </>
                           ) : (
                             <>
-                              <Share2 className="w-3.5 h-3.5 text-blue-400" strokeWidth={2.5} />
+                              <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
                               <span>Condividi</span>
                             </>
                           )}
                         </button>
                       </div>
-                      <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl 3xl:text-6xl font-black text-white drop-shadow-md">
+                      <div className="flex flex-wrap items-center justify-between gap-3 mt-1">
+                        <h2 className="font-display text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-white leading-tight tracking-tight drop-shadow-md">
                           {cardDetailData.card_name || selectedCardDetail}
                         </h2>
                       </div>
                     </div>
                     {cardDetailData.oracles &&
                       cardDetailData.oracles.length > 0 && (
-                        <div className="flex flex-col gap-3 mt-4">
+                        <div className="flex flex-col gap-2 mt-2 md:mt-3">
                           {cardDetailData.oracles.map(
                             (oracle: string, idx: number) => (
                               <p
                                 key={idx}
-                                className="text-slate-200 text-xs md:text-sm 3xl:text-base bg-slate-950/60 p-3.5 md:p-4 3xl:p-5 rounded-xl border border-slate-800/80 whitespace-pre-line leading-relaxed shadow-inner"
+                                className="text-slate-200 text-xs md:text-sm 3xl:text-base bg-slate-950/80 md:bg-slate-950/60 p-3.5 md:p-4 3xl:p-5 rounded-xl border border-slate-800 whitespace-pre-line leading-relaxed shadow-inner"
                               >
                                 {oracle}
                               </p>
@@ -232,15 +234,15 @@ export default function CardDetail({
                           )}
                         </div>
                       )}
-                    <div className="mt-3 md:mt-4 bg-slate-800/50 p-4 3xl:p-5 rounded-xl border border-slate-700/50 flex flex-col gap-1 shadow-sm">
+                    <div className="mt-2 md:mt-3 bg-slate-800/80 p-4 3xl:p-5 rounded-xl border border-slate-700/50 flex flex-col gap-1 shadow-sm">
                       <div className="text-sm md:text-base text-slate-200">
                         Presente in{" "}
-                        <span className="text-blue-400 font-black text-xl">
+                        <span className="text-blue-400 font-mono font-bold tabular-nums text-xl">
                           {cardDetailData.total_decks_with_card ?? 0}
                         </span>{" "}
                         mazzi nella finestra temporale.
                       </div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-slate-400 font-mono tabular-nums">
                         Totale storico registrato:{" "}
                         {cardDetailData.total_decks_global ?? 0} mazzi.
                       </div>
@@ -251,9 +253,9 @@ export default function CardDetail({
                         title="Condividi o copia link carta"
                         data-umami-event="Condividi Carta"
                         data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
-                        className={`text-sm font-bold px-5 py-3 rounded-full transition-all duration-300 shadow-md border inline-flex items-center justify-center gap-2 w-full sm:w-auto ${
+                        className={`text-sm font-bold px-5 py-3 rounded-xl transition-all duration-300 shadow-md border inline-flex items-center justify-center gap-2 w-full sm:w-auto ${
                           isCopied
-                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                            ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50"
                             : "bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border-slate-700"
                         }`}
                       >
@@ -275,8 +277,8 @@ export default function CardDetail({
               </div>
             </div>
             <div>
-              <h3 className="text-xl font-black mb-6 text-slate-100 flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>{" "}
+              <h3 className="font-display text-xl font-bold mb-6 text-slate-100 flex items-center gap-2">
+                <span className="w-1 h-5 bg-blue-500 rounded-sm"></span>{" "}
                 Comandanti Principali
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
@@ -328,7 +330,7 @@ export default function CardDetail({
                                   cmd.images[0],
                                 )
                               }
-                              className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-30 hover:scale-110 transition-all duration-300"
+                              className="absolute w-[70%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-30 hover:scale-110 transition-all duration-300"
                             />
                             <img
                               src={cmd.images[1]}
@@ -343,7 +345,7 @@ export default function CardDetail({
                                   cmd.images[1],
                                 )
                               }
-                              className="absolute w-[70%] max-h-[90%] object-contain rounded-xl shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-30 hover:scale-110 transition-all duration-300"
+                              className="absolute w-[70%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-30 hover:scale-110 transition-all duration-300"
                             />
                           </div>
                         ) : cmd.images?.length > 0 ? (
@@ -360,7 +362,7 @@ export default function CardDetail({
                                 cmd.images[0],
                               )
                             }
-                            className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain"
+                            className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain"
                           />
                         ) : (
                           <span className="text-xs text-slate-500 text-center">
@@ -373,7 +375,13 @@ export default function CardDetail({
                           className="font-bold text-xs text-slate-200 truncate flex items-center justify-center gap-1.5"
                           title={cmd.comandante}
                         >
-                          <span className="bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-black">
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tabular-nums border ${
+                              globalRank <= 3
+                                ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                                : "bg-blue-500/15 text-blue-400 border-blue-500/25"
+                            }`}
+                          >
                             #{globalRank}
                           </span>
                           <span className="truncate">{cmd.comandante}</span>
@@ -418,11 +426,11 @@ export default function CardDetail({
               </div>
             </div>
             <div>
-              <h3 className="text-xl font-black mb-4 text-slate-100 flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>{" "}
+              <h3 className="font-display text-xl font-bold mb-4 text-slate-100 flex items-center gap-2">
+                <span className="w-1 h-5 bg-blue-500 rounded-sm"></span>{" "}
                 Sinergie Principali
               </h3>
-              <div className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md pt-4 pb-4 border-b border-slate-800 mb-6 flex flex-col gap-3">
+              <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md pt-4 pb-4 border-b border-slate-700 mb-6 flex flex-col gap-3">
                 <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {synergyCategories.map((cat) => {
                     const iconClass = CATEGORY_INFO[cat]?.icon || "";
@@ -433,10 +441,10 @@ export default function CardDetail({
                           setActiveSynergyTab(cat);
                           setVisibleCount(50);
                         }}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                           activeSynergyTab === cat
-                            ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
-                            : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800"
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700"
                         }`}
                       >
                         {iconClass && (
@@ -522,7 +530,7 @@ export default function CardDetail({
                                     displayImages[0],
                                   )
                                 }
-                                className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 transition-transform duration-300 object-contain"
+                                className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover:-translate-y-2 transition-transform duration-300 object-contain"
                                 alt={syn.card_name}
                               />
                             ) : (

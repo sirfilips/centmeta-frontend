@@ -104,7 +104,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                             displayImages[0],
                           )
                         }
-                        className="max-h-full max-w-full rounded-xl shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain"
+                        className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover:-translate-y-2 group-hover:shadow-blue-900/30 transition-all duration-300 object-contain"
                         alt={card.card_name}
                       />
                     ) : (

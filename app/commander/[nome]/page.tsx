@@ -129,8 +129,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     cache.artCrops.get(commanderName) || getScryfallArtCropUrl(commanderName);
   
   return {
-    title: `${commanderName} | Top Carte, Sinergie e Liste Centurion`,
-    description: `Analisi statistica completa per il comandante ${commanderName} nel formato Centurion Commander. Scopri la curva di mana, la composizione media e le migliori carte per il deckbuilding.`,
+    title: `${commanderName} — Centurion Commander | Liste, Sinergie e Statistiche`,
+    description: `Analisi statistica completa per ${commanderName} in Magic: The Gathering Centurion Commander (1v1). Curva di mana, composizione media, sinergie e liste mazzi dalla community.`,
     alternates: {
       canonical: `https://centmeta.it/commander/${params.nome}`,
     },
@@ -169,6 +169,33 @@ export default async function CommanderPage({ params }: Props) {
     notFound();
   }
   
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://centmeta.it',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: commanderName,
+        item: `https://centmeta.it/commander/${params.nome}`,
+      },
+    ],
+  };
+
   // Carica la stessa identica App, ma dicendole di partire già con questo comandante!
-  return <CentMetaApp initialCommander={commanderName} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <CentMetaApp initialCommander={commanderName} />
+    </>
+  );
 }

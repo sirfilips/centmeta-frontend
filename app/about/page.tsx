@@ -21,6 +21,9 @@ import { BackToDashboardLink } from '../../components/SubpageHeader';
 export const metadata: Metadata = {
   title: 'Il Progetto | CentMeta',
   description: 'Scopri come nasce e funziona CentMeta: genesi, metodologia analitica, fonti dei dati e filosofia a supporto della community Centurion Commander.',
+  alternates: {
+    canonical: 'https://centmeta.it/about',
+  },
 };
 
 export default function About() {
@@ -37,7 +40,7 @@ export default function About() {
             <Compass className="w-3.5 h-3.5" />
             Dietro le quinte
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">Il Progetto</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">Il Progetto</h1>
           <p className="text-base lg:text-lg text-slate-400 max-w-3xl leading-relaxed">
             Infrastruttura statistica e analitica indipendente dedicata al formato Centurion Commander: genesi, pipeline dei dati e visione comunitaria.
           </p>

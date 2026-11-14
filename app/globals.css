@@ -4,12 +4,14 @@
 
 @layer base {
   body {
-    /* Applica globalmente il nuovo colore di sfondo e ammorbidisce i font */
-    @apply bg-slate-950 text-slate-100 antialiased;
+    @apply bg-slate-900 text-slate-100 antialiased;
   }
-  
-  /* Cambia il colore dell'evidenziatore quando selezioni il testo */
+
   ::selection {
     @apply bg-blue-500/30 text-blue-200;
   }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

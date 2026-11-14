@@ -16,14 +16,16 @@ export async function generateMetadata({ searchParams }: HomeProps): Promise<Met
   }
 
   return {
-    title: 'CentMeta | Analisi Statistiche Centurion Commander',
-    description: 'Scopri le carte più giocate, i comandanti in tendenza e le migliori liste per il formato Centurion Commander.',
+    title: 'CentMeta | Centurion Meta, Liste Mazzi e Metagame MTG',
+    description:
+      'Analisi completa del metagame Centurion MTG: scopri i migliori mazzi Centurion, liste mazzi aggiornate, comandanti più giocati, sinergie e trend.',
     alternates: {
       canonical: 'https://centmeta.it',
     },
     openGraph: {
-      title: 'CentMeta | Analisi Centurion Commander',
-      description: 'Statistiche, top carte e liste community per il formato Centurion Commander.',
+      title: 'CentMeta | Centurion Meta, Liste Mazzi e Metagame MTG',
+      description:
+        'Statistiche sul metagame Centurion MTG, mazzi Centurion, top carte e liste mazzi della community.',
       url: 'https://centmeta.it',
       siteName: 'CentMeta',
       images: [
@@ -39,8 +41,9 @@ export async function generateMetadata({ searchParams }: HomeProps): Promise<Met
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'CentMeta | Analisi Centurion Commander',
-      description: 'Statistiche, top carte e liste community per il formato Centurion Commander.',
+      title: 'CentMeta | Centurion Meta, Liste Mazzi e Metagame MTG',
+      description:
+        'Statistiche sul metagame Centurion MTG, mazzi Centurion, top carte e liste mazzi della community.',
       images: ['https://centmeta.it/og-image.png'],
     },
   };

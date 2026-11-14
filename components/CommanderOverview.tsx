@@ -132,7 +132,7 @@ export default function CommanderOverview({
                     selectedCmdObj?.images?.[0],
                   )
                 }
-                className="absolute w-[75%] max-h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 -translate-x-4 md:-translate-x-6 3xl:-translate-x-8 -translate-y-3 md:-translate-y-5 3xl:-translate-y-6 -rotate-6 z-10 hover:z-30 hover:scale-105 transition-all duration-300"
+                className="absolute w-[75%] max-h-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50 -translate-x-4 md:-translate-x-6 3xl:-translate-x-8 -translate-y-3 md:-translate-y-5 3xl:-translate-y-6 -rotate-6 z-10 hover:z-30 hover:scale-105 transition-all duration-300"
                 alt="Partner 1"
               />
               <img
@@ -145,7 +145,7 @@ export default function CommanderOverview({
                     selectedCmdObj?.images?.[1],
                   )
                 }
-                className="absolute w-[75%] max-h-full object-contain rounded-2xl shadow-xl border border-slate-700/50 translate-x-4 md:translate-x-6 3xl:translate-x-8 translate-y-3 md:translate-y-5 3xl:translate-y-6 rotate-6 z-20 hover:z-30 hover:scale-105 transition-all duration-300"
+                className="absolute w-[75%] max-h-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50 translate-x-4 md:translate-x-6 3xl:translate-x-8 translate-y-3 md:translate-y-5 3xl:translate-y-6 rotate-6 z-20 hover:z-30 hover:scale-105 transition-all duration-300"
                 alt="Partner 2"
               />
             </div>
@@ -165,7 +165,7 @@ export default function CommanderOverview({
                         selectedCmdObj.images[0],
                       )
                     }
-                    className="w-full h-full object-contain rounded-xl md:rounded-2xl shadow-xl border border-slate-700/50"
+                    className="w-full h-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50"
                     alt="Face 1"
                   />
                 </div>
@@ -180,7 +180,7 @@ export default function CommanderOverview({
                         selectedCmdObj.images[1],
                       )
                     }
-                    className="w-full h-full object-contain rounded-xl md:rounded-2xl shadow-xl border border-slate-700/50"
+                    className="w-full h-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50"
                     alt="Face 2"
                   />
                 </div>
@@ -207,31 +207,31 @@ export default function CommanderOverview({
                   selectedCmdObj.images[0],
                 )
               }
-              className="w-full object-contain rounded-xl md:rounded-2xl shadow-xl border border-slate-700/50 flex-shrink-0"
+              className="w-full object-contain rounded-[4.75%] shadow-xl border border-slate-700/50 flex-shrink-0"
               alt={selectedCommander}
             />
           ) : null}
         </div>
         {/* Pannello Dati: Titolo, Oracle, Mazzi, Mana Curve, Composizione */}
-        <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 3xl:p-10 border border-slate-700/50 shadow-xl min-h-[auto] lg:min-h-[280px] 3xl:min-h-[320px] justify-start">
-          <div className="absolute inset-0 rounded-2xl md:rounded-3xl overflow-hidden -z-20 pointer-events-none [mask-image:linear-gradient(white,white)] [transform:translateZ(0)]">
+        <div className="flex flex-col gap-3 md:gap-4 w-full flex-1 relative isolate rounded-xl p-4 sm:p-6 md:p-7 border border-slate-700 shadow-lg min-h-[auto] lg:min-h-[280px] justify-start">
+          <div className="absolute inset-0 rounded-xl overflow-hidden -z-20 pointer-events-none [mask-image:linear-gradient(white,white)] [transform:translateZ(0)]">
             {selectedCmdObj?.art_crops?.[0] && (
               <div
-                className="absolute -inset-8 bg-cover bg-center filter blur-md opacity-80"
+                className="absolute inset-0 bg-cover bg-center opacity-75"
                 style={{
                   backgroundImage: `url("${selectedCmdObj.art_crops[0]}")`,
                 }}
               ></div>
             )}
-            <div className="absolute inset-0 bg-slate-950/70 md:bg-slate-950/50 backdrop-blur-sm"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/50 to-slate-950/40"></div>
           </div>
           <div className="relative z-10 flex flex-col gap-2 md:gap-4 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-center lg:text-left">
               <div>
-                <span className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold bg-blue-950/50 px-2.5 py-1 md:px-3 md:py-1 rounded-full border border-blue-900/50 shadow-inner inline-block">
+                <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-blue-400 font-bold inline-block">
                   Comandante Analizzato
                 </span>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl 3xl:text-6xl font-black text-white mt-2 md:mt-2.5 drop-shadow-md leading-tight">
+                <h1 className="font-display text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-white mt-1 leading-tight tracking-tight">
                   {selectedCommander}
                 </h1>
               </div>
