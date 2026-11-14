@@ -14,8 +14,9 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 import ScrollToTop from '../../components/ScrollToTop';
-import { SubpageHeader, BackToDashboardLink } from '../../components/SubpageHeader';
+import { BackToDashboardLink } from '../../components/SubpageHeader';
 
 export const metadata: Metadata = {
   title: 'Il Progetto | CentMeta',
@@ -24,10 +25,10 @@ export const metadata: Metadata = {
 
 export default function About() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col relative">
-      <SubpageHeader />
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col relative">
+      <Header />
 
-      <div className="flex-grow pb-24 max-w-[1000px] w-full mx-auto px-4 md:px-8 mt-12 relative z-10">
+      <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10 relative z-10">
         <BackToDashboardLink />
 
         {/* Intestazione Principale */}
@@ -43,7 +44,7 @@ export default function About() {
         </div>
 
         {/* Contenitore Principale delle Sezioni */}
-        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden space-y-12 lg:space-y-16">
+        <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 z-10"></div>
 
           {/* 1. Genesi e Missione */}
@@ -76,7 +77,7 @@ export default function About() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               
               {/* Card 1: Moxfield */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2.5 text-blue-400 font-bold text-base">
                   <Layers className="w-5 h-5 text-blue-400" />
                   Raccolta Liste Pubbliche
@@ -87,7 +88,7 @@ export default function About() {
               </div>
 
               {/* Card 2: Elaborazione & Aggregazione */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2.5 text-cyan-400 font-bold text-base">
                   <Cpu className="w-5 h-5 text-cyan-400" />
                   Elaborazione e Aggregazione
@@ -98,7 +99,7 @@ export default function About() {
               </div>
 
               {/* Card 3: Scryfall */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2.5 text-purple-400 font-bold text-base">
                   <ExternalLink className="w-5 h-5 text-purple-400" />
                   Ruolo di Scryfall
@@ -109,7 +110,7 @@ export default function About() {
               </div>
 
               {/* Card 4: Aggiornamento Notturno */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2.5 text-emerald-400 font-bold text-base">
                   <Clock className="w-5 h-5 text-emerald-400" />
                   Sincronizzazione Quotidiana

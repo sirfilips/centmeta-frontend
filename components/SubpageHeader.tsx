@@ -25,9 +25,9 @@ export function BackToDashboardLink() {
   return (
     <a
       href="/"
-      className="text-sm md:text-base font-bold text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-2 mb-10 w-fit group"
+      className="mb-8 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 hover:text-white text-xs md:text-sm font-bold px-5 py-2.5 rounded-full transition-all duration-300 shadow-md border border-blue-500/30 inline-flex items-center gap-2 w-fit group"
     >
-      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" strokeWidth={2.5} />
       Torna alla Dashboard
     </a>
   );

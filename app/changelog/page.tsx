@@ -2,8 +2,9 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { ChevronDown } from 'lucide-react';
 import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 import ScrollToTop from '../../components/ScrollToTop';
-import { SubpageHeader, BackToDashboardLink } from '../../components/SubpageHeader';
+import { BackToDashboardLink } from '../../components/SubpageHeader';
 
 export const metadata: Metadata = {
   title: 'Note di Rilascio | CentMeta',
@@ -32,7 +33,7 @@ function ReleaseCard({
   return (
     <details
       open={defaultOpen}
-      className="group bg-slate-900/40 open:bg-slate-900/60 border border-slate-800 open:border-slate-700/70 rounded-3xl shadow-lg open:shadow-2xl relative isolate overflow-hidden mb-5 transition-all duration-300"
+      className="group bg-slate-800/40 open:bg-slate-800/60 border border-slate-700/50 open:border-slate-600/70 rounded-2xl md:rounded-3xl shadow-lg open:shadow-xl relative isolate overflow-hidden mb-5 transition-all duration-300"
     >
       <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${gradient} z-10`}></div>
 
@@ -60,10 +61,10 @@ function ReleaseCard({
 
 export default function Changelog() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
-      <SubpageHeader />
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col">
+      <Header />
 
-      <div className="flex-grow pb-24 max-w-[1000px] w-full mx-auto px-4 md:px-8 mt-12">
+      <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10">
         <BackToDashboardLink />
 
         <div className="mb-10">

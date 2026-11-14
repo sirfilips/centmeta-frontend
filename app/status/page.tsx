@@ -1,8 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 import ScrollToTop from '../../components/ScrollToTop';
-import { SubpageHeader, BackToDashboardLink } from '../../components/SubpageHeader';
+import { BackToDashboardLink } from '../../components/SubpageHeader';
 import { Activity, Server, Clock, Database, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
 interface PingEntry {
@@ -106,10 +107,10 @@ export default function StatusPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
-      <SubpageHeader />
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col">
+      <Header />
 
-      <div className="flex-grow pb-24 max-w-[1000px] w-full mx-auto px-4 md:px-8 mt-12">
+      <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10">
         <BackToDashboardLink />
 
         <div className="mb-10 text-center md:text-left">
@@ -152,7 +153,7 @@ export default function StatusPage() {
             </div>
 
             {/* Box Segnalazione Anomalie / GitHub Issue */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
+            <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
               <div className="text-center sm:text-left space-y-1">
                 <span className="text-sm sm:text-base font-bold text-slate-200">
                   Riscontri un&apos;anomalia o un disservizio?

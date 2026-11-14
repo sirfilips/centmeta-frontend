@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   Share2,
   Check,
+  GitCompareArrows,
 } from "lucide-react";
 
 interface CommanderOverviewProps {
@@ -33,6 +34,8 @@ interface CommanderOverviewProps {
   handleViewDecks: () => void;
   handleTypeClick: (type: string) => void;
   handleResetHome: () => void;
+  onOpenCompare?: () => void;
+  canCompare?: boolean;
 }
 
 export default function CommanderOverview({
@@ -47,6 +50,8 @@ export default function CommanderOverview({
   handleViewDecks,
   handleTypeClick,
   handleResetHome,
+  onOpenCompare,
+  canCompare = false,
 }: CommanderOverviewProps) {
   const [isCopied, setIsCopied] = useState(false);
 
@@ -231,30 +236,46 @@ export default function CommanderOverview({
                 </h1>
               </div>
 
-              {/* Tasto Condividi Comandante (Solo Desktop, in alto a destra) */}
-              <button
-                onClick={handleShare}
-                data-umami-event="Condividi Comandante"
-                data-umami-event-commander={selectedCommander}
-                className={`hidden lg:inline-flex self-start items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border shrink-0 ${
-                  isCopied
-                    ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
-                    : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
-                }`}
-                title="Condividi questo comandante"
-              >
-                {isCopied ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
-                    <span>Link Copiato!</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
-                    <span>Condividi</span>
-                  </>
+              {/* Azioni Comandante (Solo Desktop, in alto a destra) */}
+              <div className="hidden lg:flex items-center gap-2.5 self-start shrink-0">
+                {canCompare && onOpenCompare && (
+                  <button
+                    type="button"
+                    onClick={onOpenCompare}
+                    data-umami-event="Confronta Lista - Apri"
+                    data-umami-event-commander={selectedCommander}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 hover:text-white border-blue-500/40 hover:border-blue-400/60 hover:scale-105 active:scale-95"
+                    title="Confronta una tua lista con quella della community"
+                  >
+                    <GitCompareArrows className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                    <span>Confronta Lista</span>
+                  </button>
                 )}
-              </button>
+
+                <button
+                  onClick={handleShare}
+                  data-umami-event="Condividi Comandante"
+                  data-umami-event-commander={selectedCommander}
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border ${
+                    isCopied
+                      ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
+                      : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
+                  }`}
+                  title="Condividi questo comandante"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                      <span>Link Copiato!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                      <span>Condividi</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             {selectedCmdObj?.oracles && selectedCmdObj.oracles.length > 0 && (
               <div className="flex flex-col gap-2 mt-2 md:mt-4">
@@ -441,6 +462,20 @@ export default function CommanderOverview({
                 <ArrowLeft className="w-4 h-4" strokeWidth={2.5} /> Torna alla
                 Dashboard
               </a>
+
+              {/* Tasto Confronta Lista (Solo Mobile/Tablet, in fondo alla box) */}
+              {canCompare && onOpenCompare && (
+                <button
+                  type="button"
+                  onClick={onOpenCompare}
+                  data-umami-event="Confronta Lista - Apri"
+                  data-umami-event-commander={selectedCommander}
+                  className="lg:hidden inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-xs font-bold transition-all duration-300 shadow-md border shrink-0 bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 hover:text-white border-blue-500/40 active:scale-95"
+                >
+                  <GitCompareArrows className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                  <span>Confronta Lista</span>
+                </button>
+              )}
 
               {/* Tasto Condividi Comandante (Solo Mobile/Tablet, in fondo alla box) */}
               <button

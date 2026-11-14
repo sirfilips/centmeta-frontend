@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   ci:
     name: Build & Typecheck (Cloud)
@@ -39,6 +46,7 @@ jobs:
     steps:
       - name: Pull, build and reload service
         run: |
+          set -euo pipefail
           echo "[Deploy] Acquisizione lock esclusivo per prevenire deploy concorrenti..."
           exec 200>/tmp/centmeta_deploy.lock
           flock 200
@@ -61,8 +69,10 @@ jobs:
           echo "[Deploy] Riavvio servizio CentMeta (centurionrec)..."
           if command -v sudo >/dev/null 2>&1; then
             sudo systemctl restart centurionrec.service
+            sudo systemctl is-active --quiet centurionrec.service
           else
             systemctl restart centurionrec.service
+            systemctl is-active --quiet centurionrec.service
           fi
           
           echo "[Deploy] Deploy frontend completato con successo!"

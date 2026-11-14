@@ -11,6 +11,7 @@ import ExpansionsCarousel, { buildDisplayExpansions } from "./ExpansionsCarousel
 import HeroSection from "./HeroSection";
 import CommandersGrid from "./CommandersGrid";
 import CommanderOverview from "./CommanderOverview";
+import DeckCompareModal from "./DeckCompareModal";
 import CardsFilterBar from "./CardsFilterBar";
 import { CardsGrid } from "./CardsGrid";
 import {
@@ -87,9 +88,16 @@ export default function CentMetaApp({
   const [copiedDeck, setCopiedDeck] = useState<string | null>(null);
 
   const [visibleCount, setVisibleCount] = useState(50);
-  const [cacheStats, setCacheStats] = useState<{ [key: string]: any }>({});
+  const cacheStatsRef = useRef<{ [key: string]: any }>({});
+  const allTimeCommandersRef = useRef<any[] | null>(null);
+  const [fallbackCmdObj, setFallbackCmdObj] = useState<any>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showOracle, setShowOracle] = useState(false);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+
+  useEffect(() => {
+    setIsCompareOpen(false);
+  }, [selectedCommander]);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -182,12 +190,12 @@ export default function CentMetaApp({
     if (currentUrl !== newUrl) {
       // 1. Se è il primo caricamento (es. apro da un link vecchio), correggilo ma NON aggiungere storico
       if (!isInitialUrlCorrected.current) {
-        window.history.replaceState(null, "", newUrl);
+        window.history.replaceState(window.history.state, "", newUrl);
         isInitialUrlCorrected.current = true;
       }
       // 2. Se l'utente ha cliccato nel sito (e NON sta usando le frecce indietro), aggiungi allo storico
       else if (!isPopState.current) {
-        window.history.pushState(null, "", newUrl);
+        window.history.pushState(window.history.state, "", newUrl);
       }
     } else {
       isInitialUrlCorrected.current = true;
@@ -263,8 +271,8 @@ export default function CentMetaApp({
     setShowOracle(false);
 
     const cacheKey = `${filtroTempo}_${selectedCommander}`;
-    if (cacheStats[cacheKey]) {
-      setStatsData(cacheStats[cacheKey]);
+    if (cacheStatsRef.current[cacheKey]) {
+      setStatsData(cacheStatsRef.current[cacheKey]);
       setLoading(false);
       return;
     }
@@ -291,7 +299,7 @@ export default function CentMetaApp({
           total_decks: data?.total_decks ?? 0,
           cards: Array.isArray(data?.cards) ? data.cards : [],
         };
-        setCacheStats((prev) => ({ ...prev, [cacheKey]: normalizedData }));
+        cacheStatsRef.current[cacheKey] = normalizedData;
         setStatsData(normalizedData);
         setLoading(false);
       })
@@ -303,7 +311,7 @@ export default function CentMetaApp({
     return () => {
       active = false;
     };
-  }, [filtroTempo, selectedCommander, needsFullStats, cacheStats]);
+  }, [filtroTempo, selectedCommander, needsFullStats]);
 
   useEffect(() => {
     let active = true;
@@ -440,100 +448,112 @@ export default function CentMetaApp({
     }
   }, [cardSort, homeMode, displayExpansions, selectedExpansion]);
 
-  const applyFilters = (cards: any[], tab: string, isSynergyList: boolean = false) => {
-    let filtered = cards || [];
-    const isHotCardsMode =
-      !isSynergyList &&
-      homeMode === "cards" &&
-      cardSort === "hot" &&
-      selectedCommander === "Tutti i mazzi";
+  const applyFilters = useCallback(
+    (cards: any[], tab: string, isSynergyList: boolean = false) => {
+      let filtered = cards || [];
+      const isHotCardsMode =
+        !isSynergyList &&
+        homeMode === "cards" &&
+        cardSort === "hot" &&
+        selectedCommander === "Tutti i mazzi";
 
-    if (isHotCardsMode) {
-      filtered = (dashboardData?.hot_cards || []).map((c: any) => ({
-        card_name: c.name,
-        images: c.images,
-        freq: c.val1,
-        Percentuale: 0,
-        Sinergia: 0,
-        delta: c.delta,
-        category: c.category,
-        color_identity: c.color_identity || [],
-      }));
-    } else if (
-      !isSynergyList &&
-      homeMode === "cards" &&
-      cardSort === "expansions" &&
-      selectedCommander === "Tutti i mazzi"
-    ) {
-      const activeExp =
-        displayExpansions.find((e) => e.code === selectedExpansion) ||
-        displayExpansions[0];
-      const isAllExp = activeExp?.code === "ALL";
-      const totDecks = dashboardData?.total_decks || statsData?.total_decks || 0;
-      filtered = (activeExp?.cards || []).map((c: any) => ({
-        card_name: c.name,
-        images: c.images,
-        freq: c.val1,
-        Percentuale:
-          totDecks > 0 ? Number(((c.val1 / totDecks) * 100).toFixed(1)) : 0,
-        Sinergia: 0,
-        delta: c.delta,
-        category: c.category,
-        color_identity: c.color_identity || [],
-        set_code: isAllExp ? c.set_code : null,
-      }));
-    }
-
-
-    if (tab === "Top Sinergie" || tab === "In Crescita") {
-      filtered = filtered.filter(
-        (c) => !isBasicLand(c.card_name) && c.category !== "Terre",
-      );
       if (isHotCardsMode) {
-        filtered = [...filtered].sort(
-          (a, b) => (b.delta || 0) - (a.delta || 0),
+        filtered = (dashboardData?.hot_cards || []).map((c: any) => ({
+          card_name: c.name,
+          images: c.images,
+          freq: c.val1,
+          Percentuale: 0,
+          Sinergia: 0,
+          delta: c.delta,
+          category: c.category,
+          color_identity: c.color_identity || [],
+        }));
+      } else if (
+        !isSynergyList &&
+        homeMode === "cards" &&
+        cardSort === "expansions" &&
+        selectedCommander === "Tutti i mazzi"
+      ) {
+        const activeExp =
+          displayExpansions.find((e) => e.code === selectedExpansion) ||
+          displayExpansions[0];
+        const isAllExp = activeExp?.code === "ALL";
+        const totDecks = dashboardData?.total_decks || statsData?.total_decks || 0;
+        filtered = (activeExp?.cards || []).map((c: any) => ({
+          card_name: c.name,
+          images: c.images,
+          freq: c.val1,
+          Percentuale:
+            totDecks > 0 ? Number(((c.val1 / totDecks) * 100).toFixed(1)) : 0,
+          Sinergia: 0,
+          delta: c.delta,
+          category: c.category,
+          color_identity: c.color_identity || [],
+          set_code: isAllExp ? c.set_code : null,
+        }));
+      }
+
+      if (tab === "Top Sinergie" || tab === "In Crescita") {
+        filtered = filtered.filter(
+          (c) => !isBasicLand(c.card_name) && c.category !== "Terre",
         );
-      } else {
-        filtered = [...filtered].sort(
-          (a, b) => (b.Sinergia || 0) - (a.Sinergia || 0),
+        if (isHotCardsMode) {
+          filtered = [...filtered].sort(
+            (a, b) => (b.delta || 0) - (a.delta || 0),
+          );
+        } else {
+          filtered = [...filtered].sort(
+            (a, b) => (b.Sinergia || 0) - (a.Sinergia || 0),
+          );
+        }
+      } else if (tab === "Top Cards") {
+        filtered = filtered.filter((c) => !isBasicLand(c.card_name));
+        if (isHotCardsMode) {
+          filtered = [...filtered].sort(
+            (a, b) => (b.delta || 0) - (a.delta || 0),
+          );
+        } else {
+          filtered = [...filtered].sort(
+            (a, b) => (b.Percentuale || 0) - (a.Percentuale || 0),
+          );
+        }
+      } else if (tab === "Terre") {
+        filtered = filtered.filter(
+          (c) => c.category === "Terre" || isBasicLand(c.card_name),
+        );
+      } else if (
+        tab !== "Tutte" &&
+        tab !== "Hot Cards" &&
+        tab !== "Liste Mazzi"
+      ) {
+        filtered = filtered.filter((c) => c.category === tab);
+      }
+
+      if (!isSynergyList && debouncedCardSearch.trim() !== "") {
+        filtered = filtered.filter((c) =>
+          c.card_name.toLowerCase().includes(debouncedCardSearch.toLowerCase()),
         );
       }
-    } else if (tab === "Top Cards") {
-      filtered = filtered.filter((c) => !isBasicLand(c.card_name));
-      if (isHotCardsMode) {
-        filtered = [...filtered].sort(
-          (a, b) => (b.delta || 0) - (a.delta || 0),
-        );
-      } else {
-        filtered = [...filtered].sort(
-          (a, b) => (b.Percentuale || 0) - (a.Percentuale || 0),
+
+      if (activeColors.length > 0) {
+        filtered = filtered.filter((c) =>
+          matchesColorIdentity(c.color_identity, activeColors),
         );
       }
-    } else if (tab === "Terre") {
-      filtered = filtered.filter(
-        (c) => c.category === "Terre" || isBasicLand(c.card_name),
-      );
-    } else if (
-      tab !== "Tutte" &&
-      tab !== "Hot Cards" &&
-      tab !== "Liste Mazzi"
-    ) {
-      filtered = filtered.filter((c) => c.category === tab);
-    }
-
-    if (!isSynergyList && debouncedCardSearch.trim() !== "") {
-      filtered = filtered.filter((c) =>
-        c.card_name.toLowerCase().includes(debouncedCardSearch.toLowerCase()),
-      );
-    }
-
-    if (activeColors.length > 0) {
-      filtered = filtered.filter((c) =>
-        matchesColorIdentity(c.color_identity, activeColors),
-      );
-    }
-    return filtered;
-  };
+      return filtered;
+    },
+    [
+      homeMode,
+      cardSort,
+      selectedCommander,
+      dashboardData,
+      displayExpansions,
+      selectedExpansion,
+      statsData?.total_decks,
+      debouncedCardSearch,
+      activeColors,
+    ],
+  );
 
   let synergyLabel = "Top Sinergie";
   if (selectedCommander === "Tutti i mazzi") {
@@ -588,14 +608,55 @@ export default function CentMetaApp({
     });
   }
 
-  const selectedCmdObj = commanders.find(
+  const matchedCmdObj = commanders.find(
     (c) => c.comandante === selectedCommander,
   );
-  const visibleCardsData = applyFilters(statsData.cards, activeTab, false);
-  const visibleSynergiesData = applyFilters(
-    cardDetailData?.synergies,
-    activeSynergyTab,
-    true,
+
+  useEffect(() => {
+    if (
+      selectedCommander === "Tutti i mazzi" ||
+      matchedCmdObj ||
+      commanders.length === 0
+    ) {
+      setFallbackCmdObj(null);
+      return;
+    }
+
+    if (allTimeCommandersRef.current) {
+      const found = allTimeCommandersRef.current.find(
+        (c) => c.comandante === selectedCommander,
+      );
+      setFallbackCmdObj(found || null);
+      return;
+    }
+
+    let active = true;
+    fetchJson(
+      `/api/commanders?filtro_tempo=${encodeURIComponent("Tutti i tempi")}`,
+    )
+      .then((data) => {
+        if (!active || !Array.isArray(data)) return;
+        allTimeCommandersRef.current = data;
+        const found = data.find((c) => c.comandante === selectedCommander);
+        setFallbackCmdObj(found || null);
+      })
+      .catch(() => {
+        // Fallback silenzioso: mantiene vista senza metadati se il fetch fallisce
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedCommander, matchedCmdObj, commanders.length]);
+
+  const selectedCmdObj = matchedCmdObj || fallbackCmdObj;
+  const visibleCardsData = useMemo(
+    () => applyFilters(statsData.cards, activeTab, false),
+    [applyFilters, statsData.cards, activeTab],
+  );
+  const visibleSynergiesData = useMemo(
+    () => applyFilters(cardDetailData?.synergies, activeSynergyTab, true),
+    [applyFilters, cardDetailData?.synergies, activeSynergyTab],
   );
 
   const handleResetHome = () => {
@@ -907,6 +968,18 @@ export default function CentMetaApp({
                   handleViewDecks={handleViewDecks}
                   handleTypeClick={handleTypeClick}
                   handleResetHome={handleResetHome}
+                  onOpenCompare={() => setIsCompareOpen(true)}
+                  canCompare={!loading && (statsData?.cards?.length ?? 0) > 0}
+                />
+              )}
+
+              {selectedCommander !== "Tutti i mazzi" && isCompareOpen && (
+                <DeckCompareModal
+                  isOpen={isCompareOpen}
+                  onClose={() => setIsCompareOpen(false)}
+                  selectedCommander={selectedCommander}
+                  statsData={statsData}
+                  onSelectCard={handleSelectCard}
                 />
               )}
 

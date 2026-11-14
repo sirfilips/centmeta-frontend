@@ -1,44 +1,117 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ExternalLink, ChevronDown, Trophy, Flame, Coffee, Users, Swords, Sparkles } from 'lucide-react';
-import { trackEvent } from '../utils/analytics';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ExternalLink,
+  ChevronDown,
+  Trophy,
+  Flame,
+  Coffee,
+  Users,
+  Swords,
+  Sparkles,
+  TrendingUp,
+  Menu,
+  X,
+  Info,
+  Activity,
+  History,
+  ShieldCheck,
+  Compass,
+} from "lucide-react";
+import { trackEvent } from "../utils/analytics";
 
 interface HeaderProps {
   filtroTempo?: string;
   setFiltroTempo?: (val: string) => void;
-  onReset: () => void;
+  onReset?: () => void;
   totalDecks?: number;
   lastUpdated?: string | null;
-  onNavigate?: (mode: 'commanders' | 'cards', tab: string, sort: 'top' | 'hot' | 'expansions') => void; 
+  onNavigate?: (
+    mode: "commanders" | "cards",
+    tab: string,
+    sort: "top" | "hot" | "expansions"
+  ) => void;
 }
 
-export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDecks, lastUpdated, onNavigate }: HeaderProps) {
-  const [openDropdown, setOpenDropdown] = useState<'commanders' | 'cards' | 'community' | null>(null);
+type DropdownKey = "commanders" | "cards" | "community" | "info" | null;
+
+export default function Header({
+  filtroTempo,
+  setFiltroTempo,
+  onReset,
+  totalDecks,
+  lastUpdated,
+  onNavigate,
+}: HeaderProps) {
+  const pathname = usePathname() || "/";
+  const router = useRouter();
+  const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setOpenDropdown(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileMenuOpen(false);
+        setOpenDropdown(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return 'N/D';
+    if (!dateStr) return "N/D";
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      return date.toLocaleDateString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
     } catch {
       return dateStr;
     }
   };
 
-  const handleNavClick = (mode: 'commanders' | 'cards', sort: 'top' | 'hot' | 'expansions') => {
+  const periodParam =
+    filtroTempo && filtroTempo !== "Ultimi 30 giorni"
+      ? `&periodo=${encodeURIComponent(filtroTempo)}`
+      : "";
+
+  const handleNavClick = (
+    mode: "commanders" | "cards",
+    sort: "top" | "hot" | "expansions"
+  ) => {
     setOpenDropdown(null);
+    setMobileMenuOpen(false);
     if (onNavigate) {
-      onNavigate(mode, 'Top Cards', sort);
+      onNavigate(mode, "Top Cards", sort);
+    } else if (mode === "commanders") {
+      router.push(`/?view=commanders&csort=${sort}${periodParam}`);
+    } else {
+      router.push(`/?view=cards&tab=Top+Cards&cardsort=${sort}${periodParam}`);
     }
   };
 
-  // Funzione helper per gestire il click sui link supportando il middle-click nativo
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, mode: 'commanders' | 'cards', sort: 'top' | 'hot' | 'expansions') => {
-    // Se non c'è onNavigate (es. pagina /status), o è un middle-click / click con modificatori, lascia fare al browser
-    if (!onNavigate || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
-    
-    // Altrimenti (click sinistro normale) usa la navigazione veloce SPA
+  const handleLinkClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    mode: "commanders" | "cards",
+    sort: "top" | "hot" | "expansions"
+  ) => {
+    if (!onNavigate || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) {
+      setOpenDropdown(null);
+      setMobileMenuOpen(false);
+      return;
+    }
     e.preventDefault();
     handleNavClick(mode, sort);
   };
@@ -46,36 +119,40 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
     e.preventDefault();
-    onReset();
+    setMobileMenuOpen(false);
+    if (onReset) {
+      onReset();
+    } else {
+      router.push("/");
+    }
   };
 
-  const toggleDropdown = (menu: 'commanders' | 'cards' | 'community') => {
+  const toggleDropdown = (menu: Exclude<DropdownKey, null>) => {
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
 
-  const periodParam =
-    filtroTempo && filtroTempo !== 'Ultimi 30 giorni'
-      ? `&periodo=${encodeURIComponent(filtroTempo)}`
-      : '';
+  const isStoricoActive = pathname === "/storico";
+  const isCommunityActive = pathname.startsWith("/community");
+  const isInfoActive = ["/about", "/status", "/changelog", "/legal"].includes(
+    pathname
+  );
 
   return (
     <header className="bg-slate-900 border-b border-slate-800 py-2 md:py-3 px-3 md:px-8 shadow-md relative z-[100]">
-      
-      <div className="flex flex-wrap justify-between items-center lg:grid lg:grid-cols-3 gap-y-3 lg:gap-0">
-        
+      <div className="flex flex-wrap justify-between items-center lg:grid lg:grid-cols-3 gap-y-2.5 lg:gap-0">
         {/* 1. LATO SINISTRO: Logo */}
         <div className="flex justify-start items-center">
-          <a 
+          <a
             href="/"
             onClick={handleLogoClick}
-            className="block w-28 md:w-36 lg:w-44 transition-transform hover:scale-105" 
+            className="block w-28 md:w-36 lg:w-44 transition-transform hover:scale-105"
             title="Torna alla Dashboard"
           >
-            <Image 
-              src="/logo.png" 
-              alt="CentMeta Logo" 
-              width={300} 
-              height={100} 
+            <Image
+              src="/logo.png"
+              alt="CentMeta Logo"
+              width={300}
+              height={100}
               priority
               className="w-full h-auto object-contain"
             />
@@ -84,16 +161,17 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
 
         {/* 2. LATO DESTRO: Controlli (e Statistiche Desktop) */}
         <div className="flex flex-col items-end lg:col-start-3">
-          
           <div className="flex flex-row items-center justify-end gap-1.5 md:gap-2">
             {filtroTempo !== undefined && setFiltroTempo !== undefined && (
               <select
                 value={filtroTempo}
                 onChange={(e) => {
-                  trackEvent("Cambio Periodo Temporale", { periodo: e.target.value });
+                  trackEvent("Cambio Periodo Temporale", {
+                    periodo: e.target.value,
+                  });
                   setFiltroTempo(e.target.value);
                 }}
-                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[120px] sm:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
+                className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] md:text-xs font-semibold w-[112px] sm:w-36 focus:outline-none focus:border-blue-500 text-slate-200 shadow-inner cursor-pointer hover:bg-slate-800 transition-colors"
               >
                 <option value="Ultimi 7 giorni">7 giorni</option>
                 <option value="Ultimi 30 giorni">30 giorni</option>
@@ -104,44 +182,54 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               </select>
             )}
 
-            <a 
-              href="https://ko-fi.com/centmeta" 
-              data-umami-event="Click Ko-fi Header" 
-              target="_blank" 
+            <a
+              href="https://ko-fi.com/centmeta"
+              data-umami-event="Click Ko-fi Header"
+              target="_blank"
               rel="noopener noreferrer"
               title="Supporta CentMeta su Ko-fi"
               className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 hover:text-amber-400 px-2 sm:px-2.5 py-1.5 rounded-lg transition-colors border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-sm group h-[28px] md:h-[30px]"
             >
               <Coffee className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={2.5} />
-              <span className="hidden sm:inline text-[11px] md:text-xs font-bold">Supporta</span>
+              <span className="hidden sm:inline text-[11px] md:text-xs font-bold">
+                Supporta
+              </span>
             </a>
 
-            <a 
-              href="https://www.centurioncommander.eu/it/home-ita/" 
-              data-umami-event="Click Sito Centurion" 
-              target="_blank" 
+            <a
+              href="https://www.centurioncommander.eu/it/home-ita/"
+              data-umami-event="Click Sito Centurion"
+              target="_blank"
               rel="noopener noreferrer"
               title="Sito Ufficiale Centurion"
               className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors border border-slate-700 flex items-center justify-center shadow-sm group h-[28px] md:h-[30px]"
             >
-              <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={2.5} />
+              <ExternalLink
+                className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-70 group-hover:opacity-100 transition-opacity"
+                strokeWidth={2.5}
+              />
             </a>
 
-            <a 
-              href="https://github.com/sirfilips" 
-              data-umami-event="Click GitHub Header" 
-              target="_blank" 
+            <a
+              href="https://github.com/sirfilips"
+              data-umami-event="Click GitHub Header"
+              target="_blank"
               rel="noopener noreferrer"
               title="Codice sorgente su GitHub"
               className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors border border-slate-700 flex items-center justify-center shadow-sm group h-[28px] md:h-[30px]"
             >
-              <svg role="img" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-70 group-hover:opacity-100 transition-opacity">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              <svg
+                role="img"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-70 group-hover:opacity-100 transition-opacity"
+              >
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
               </svg>
             </a>
           </div>
 
-          {/* STATISTICHE DESKTOP: Visibili solo da schermi grandi, in griglia sotto ai filtri */}
+          {/* STATISTICHE DESKTOP */}
           <div className="hidden lg:flex items-center gap-2 mt-1.5 text-[10px] text-slate-400">
             {totalDecks !== undefined && (
               <span className="text-blue-400 font-bold bg-blue-950/30 px-1.5 rounded border border-blue-900/30">
@@ -152,40 +240,55 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               <span>Aggiornato: {formatDate(lastUpdated)}</span>
             )}
           </div>
-          
         </div>
 
-        {/* 3. CENTRO: Navigazione (e Statistiche Mobile) */}
+        {/* 3. CENTRO: Navigazione Desktop + Barra Mobile */}
         <div className="flex flex-row justify-between lg:justify-center items-center w-full lg:w-auto lg:col-start-2 lg:row-start-1">
-          
-          <nav className="flex items-center gap-2.5 sm:gap-4 lg:gap-8 z-50">
-            <div 
+          {/* Menu Desktop (>= lg) */}
+          <nav
+            className="hidden lg:flex items-center gap-6 z-50"
+            aria-label="Navigazione principale"
+          >
+            {/* Comandanti */}
+            <div
               className="relative group"
-              onMouseEnter={() => setOpenDropdown('commanders')}
+              onMouseEnter={() => setOpenDropdown("commanders")}
               onMouseLeave={() => setOpenDropdown(null)}
             >
-              <button 
-                onClick={() => toggleDropdown('commanders')}
-                className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-xs md:text-sm lg:text-base py-1 transition-colors"
+              <button
+                type="button"
+                onClick={() => toggleDropdown("commanders")}
+                className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-sm xl:text-base py-1 transition-colors"
               >
-                Comandanti <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === 'commanders' ? 'rotate-180' : ''}`} />
+                Comandanti{" "}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                    openDropdown === "commanders" ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              
-              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'commanders' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
-                <div className="py-2 flex flex-col">
-                  <a 
-                    href={`/?view=commanders&csort=top${periodParam}`} 
-                    onClick={(e) => handleLinkClick(e, 'commanders', 'top')} 
+
+              <div
+                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                  openDropdown === "commanders"
+                    ? "opacity-100 scale-100 visible"
+                    : "opacity-0 scale-95 invisible"
+                }`}
+              >
+                <div className="py-1.5 flex flex-col">
+                  <a
+                    href={`/?view=commanders&csort=top${periodParam}`}
+                    onClick={(e) => handleLinkClick(e, "commanders", "top")}
                     data-umami-event="Header Menu - Top Comandanti"
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Comandanti
                   </a>
-                  <a 
-                    href={`/?view=commanders&csort=hot${periodParam}`} 
-                    onClick={(e) => handleLinkClick(e, 'commanders', 'hot')} 
+                  <a
+                    href={`/?view=commanders&csort=hot${periodParam}`}
+                    onClick={(e) => handleLinkClick(e, "commanders", "hot")}
                     data-umami-event="Header Menu - Hot Comandanti"
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
                   </a>
@@ -193,41 +296,54 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               </div>
             </div>
 
-            <div 
+            {/* Carte */}
+            <div
               className="relative group"
-              onMouseEnter={() => setOpenDropdown('cards')}
+              onMouseEnter={() => setOpenDropdown("cards")}
               onMouseLeave={() => setOpenDropdown(null)}
             >
-              <button 
-                onClick={() => toggleDropdown('cards')}
-                className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-xs md:text-sm lg:text-base py-1 transition-colors"
+              <button
+                type="button"
+                onClick={() => toggleDropdown("cards")}
+                className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-sm xl:text-base py-1 transition-colors"
               >
-                Carte <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === 'cards' ? 'rotate-180' : ''}`} />
+                Carte{" "}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                    openDropdown === "cards" ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              
-              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'cards' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
-                <div className="py-2 flex flex-col">
-                  <a 
-                    href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`} 
-                    onClick={(e) => handleLinkClick(e, 'cards', 'top')} 
+
+              <div
+                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                  openDropdown === "cards"
+                    ? "opacity-100 scale-100 visible"
+                    : "opacity-0 scale-95 invisible"
+                }`}
+              >
+                <div className="py-1.5 flex flex-col">
+                  <a
+                    href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`}
+                    onClick={(e) => handleLinkClick(e, "cards", "top")}
                     data-umami-event="Header Menu - Top Carte"
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Trophy className="w-4 h-4 text-blue-400" /> Top Carte
                   </a>
-                  <a 
-                    href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`} 
-                    onClick={(e) => handleLinkClick(e, 'cards', 'hot')} 
+                  <a
+                    href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`}
+                    onClick={(e) => handleLinkClick(e, "cards", "hot")}
                     data-umami-event="Header Menu - Hot Carte"
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
                   </a>
-                  <a 
-                    href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`} 
-                    onClick={(e) => handleLinkClick(e, 'cards', 'expansions')} 
+                  <a
+                    href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`}
+                    onClick={(e) => handleLinkClick(e, "cards", "expansions")}
                     data-umami-event="Header Menu - Ultime Espansioni"
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700/50"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Sparkles className="w-4 h-4 text-purple-400" /> Ultime Espansioni
                   </a>
@@ -235,47 +351,182 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               </div>
             </div>
 
-            <div 
+            {/* Storico Metagame (Link diretto di primo livello) */}
+            <Link
+              href="/storico"
+              data-umami-event="Header Menu - Storico Metagame"
+              className={`flex items-center gap-1.5 font-bold text-sm xl:text-base py-1 transition-colors whitespace-nowrap ${
+                isStoricoActive
+                  ? "text-blue-400"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              Storico
+            </Link>
+
+            {/* Community */}
+            <div
               className="relative group"
-              onMouseEnter={() => setOpenDropdown('community')}
+              onMouseEnter={() => setOpenDropdown("community")}
               onMouseLeave={() => setOpenDropdown(null)}
             >
-              <button 
-                onClick={() => toggleDropdown('community')}
-                className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-xs md:text-sm lg:text-base py-1 transition-colors"
+              <button
+                type="button"
+                onClick={() => toggleDropdown("community")}
+                className={`flex items-center gap-1 font-bold text-sm xl:text-base py-1 transition-colors ${
+                  isCommunityActive
+                    ? "text-blue-400"
+                    : "text-slate-300 hover:text-white"
+                }`}
               >
-                Community <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${openDropdown === 'community' ? 'rotate-180' : ''}`} />
+                Community{" "}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                    openDropdown === "community" ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              
-              <div className={`absolute top-full left-0 lg:left-1/2 lg:-translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${openDropdown === 'community' ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
-                <div className="py-2 flex flex-col">
-                  <Link 
-                    href="/community" 
+
+              <div
+                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                  openDropdown === "community"
+                    ? "opacity-100 scale-100 visible"
+                    : "opacity-0 scale-95 invisible"
+                }`}
+              >
+                <div className="py-1.5 flex flex-col">
+                  <Link
+                    href="/community"
                     onClick={() => setOpenDropdown(null)}
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    data-umami-event="Header Menu - Community Panoramica"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Users className="w-4 h-4 text-blue-400" /> Panoramica
                   </Link>
-                  <Link 
-                    href="/community/vota" 
+                  <Link
+                    href="/community/vota"
                     onClick={() => setOpenDropdown(null)}
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    data-umami-event="Header Menu - Vota Carte"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Swords className="w-4 h-4 text-amber-400" /> Vota le Carte
                   </Link>
-                  <Link 
-                    href="/community/classifica" 
+                  <Link
+                    href="/community/classifica"
                     onClick={() => setOpenDropdown(null)}
-                    className="flex items-center gap-2 text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    data-umami-event="Header Menu - Classifica"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                   >
                     <Trophy className="w-4 h-4 text-purple-400" /> Classifica
                   </Link>
                 </div>
               </div>
             </div>
+
+            {/* Info & Progetto */}
+            <div
+              className="relative group"
+              onMouseEnter={() => setOpenDropdown("info")}
+              onMouseLeave={() => setOpenDropdown(null)}
+            >
+              <button
+                type="button"
+                onClick={() => toggleDropdown("info")}
+                className={`flex items-center gap-1 font-bold text-sm xl:text-base py-1 transition-colors ${
+                  isInfoActive
+                    ? "text-blue-400"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                Info{" "}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                    openDropdown === "info" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                  openDropdown === "info"
+                    ? "opacity-100 scale-100 visible"
+                    : "opacity-0 scale-95 invisible"
+                }`}
+              >
+                <div className="py-1.5 flex flex-col">
+                  <Link
+                    href="/about"
+                    onClick={() => setOpenDropdown(null)}
+                    data-umami-event="Header Menu - Il Progetto"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                  >
+                    <Compass className="w-4 h-4 text-blue-400" /> Il Progetto
+                  </Link>
+                  <Link
+                    href="/status"
+                    onClick={() => setOpenDropdown(null)}
+                    data-umami-event="Header Menu - Stato Sistema"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                  >
+                    <Activity className="w-4 h-4 text-emerald-400" /> Stato del Sistema
+                  </Link>
+                  <Link
+                    href="/changelog"
+                    onClick={() => setOpenDropdown(null)}
+                    data-umami-event="Header Menu - Changelog"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                  >
+                    <History className="w-4 h-4 text-purple-400" /> Changelog
+                  </Link>
+                  <Link
+                    href="/legal"
+                    onClick={() => setOpenDropdown(null)}
+                    data-umami-event="Header Menu - Note Legali"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-slate-400" /> Privacy & Legali
+                  </Link>
+                </div>
+              </div>
+            </div>
           </nav>
 
-          {/* STATISTICHE MOBILE: Visibili solo da telefono, incollati a destra sulla stessa riga dei menù */}
+          {/* Barra Mobile (< lg): Hamburger + Accesso rapido Storico + Statistiche */}
+          <div className="flex lg:hidden items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !mobileMenuOpen;
+                setMobileMenuOpen(next);
+                if (next) trackEvent("Header - Apri Menu Mobile");
+              }}
+              aria-expanded={mobileMenuOpen}
+              aria-label="Apri menu di navigazione"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-4 h-4 text-blue-400" />
+              ) : (
+                <Menu className="w-4 h-4 text-blue-400" />
+              )}
+              <span>Menu</span>
+            </button>
+
+            <Link
+              href="/storico"
+              data-umami-event="Header Menu Mobile - Storico"
+              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition ${
+                isStoricoActive
+                  ? "bg-blue-600/25 border-blue-500/50 text-blue-300"
+                  : "bg-slate-800/70 border-slate-700/70 text-slate-300 hover:text-white"
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Storico</span>
+            </Link>
+          </div>
+
           <div className="flex lg:hidden flex-col items-end text-[9px] sm:text-[10px] text-slate-400 leading-tight">
             {totalDecks !== undefined && (
               <span className="text-blue-400 font-bold bg-blue-950/30 px-1.5 rounded border border-blue-900/30 mb-0.5">
@@ -286,10 +537,173 @@ export default function Header({ filtroTempo, setFiltroTempo, onReset, totalDeck
               <span>Aggiornato: {formatDate(lastUpdated)}</span>
             )}
           </div>
-          
         </div>
-
       </div>
+
+      {/* DRAWER MOBILE ESPANDIBILE */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden mt-3 pt-3 border-t border-slate-800 space-y-4 pb-2 animate-fade-in">
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-1 mb-1.5">
+              Esplora Meta
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href={`/?view=commanders&csort=top${periodParam}`}
+                onClick={(e) => handleLinkClick(e, "commanders", "top")}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-xs font-semibold text-slate-200"
+              >
+                <Trophy className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                Top Comandanti
+              </a>
+              <a
+                href={`/?view=commanders&csort=hot${periodParam}`}
+                onClick={(e) => handleLinkClick(e, "commanders", "hot")}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-xs font-semibold text-slate-200"
+              >
+                <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                Hot Comandanti
+              </a>
+              <a
+                href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`}
+                onClick={(e) => handleLinkClick(e, "cards", "top")}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-xs font-semibold text-slate-200"
+              >
+                <Trophy className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                Top Carte
+              </a>
+              <a
+                href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`}
+                onClick={(e) => handleLinkClick(e, "cards", "hot")}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-xs font-semibold text-slate-200"
+              >
+                <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                Hot Carte
+              </a>
+              <a
+                href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`}
+                onClick={(e) => handleLinkClick(e, "cards", "expansions")}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-xs font-semibold text-slate-200"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                Ultime Espansioni
+              </a>
+              <Link
+                href="/storico"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-semibold ${
+                  isStoricoActive
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                Storico Meta
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-1 mb-1.5">
+              Community
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <Link
+                href="/community"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl border text-xs font-semibold ${
+                  pathname === "/community"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                Hub
+              </Link>
+              <Link
+                href="/community/vota"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl border text-xs font-semibold ${
+                  pathname === "/community/vota"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <Swords className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                Vota
+              </Link>
+              <Link
+                href="/community/classifica"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl border text-xs font-semibold ${
+                  pathname === "/community/classifica"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <Trophy className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                Classifica
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-1 mb-1.5">
+              Info & Progetto
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold ${
+                  pathname === "/about"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                Il Progetto
+              </Link>
+              <Link
+                href="/status"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold ${
+                  pathname === "/status"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                Stato Sistema
+              </Link>
+              <Link
+                href="/changelog"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold ${
+                  pathname === "/changelog"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <History className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                Changelog
+              </Link>
+              <Link
+                href="/legal"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold ${
+                  pathname === "/legal"
+                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                Privacy & Legali
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -62,7 +62,7 @@ export default function CommunityPage() {
   const mostVotedCard = data?.most_voted?.[0];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col relative selection:bg-blue-600 selection:text-white overflow-x-hidden">
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col relative selection:bg-blue-600 selection:text-white overflow-x-hidden">
       <CommunityNav />
 
       {/* Glow Atmosferico Dinamico */}
@@ -111,7 +111,7 @@ export default function CommunityPage() {
         <section aria-label="Metriche Community" className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
           
           {/* 1. Voti Totali */}
-          <div className="bg-slate-900/60 border border-slate-800 hover:border-amber-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-500/5 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group">
+          <div className="bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-500/5 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-amber-300 transition-colors">
                 Voti Totali
@@ -131,7 +131,7 @@ export default function CommunityPage() {
           </div>
 
           {/* 2. Carte Valutate */}
-          <div className="bg-slate-900/60 border border-slate-800 hover:border-purple-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/5 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group">
+          <div className="bg-slate-800/50 border border-slate-700/50 hover:border-purple-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/5 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-purple-300 transition-colors">
                 Carte Valutate
@@ -157,7 +157,7 @@ export default function CommunityPage() {
                 ? "/community/classifica?sort=highest&min_votes=1"
                 : "/community/classifica?sort=highest"
             }
-            className="group bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between cursor-pointer"
+            className="group bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between cursor-pointer"
             title="Visualizza classifica per punteggio"
           >
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -193,7 +193,7 @@ export default function CommunityPage() {
                 ? "/community/classifica?sort=most_voted&min_votes=1"
                 : "/community/classifica?sort=most_voted"
             }
-            className="group bg-slate-900/60 border border-slate-800 hover:border-orange-500/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-500/10 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between cursor-pointer"
+            className="group bg-slate-800/50 border border-slate-700/50 hover:border-orange-500/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-500/10 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between cursor-pointer"
             title="Visualizza classifica per numero di voti"
           >
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -228,7 +228,7 @@ export default function CommunityPage() {
           {/* 1. ARENA DI VOTO */}
           <Link
             href="/community/vota"
-            className="group relative bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/10 cursor-pointer overflow-hidden"
+            className="group relative bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/10 cursor-pointer overflow-hidden"
           >
             {/* Accento superiore luminoso */}
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -263,7 +263,7 @@ export default function CommunityPage() {
           {/* 2. CLASSIFICA */}
           <Link
             href="/community/classifica"
-            className="group relative bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-500/10 cursor-pointer overflow-hidden"
+            className="group relative bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 hover:border-purple-500/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-500/10 cursor-pointer overflow-hidden"
           >
             {/* Accento superiore luminoso */}
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-purple-500 via-indigo-400 to-pink-500 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -321,7 +321,7 @@ export default function CommunityPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               
               {/* PANNELLO: TOP RATED */}
-              <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 sm:p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                     <Trophy className="w-3.5 h-3.5 text-blue-400" />
@@ -385,7 +385,7 @@ export default function CommunityPage() {
               </div>
 
               {/* PANNELLO: PIÙ VOTATE */}
-              <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 sm:p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                     <Flame className="w-3.5 h-3.5 text-orange-400" />

@@ -1,6 +1,7 @@
 import React from 'react';
 // Nuove icone importate da lucide-react
 import { ExternalLink, Check } from 'lucide-react';
+import { copyTextToClipboard } from '../utils/share';
 
 interface DeckListProps {
   loadingDecks: boolean;
@@ -39,12 +40,14 @@ export default function DeckList({ loadingDecks, commanderDecks, copiedDeck, set
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <button 
-                data-umami-event="Copia Link Mazzo" 
-                onClick={() => { 
-                  navigator.clipboard.writeText(deck.url); 
-                  setCopiedDeck(deck.id_moxfield); 
-                  setTimeout(() => setCopiedDeck(null), 2000); 
+              <button
+                data-umami-event="Copia Link Mazzo"
+                onClick={async () => {
+                  const ok = await copyTextToClipboard(deck.url);
+                  if (ok) {
+                    setCopiedDeck(deck.id_moxfield);
+                    setTimeout(() => setCopiedDeck(null), 2000);
+                  }
                 }}
                 className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-lg transition border border-slate-700 flex-1 sm:flex-none text-center flex items-center justify-center gap-1.5"
               >

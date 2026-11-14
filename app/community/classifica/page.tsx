@@ -316,7 +316,7 @@ export default function ClassificaPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col relative selection:bg-blue-600 selection:text-white">
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col relative selection:bg-blue-600 selection:text-white">
       <CommunityNav />
 
       <div className="flex-grow pb-24 max-w-[1100px] w-full mx-auto px-4 md:px-8 mt-8 sm:mt-12 relative z-10 space-y-8">
@@ -396,7 +396,7 @@ export default function ClassificaPage() {
         </div>
 
         {/* FILTRI DI RICERCA & COLORI */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-slate-800/40 border border-slate-700/50 p-4 rounded-2xl">
           {/* BARRA DI RICERCA */}
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -500,11 +500,20 @@ export default function ClassificaPage() {
               return (
                 <div
                   key={item.card_name}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
                     setSelectedCard(item);
                     setIsModalFlipped(false);
                   }}
-                  className={`bg-slate-900/60 border rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-blue-500/50 hover:bg-slate-800/70 shadow-md cursor-pointer group ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedCard(item);
+                      setIsModalFlipped(false);
+                    }
+                  }}
+                  className={`bg-slate-800/40 border rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-blue-500/50 hover:bg-slate-800/80 shadow-md cursor-pointer group ${
                     isTop3
                       ? "border-amber-500/30 bg-gradient-to-r from-amber-500/5 via-slate-900/70 to-slate-900/60"
                       : "border-slate-800/80"

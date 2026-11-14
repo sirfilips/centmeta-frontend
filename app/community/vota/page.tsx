@@ -137,6 +137,7 @@ export default function VotaPage() {
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+    setError(null);
     setSelectedScore(score);
 
     const token = getVoterToken();
@@ -157,8 +158,9 @@ export default function VotaPage() {
       })
       .then((data) => {
         trackEvent("Community Voto", { card: currentCard.card_name, score });
-        const newVoted = data.daily_progress?.voted_today ?? ((dailyProgress?.voted_today ?? 0) + 1);
-        if (newVoted === 50) {
+        const prevVoted = dailyProgress?.voted_today ?? 0;
+        const newVoted = data.daily_progress?.voted_today ?? (prevVoted + 1);
+        if (prevVoted < 50 && newVoted === 50) {
           trackEvent("Community Obiettivo Giornaliero Raggiunto");
         }
 
@@ -228,7 +230,7 @@ export default function VotaPage() {
   const progressPercent = Math.min(100, Math.round((todayCount / (poolSize || 1)) * 100));
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col relative selection:bg-blue-600 selection:text-white">
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col relative selection:bg-blue-600 selection:text-white">
       <CommunityNav />
 
       <div className="flex-grow pb-20 max-w-[950px] w-full mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 relative z-10 flex flex-col items-center">
@@ -293,7 +295,7 @@ export default function VotaPage() {
         )}
 
         {/* CARD CONTAINER PRINCIPALE (OTTIMIZZATO MOBILE E DESKTOP) */}
-        <div className="w-full bg-slate-900/60 border border-slate-800 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl relative isolate overflow-hidden flex flex-col md:flex-row gap-5 sm:gap-7 md:gap-8 items-center md:items-start justify-center">
+        <div className="w-full bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl relative isolate overflow-hidden flex flex-col md:flex-row gap-5 sm:gap-7 md:gap-8 items-center md:items-start justify-center">
           
           {/* LATO SINISTRO: IMMAGINE CARTA MTG */}
           <div className="flex flex-col items-center gap-2.5 shrink-0">

@@ -1,8 +1,9 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 import ScrollToTop from '../../components/ScrollToTop';
-import { SubpageHeader, BackToDashboardLink } from '../../components/SubpageHeader';
+import { BackToDashboardLink } from '../../components/SubpageHeader';
 
 export const metadata: Metadata = {
   title: 'Privacy e Note Legali | CentMeta',
@@ -11,18 +12,18 @@ export const metadata: Metadata = {
 
 export default function Legal() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
-      <SubpageHeader />
+    <main className="min-h-screen bg-slate-900 text-slate-200 font-sans flex flex-col">
+      <Header />
 
-      <div className="flex-grow pb-24 max-w-[1000px] w-full mx-auto px-4 md:px-8 mt-12">
+      <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10">
         <BackToDashboardLink />
 
-        <div className="mb-12">
-          <h1 className="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">Privacy e Note Legali</h1>
-          <p className="text-base lg:text-lg text-slate-400">Informazioni sul trattamento dei dati, copyright e termini di utilizzo di CentMeta.</p>
+        <div className="mb-10">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">Privacy e Note Legali</h1>
+          <p className="text-sm sm:text-base lg:text-lg text-slate-400">Informazioni sul trattamento dei dati, copyright e termini di utilizzo di CentMeta.</p>
         </div>
 
-        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sm:p-10 lg:p-14 shadow-2xl relative isolate overflow-hidden space-y-12 lg:space-y-16">
+        <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden space-y-12 lg:space-y-16">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-600 z-10"></div>
           
           {/* Sezione Privacy e GDPR */}
