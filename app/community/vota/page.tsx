@@ -61,6 +61,7 @@ export default function VotaPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
+  const hasTrackedVoteSessionRef = useRef(false);
   const [imageError, setImageError] = useState(false);
 
   // Stato carta e voto
@@ -157,7 +158,10 @@ export default function VotaPage() {
         return res.json();
       })
       .then((data) => {
-        trackEvent("Community Voto", { card: currentCard.card_name, score });
+        if (!hasTrackedVoteSessionRef.current) {
+          hasTrackedVoteSessionRef.current = true;
+          trackEvent("Community Sessione Voto Avviata");
+        }
         const prevVoted = dailyProgress?.voted_today ?? 0;
         const newVoted = data.daily_progress?.voted_today ?? (prevVoted + 1);
         if (prevVoted < 50 && newVoted === 50) {
@@ -189,11 +193,8 @@ export default function VotaPage() {
   }, [currentCard, loadNextCard, dailyProgress]);
 
   const handleSkip = useCallback(() => {
-    if (currentCard) {
-      trackEvent("Community Salta Carta", { card: currentCard.card_name });
-    }
     loadNextCard();
-  }, [currentCard, loadNextCard]);
+  }, [loadNextCard]);
 
   // Scorciatoie da tastiera
   useEffect(() => {
@@ -467,7 +468,6 @@ export default function VotaPage() {
                 type="button"
                 disabled={loading || isSubmitting}
                 onClick={handleSkip}
-                data-umami-event="Community Salta Carta"
                 className="w-full sm:flex-1 flex items-center justify-center gap-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs sm:text-sm py-2.5 sm:py-3 px-4 rounded-xl border border-slate-700/80 transition-all shadow-sm group disabled:opacity-50"
               >
                 <SkipForward className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
