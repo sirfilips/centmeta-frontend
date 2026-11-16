@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowDown, ArrowLeft, Sparkles } from "lucide-react";
 import SkeletonCard from "./SkeletonCard";
 import { EmptyState } from "./EmptyState";
+import AddToNotesButton from "./AddToNotesButton";
 import { handleCardDragStart } from "../utils/dragCard";
 import { getPeriodParam } from "../utils/mtg";
 
@@ -19,6 +20,7 @@ interface CardsGridProps {
   setCardSearch: (val: string) => void;
   setActiveColors: React.Dispatch<React.SetStateAction<string[]>>;
   setActiveTab: (tab: any) => void;
+  onResetRole?: () => void;
   handleResetHome: () => void;
   filtroTempo?: string;
 }
@@ -37,6 +39,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
   setCardSearch,
   setActiveColors,
   setActiveTab,
+  onResetRole,
   handleResetHome,
   filtroTempo,
 }) => {
@@ -68,6 +71,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
             setCardSearch("");
             setActiveColors([]);
             setActiveTab("Top Cards");
+            if (onResetRole) onResetRole();
           }}
         />
       ) : (
@@ -112,6 +116,16 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                         {card.card_name}
                       </div>
                     )}
+                    <AddToNotesButton
+                      card={{
+                        name: card.card_name,
+                        image: displayImages[0],
+                        category: card.category,
+                        color_identity: card.color_identity,
+                        cmc: card.cmc,
+                      }}
+                      className="absolute top-1.5 right-1.5 z-30"
+                    />
                   </div>
                   <div className="text-center w-full px-1">
                     <div

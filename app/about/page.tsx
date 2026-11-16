@@ -34,14 +34,15 @@ export default function About() {
       <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10 relative z-10">
         <BackToDashboardLink />
 
-        {/* Intestazione Principale */}
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
-            <Compass className="w-3.5 h-3.5" />
-            Dietro le quinte
-          </div>
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">Il Progetto</h1>
-          <p className="text-base lg:text-lg text-slate-400 max-w-3xl leading-relaxed">
+        {/* Intestazione editoriale pulita */}
+        <div className="border-b border-slate-700/70 pb-6 mb-10 space-y-1.5">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-400 font-bold inline-flex items-center gap-1.5">
+            <Compass className="w-3.5 h-3.5" /> Dietro le quinte
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-wide">
+            Il Progetto
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
             Infrastruttura statistica e analitica indipendente dedicata al formato Centurion Commander: genesi, pipeline dei dati e visione comunitaria.
           </p>
         </div>

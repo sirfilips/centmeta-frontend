@@ -8,6 +8,7 @@ import DeckList from "./DeckList";
 import CardDetail from "./CardDetail";
 import Carousel from "./Carousel";
 import ExpansionsCarousel, { buildDisplayExpansions } from "./ExpansionsCarousel";
+import RoleCategoriesCarousel from "./RoleCategoriesCarousel";
 import HeroSection from "./HeroSection";
 import CommandersGrid from "./CommandersGrid";
 import CommanderOverview from "./CommanderOverview";
@@ -20,6 +21,7 @@ import {
   isBasicLand,
   matchesColorIdentity,
 } from "../utils/mtg";
+import { compileScryfallQuery } from "../utils/scryfallSearch";
 import { handleNav } from "../utils/navigation";
 import { ArrowLeft } from "lucide-react";
 
@@ -52,6 +54,7 @@ export default function CentMetaApp({
   const [commanderSort, setCommanderSort] = useState<"top" | "hot">("top");
   const [cardSort, setCardSort] = useState<"top" | "hot" | "expansions">("top");
   const [selectedExpansion, setSelectedExpansion] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>("");
 
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -137,6 +140,7 @@ export default function CentMetaApp({
     setCommanderSort(cmdSortParam);
     setCardSort(cardSortParam);
     setSelectedExpansion(params.get("exp") || "");
+    setSelectedRole(params.get("role") || "");
     setIsInitialized(true);
   }, [initialCommander]);
 
@@ -153,8 +157,20 @@ export default function CentMetaApp({
       }, 100);
     };
 
+    const handleSelectCardEvent = (ev: Event) => {
+      const detail = (ev as CustomEvent<string>).detail;
+      if (detail) {
+        setSelectedCardDetail(detail);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
     window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    window.addEventListener("centmeta:select-card", handleSelectCardEvent);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("centmeta:select-card", handleSelectCardEvent);
+    };
   }, [syncStateFromURL]);
 
   useEffect(() => {
@@ -175,6 +191,8 @@ export default function CentMetaApp({
       params.set("cardsort", cardSort);
     if (cardSort === "expansions" && homeMode === "cards" && selectedExpansion)
       params.set("exp", selectedExpansion);
+    if (homeMode === "cards" && selectedCommander === "Tutti i mazzi" && selectedRole)
+      params.set("role", selectedRole);
 
     let basePath = "/";
     if (selectedCommander !== "Tutti i mazzi") {
@@ -208,6 +226,7 @@ export default function CentMetaApp({
     commanderSort,
     cardSort,
     selectedExpansion,
+    selectedRole,
     filtroTempo,
     isInitialized,
   ]);
@@ -383,6 +402,7 @@ export default function CentMetaApp({
     homeMode,
     commanderSort,
     cardSort,
+    selectedRole,
   ]);
 
   useEffect(() => {
@@ -412,6 +432,7 @@ export default function CentMetaApp({
   const handleSelectCommander = (val: string) => {
     setSelectedCommander(val);
     setCommanderSearch("");
+    setSelectedRole("");
     setActiveTab("Top Cards");
     setActiveColors([]);
     if (val === "Tutti i mazzi" && homeMode === "dashboard") {
@@ -448,6 +469,16 @@ export default function CentMetaApp({
     }
   }, [cardSort, homeMode, displayExpansions, selectedExpansion]);
 
+  const cardSearchPredicate = useMemo(
+    () => compileScryfallQuery(debouncedCardSearch),
+    [debouncedCardSearch],
+  );
+
+  const commanderSearchPredicate = useMemo(
+    () => compileScryfallQuery(commanderSearch),
+    [commanderSearch],
+  );
+
   const applyFilters = useCallback(
     (cards: any[], tab: string, isSynergyList: boolean = false) => {
       let filtered = cards || [];
@@ -459,13 +490,11 @@ export default function CentMetaApp({
 
       if (isHotCardsMode) {
         filtered = (dashboardData?.hot_cards || []).map((c: any) => ({
+          ...c,
           card_name: c.name,
-          images: c.images,
           freq: c.val1,
           Percentuale: 0,
           Sinergia: 0,
-          delta: c.delta,
-          category: c.category,
           color_identity: c.color_identity || [],
         }));
       } else if (
@@ -480,17 +509,26 @@ export default function CentMetaApp({
         const isAllExp = activeExp?.code === "ALL";
         const totDecks = dashboardData?.total_decks || statsData?.total_decks || 0;
         filtered = (activeExp?.cards || []).map((c: any) => ({
+          ...c,
           card_name: c.name,
-          images: c.images,
           freq: c.val1,
           Percentuale:
             totDecks > 0 ? Number(((c.val1 / totDecks) * 100).toFixed(1)) : 0,
           Sinergia: 0,
-          delta: c.delta,
-          category: c.category,
           color_identity: c.color_identity || [],
           set_code: isAllExp ? c.set_code : null,
         }));
+      }
+
+      if (
+        !isSynergyList &&
+        homeMode === "cards" &&
+        selectedCommander === "Tutti i mazzi" &&
+        selectedRole
+      ) {
+        filtered = filtered.filter(
+          (c) => Array.isArray(c.roles) && c.roles.includes(selectedRole),
+        );
       }
 
       if (tab === "Top Sinergie" || tab === "In Crescita") {
@@ -530,9 +568,7 @@ export default function CentMetaApp({
       }
 
       if (!isSynergyList && debouncedCardSearch.trim() !== "") {
-        filtered = filtered.filter((c) =>
-          c.card_name.toLowerCase().includes(debouncedCardSearch.toLowerCase()),
-        );
+        filtered = filtered.filter((c) => cardSearchPredicate(c));
       }
 
       if (activeColors.length > 0) {
@@ -549,8 +585,10 @@ export default function CentMetaApp({
       dashboardData,
       displayExpansions,
       selectedExpansion,
+      selectedRole,
       statsData?.total_decks,
       debouncedCardSearch,
+      cardSearchPredicate,
       activeColors,
     ],
   );
@@ -592,12 +630,12 @@ export default function CentMetaApp({
   const colors = COLOR_FILTERS;
 
   const baseFilteredCommanders = commanders.filter((c) =>
-    c.comandante.toLowerCase().includes(commanderSearch.toLowerCase()),
+    commanderSearch.trim() === "" ? true : commanderSearchPredicate(c),
   );
   let listToRender =
     commanderSort === "hot"
       ? (dashboardData?.hot_commanders || []).filter((c: any) =>
-          c.name.toLowerCase().includes(commanderSearch.toLowerCase()),
+          commanderSearch.trim() === "" ? true : commanderSearchPredicate(c),
         )
       : baseFilteredCommanders;
 
@@ -663,6 +701,7 @@ export default function CentMetaApp({
     setSelectedCardDetail(null);
     setSelectedCommander("Tutti i mazzi");
     setCommanderSearch("");
+    setSelectedRole("");
     setActiveTab("Top Cards");
     setActiveColors([]);
     setHomeMode("dashboard");
@@ -674,12 +713,14 @@ export default function CentMetaApp({
     tab: string = "Top Cards",
     sort: "top" | "hot" | "expansions" = "top",
     expCode?: string,
+    roleKey?: string,
   ) => {
     // 1. Azzera la navigazione profonda per forzare il ritorno alla "Home" (/)
     setSelectedCommander("Tutti i mazzi");
     setSelectedCardDetail(null);
     setCommanderSearch("");
     setActiveColors([]);
+    setSelectedRole(mode === "cards" ? roleKey || "" : "");
 
     // 2. Imposta la nuova visualizzazione globale richiesta dalle tendine
     setHomeMode(mode);
@@ -770,7 +811,7 @@ export default function CentMetaApp({
         </div>
       </div>
 
-      <div className="flex-grow pb-24">
+      <div className="flex-grow w-full min-w-0 pb-24">
         <Header
           filtroTempo={filtroTempo}
           setFiltroTempo={setFiltroTempo}
@@ -800,7 +841,7 @@ export default function CentMetaApp({
           </div>
         )}
 
-        <div className="max-w-[1600px] w-full mx-auto px-4 md:px-8 mt-8">
+        <div className="max-w-[1600px] w-full min-w-0 mx-auto px-3 sm:px-4 md:px-8 mt-6 md:mt-8">
           {selectedCardDetail ? (
             <CardDetail
               selectedCardDetail={selectedCardDetail}
@@ -825,10 +866,10 @@ export default function CentMetaApp({
               visibleSynergiesData={visibleSynergiesData}
             />
           ) : (
-            <div>
+            <div className="min-w-0">
               {(homeMode === "dashboard" || homeMode === "commanders") &&
                 selectedCommander === "Tutti i mazzi" && (
-                  <div className="animate-fade-in mb-14">
+                  <div className="animate-fade-in mb-10 md:mb-14 min-w-0">
                     <HeroSection
                       homeMode={homeMode}
                       setHomeMode={setHomeMode}
@@ -871,7 +912,7 @@ export default function CentMetaApp({
                         ) : (
                           <>
                             <Carousel
-                              title="Comandanti Più Usati"
+                              title="Comandanti Più Costruiti"
                               items={dashboardData.top_commanders}
                               isCard={false}
                               isHot={false}
@@ -921,6 +962,14 @@ export default function CentMetaApp({
                                 navigateToTab("cards", "Top Cards", "hot")
                               }
                               onItemClick={handleSelectCard}
+                            />
+                            <RoleCategoriesCarousel
+                              roles={dashboardData.role_categories || []}
+                              filtroTempo={filtroTempo}
+                              onItemClick={handleSelectCard}
+                              onViewAll={(roleKey) =>
+                                navigateToTab("cards", "Top Cards", "top", undefined, roleKey)
+                              }
                             />
                             <ExpansionsCarousel
                               expansions={dashboardData.recent_expansions || []}
@@ -985,7 +1034,7 @@ export default function CentMetaApp({
 
               {(homeMode === "cards" ||
                 selectedCommander !== "Tutti i mazzi") && (
-                <div id="content-section" className="animate-fade-in">
+                <div id="content-section" className="animate-fade-in min-w-0">
                   <CardsFilterBar
                     homeMode={homeMode}
                     selectedCommander={selectedCommander}
@@ -994,6 +1043,9 @@ export default function CentMetaApp({
                     expansions={displayExpansions}
                     selectedExpansion={selectedExpansion || displayExpansions[0]?.code || ""}
                     setSelectedExpansion={setSelectedExpansion}
+                    roleCategories={dashboardData?.role_categories || []}
+                    selectedRole={selectedRole}
+                    setSelectedRole={setSelectedRole}
                     commanders={commanders}
                     handleSelectCommander={handleSelectCommander}
                     cardSearch={cardSearch}
@@ -1048,6 +1100,7 @@ export default function CentMetaApp({
                       setCardSearch={setCardSearch}
                       setActiveColors={setActiveColors}
                       setActiveTab={setActiveTab}
+                      onResetRole={() => setSelectedRole("")}
                       handleResetHome={handleResetHome}
                       filtroTempo={filtroTempo}
                     />

@@ -13,6 +13,11 @@ import {
 import { handleNav } from "../utils/navigation";
 import { CATEGORY_INFO } from "../utils/mtg";
 import { trackEvent } from "../utils/analytics";
+import {
+  compileScryfallQuery,
+  hasScryfallSyntax,
+} from "../utils/scryfallSearch";
+import ScryfallHelpButton from "./ScryfallHelpButton";
 
 interface HeroSectionProps {
   homeMode: "dashboard" | "commanders" | "cards";
@@ -130,70 +135,75 @@ export default function HeroSection({
   }, []);
 
   const cleanQ = query.trim().toLowerCase();
+  const isScryfallQuery = useMemo(() => hasScryfallSyntax(query), [query]);
+  const scryfallPredicate = useMemo(
+    () => compileScryfallQuery(query),
+    [query],
+  );
 
-  // Comandanti che corrispondono alla ricerca
+  // Comandanti che corrispondono alla ricerca (supporta sintassi Scryfall)
   const matchingCommanders = useMemo(() => {
     if (cleanQ.length < 2 || !commanders.length) return [];
     return commanders
-      .filter((c) => c?.comandante && c.comandante.toLowerCase().includes(cleanQ))
+      .filter((c) => c?.comandante && scryfallPredicate(c))
       .sort((a, b) => {
-        const aName = a.comandante.toLowerCase();
-        const bName = b.comandante.toLowerCase();
-        if (aName === cleanQ) return -1;
-        if (bName === cleanQ) return 1;
-        if (aName.startsWith(cleanQ) && !bName.startsWith(cleanQ)) return -1;
-        if (!aName.startsWith(cleanQ) && bName.startsWith(cleanQ)) return 1;
+        if (!isScryfallQuery) {
+          const aName = a.comandante.toLowerCase();
+          const bName = b.comandante.toLowerCase();
+          if (aName === cleanQ) return -1;
+          if (bName === cleanQ) return 1;
+          if (aName.startsWith(cleanQ) && !bName.startsWith(cleanQ)) return -1;
+          if (!aName.startsWith(cleanQ) && bName.startsWith(cleanQ)) return 1;
+        }
         return (b.cnt || b.decks_count || 0) - (a.cnt || a.decks_count || 0);
       });
-  }, [commanders, cleanQ]);
+  }, [commanders, cleanQ, isScryfallQuery, scryfallPredicate]);
 
-  // Carte che corrispondono alla ricerca
-  const matchingCards = useMemo(() => {
-    if (cleanQ.length < 2) return [];
-
-    const pool = [
+  // Pool unificato carte (preferisce cards completo con tutti i metadati Scryfall)
+  const unifiedCardPool = useMemo(() => {
+    const rawPool = [
       ...cards,
       ...(dashboardData?.top_cards || []).map((c: any) => ({
+        ...c,
         card_name: c.name || c.card_name,
-        art_crops: c.art_crops,
-        images: c.images,
         freq: c.val1 || c.freq,
-        category: c.category,
       })),
       ...(dashboardData?.hot_cards || []).map((c: any) => ({
+        ...c,
         card_name: c.name || c.card_name,
-        art_crops: c.art_crops,
-        images: c.images,
         freq: c.val1 || c.freq,
-        category: c.category,
       })),
     ];
 
     const seen = new Set<string>();
     const deduplicated: any[] = [];
-    for (const c of pool) {
+    for (const c of rawPool) {
       const name = c.card_name || c.name;
       if (name && !seen.has(name.toLowerCase())) {
         seen.add(name.toLowerCase());
         deduplicated.push(c);
       }
     }
+    return deduplicated;
+  }, [cards, dashboardData]);
 
-    return deduplicated
-      .filter((c) => {
-        const name = (c.card_name || c.name || "").toLowerCase();
-        return name.includes(cleanQ);
-      })
+  // Carte che corrispondono alla ricerca (supporta sintassi Scryfall)
+  const matchingCards = useMemo(() => {
+    if (cleanQ.length < 2) return [];
+    return unifiedCardPool
+      .filter((c) => scryfallPredicate(c))
       .sort((a, b) => {
-        const aName = (a.card_name || a.name || "").toLowerCase();
-        const bName = (b.card_name || b.name || "").toLowerCase();
-        if (aName === cleanQ) return -1;
-        if (bName === cleanQ) return 1;
-        if (aName.startsWith(cleanQ) && !bName.startsWith(cleanQ)) return -1;
-        if (!aName.startsWith(cleanQ) && bName.startsWith(cleanQ)) return 1;
+        if (!isScryfallQuery) {
+          const aName = (a.card_name || a.name || "").toLowerCase();
+          const bName = (b.card_name || b.name || "").toLowerCase();
+          if (aName === cleanQ) return -1;
+          if (bName === cleanQ) return 1;
+          if (aName.startsWith(cleanQ) && !bName.startsWith(cleanQ)) return -1;
+          if (!aName.startsWith(cleanQ) && bName.startsWith(cleanQ)) return 1;
+        }
         return (b.freq || b.val1 || 0) - (a.freq || a.val1 || 0);
       });
-  }, [cards, dashboardData, cleanQ]);
+  }, [unifiedCardPool, cleanQ, isScryfallQuery, scryfallPredicate]);
 
   // Lista visibile in base al tab attivo
   const visibleCommanders =
@@ -262,8 +272,13 @@ export default function HeroSection({
   };
 
   const routeSearchFallback = (trimmedQuery: string) => {
+    const looksLikeCardScryfall =
+      hasScryfallSyntax(trimmedQuery) &&
+      matchingCommanders.length === 0 &&
+      /\b(t:(instant|sorcery|artifact|enchantment|land)|role:|otag:|function:)/i.test(trimmedQuery);
     const shouldRouteToCards =
       searchTab === "cards" ||
+      looksLikeCardScryfall ||
       (searchTab === "all" &&
         matchingCommanders.length === 0 &&
         matchingCards.length > 0);
@@ -427,7 +442,11 @@ export default function HeroSection({
           <input
             ref={inputRef}
             type="text"
-            placeholder={isDashboard ? "Cerca comandante o carta..." : "Cerca comandante..."}
+            placeholder={
+              isDashboard
+                ? "Cerca comandante o carta..."
+                : "Cerca comandante..."
+            }
             value={query}
             onChange={handleInputChange}
             onFocus={() => {
@@ -437,24 +456,43 @@ export default function HeroSection({
             onKeyDown={handleKeyDown}
             className={`w-full focus:outline-none text-slate-100 shadow-xl transition-all placeholder:text-slate-400 ${
               isDashboard
-                ? "bg-slate-950/70 backdrop-blur-md border border-slate-700/60 hover:border-blue-500/50 focus:border-blue-500 rounded-full pl-12 pr-11 py-3.5 md:py-4 text-base md:text-lg font-medium"
-                : "bg-slate-900 border border-slate-800 rounded-full pl-9 pr-9 py-2 text-sm focus:border-blue-500"
+                ? "bg-slate-950/70 backdrop-blur-md border border-slate-700/60 hover:border-blue-500/50 focus:border-blue-500 rounded-full pl-12 pr-20 py-3.5 md:py-4 text-base md:text-lg font-medium"
+                : "bg-slate-900 border border-slate-800 rounded-full pl-9 pr-16 py-2 text-sm focus:border-blue-500"
             }`}
           />
 
-          {query && (
-            <button
-              onClick={handleClear}
-              className={`absolute text-slate-400 hover:text-white transition-colors p-1 rounded-full ${
-                isDashboard
-                  ? "right-4 top-1/2 -translate-y-1/2"
-                  : "right-2.5 top-1/2 -translate-y-1/2"
-              }`}
-              title="Cancella ricerca"
-            >
-              <X className={isDashboard ? "w-4 h-4" : "w-3.5 h-3.5"} />
-            </button>
-          )}
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 ${
+              isDashboard ? "right-3.5" : "right-2"
+            }`}
+          >
+            {query && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="text-slate-400 hover:text-white transition-colors p-1 rounded-full"
+                title="Cancella ricerca"
+              >
+                <X className={isDashboard ? "w-4 h-4" : "w-3.5 h-3.5"} />
+              </button>
+            )}
+            <ScryfallHelpButton
+              size={isDashboard ? "md" : "sm"}
+              align="right"
+              onSelectExample={(exampleQ) => {
+                if (onSearchFocus) onSearchFocus();
+                setQuery(exampleQ);
+                setHighlightedIndex(-1);
+                if (isDashboard) {
+                  setIsOpen(true);
+                } else {
+                  setCommanderSearch(exampleQ);
+                  setIsOpen(false);
+                }
+                inputRef.current?.focus();
+              }}
+            />
+          </div>
 
           {/* MENU A TENDINA DELL'AUTOCOMPLETE */}
           {isOpen && cleanQ.length >= 2 && (
@@ -464,8 +502,8 @@ export default function HeroSection({
               }`}
             >
               {/* BARRA TAB (TUTTI / COMANDANTI / CARTE) */}
-              <div className="flex items-center justify-between px-3 py-2 bg-slate-950/70 border-b border-slate-800 text-xs">
-                <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-slate-950/70 border-b border-slate-800 text-xs">
+                <div className="flex flex-wrap items-center gap-1">
                   <button
                     onClick={() => {
                       setSearchTab("all");
@@ -508,10 +546,15 @@ export default function HeroSection({
                     Carte ({matchingCards.length})
                   </button>
                 </div>
+                {isScryfallQuery && (
+                  <span className="text-[10px] font-mono font-bold text-blue-300 bg-blue-500/15 border border-blue-500/30 px-2 py-0.5 rounded-full">
+                    Scryfall
+                  </span>
+                )}
               </div>
 
               {/* LISTA DEI RISULTATI */}
-              <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-800/60">
+              <div className="max-h-[55vh] sm:max-h-[380px] overflow-y-auto divide-y divide-slate-800/60">
                 {totalResults === 0 ? (
                   <div className="p-6 text-center text-slate-400 text-sm">
                     <p className="font-semibold text-slate-300">

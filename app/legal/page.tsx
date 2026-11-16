@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { ShieldCheck } from 'lucide-react';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import ScrollToTop from '../../components/ScrollToTop';
@@ -21,9 +22,16 @@ export default function Legal() {
       <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10">
         <BackToDashboardLink />
 
-        <div className="mb-10">
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">Privacy e Note Legali</h1>
-          <p className="text-sm sm:text-base lg:text-lg text-slate-400">Informazioni sul trattamento dei dati, copyright e termini di utilizzo di CentMeta.</p>
+        <div className="border-b border-slate-700/70 pb-6 mb-10 space-y-1.5">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-400 font-bold inline-flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5" /> Trasparenza e Normativa
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-wide">
+            Privacy e Note Legali
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+            Informazioni sul trattamento dei dati, copyright e termini di utilizzo di CentMeta.
+          </p>
         </div>
 
         <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl md:rounded-3xl p-6 sm:p-10 lg:p-14 shadow-xl relative isolate overflow-hidden space-y-12 lg:space-y-16">
@@ -46,7 +54,7 @@ export default function Legal() {
                   <strong className="text-slate-200">Dati Personali:</strong> Il sito non richiede registrazione, non raccoglie dati anagrafici, e-mail o informazioni personali sensibili in alcuna forma, fatta eccezione per i log tecnici descritti di seguito. A ulteriore tutela della riservatezza degli utenti, l&apos;infrastruttura di analisi estrae unicamente la composizione tecnica dei mazzi (carte e comandanti), insieme all&apos;identificativo pubblico e alla data di aggiornamento, astenendosi rigorosamente dal salvare i nomi assegnati ai mazzi dai rispettivi creatori.
                 </li>
                 <li>
-                  <strong className="text-slate-200">Cookie, Memoria Locale e Statistiche:</strong> CentMeta è completamente privo di cookie (cookie-free). Non facciamo alcun uso di cookie tecnici o di profilazione, cookie pubblicitari o strumenti invasivi di tracciamento di terze parti. Per comprendere l&apos;affluenza in forma aggregata e anonima, utilizziamo <strong className="text-slate-200">Umami Analytics</strong>, che opera senza cookie e senza memorizzare indirizzi IP. Nel rispetto della Direttiva ePrivacy e del GDPR, per la funzionalità opzionale dell&apos;Osservatorio Community (&quot;Arena di Voto&quot;) e per il rilevamento tecnico della PWA, l&apos;applicazione utilizza esclusivamente la memoria locale del browser (<code className="text-blue-300 text-xs bg-slate-800 px-1.5 py-0.5 rounded">localStorage</code> e <code className="text-blue-300 text-xs bg-slate-800 px-1.5 py-0.5 rounded">sessionStorage</code>), al solo fine tecnico di ricordare le carte già votate, mostrare il progresso giornaliero, deduplicare gli eventi di sessione ed evitare voti duplicati sulla medesima carta. Tale dato non viene condiviso con terzi né usato per profilazione, ed è eliminabile in qualsiasi momento cancellando i dati del sito dal proprio browser.
+                  <strong className="text-slate-200">Cookie, Memoria Locale e Statistiche:</strong> CentMeta è completamente privo di cookie (cookie-free). Non facciamo alcun uso di cookie tecnici o di profilazione, cookie pubblicitari o strumenti invasivi di tracciamento di terze parti. Per comprendere l&apos;affluenza in forma aggregata e anonima, utilizziamo <strong className="text-slate-200">Umami Analytics</strong>, che opera senza cookie e senza memorizzare indirizzi IP. Nel rispetto della Direttiva ePrivacy e del GDPR, per la funzionalità opzionale dell&apos;Osservatorio Community (&quot;Arena di Voto&quot;), per il blocco locale degli <strong className="text-slate-200">Appunti Mazzo</strong> e per il rilevamento tecnico della PWA, l&apos;applicazione utilizza esclusivamente la memoria locale del browser (<code className="text-blue-300 text-xs bg-slate-800 px-1.5 py-0.5 rounded">localStorage</code> e <code className="text-blue-300 text-xs bg-slate-800 px-1.5 py-0.5 rounded">sessionStorage</code>), al solo fine tecnico di ricordare le carte già votate, mostrare il progresso giornaliero, conservare in locale le bozze salvate dall&apos;utente negli appunti, deduplicare gli eventi di sessione ed evitare voti duplicati sulla medesima carta. Tale dato resta esclusivamente sul dispositivo dell&apos;utente, non viene condiviso con terzi né usato per profilazione, ed è eliminabile in qualsiasi momento cancellando i dati del sito dal proprio browser.
                 </li>
                 <li>
                   <strong className="text-slate-200">Valutazioni Community e Pseudonimizzazione:</strong> I voti espressi nell&apos;Arena di Voto (punteggio da 1 a 5 stelle) vengono registrati associandoli a un hash crittografico pseudonimo (<code className="text-blue-300 text-xs bg-slate-800 px-1.5 py-0.5 rounded">voter_hash</code>) calcolato tramite algoritmo SHA-256 con salt segreto di sistema. Questo trattamento ha l&apos;unica finalità di aggregare i punteggi per la Classifica Community, prevenire la manipolazione dei risultati (ballot stuffing) e garantire la coerenza statistica. Nel database delle valutazioni non viene memorizzato alcun indirizzo IP in chiaro.

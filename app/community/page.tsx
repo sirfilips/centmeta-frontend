@@ -74,10 +74,10 @@ export default function CommunityPage() {
       <div className="flex-grow pb-24 max-w-[1080px] w-full mx-auto px-4 md:px-8 mt-10 relative z-10 space-y-10">
         
         {/* HERO HEADER */}
-        <section className="text-center space-y-4 max-w-2xl mx-auto animate-fade-in">
-          {/* Badge con Live Radar Dot */}
+        <section className="text-center space-y-2.5 max-w-2xl mx-auto animate-fade-in">
+          {/* Eyebrow con Live Radar Dot senza box */}
           <div className="flex items-center justify-center">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold shadow-sm transition-all hover:bg-blue-500/15 hover:border-blue-500/30">
+            <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-400 font-bold inline-flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -90,7 +90,7 @@ export default function CommunityPage() {
             Il Giudizio della Community
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal max-w-xl mx-auto">
             In questa sezione puoi votare le carte del formato Centurion Commander assegnando da 1 a 5 stelle.
             I voti raccolti costruiscono la classifica della community, per confrontare l&apos;opinione dei giocatori con la reale presenza delle carte nei mazzi.
           </p>

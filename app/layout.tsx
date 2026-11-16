@@ -9,6 +9,8 @@ import "@fontsource/plus-jakarta-sans/700.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/jetbrains-mono/700.css";
 import PwaTracker from "../components/PwaTracker";
+import { NotesProvider } from "../components/NotesContext";
+import NotesDrawer from "../components/NotesDrawer";
 import "./globals.css";
 import "mana-font/css/mana.min.css";
 
@@ -104,7 +106,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <PwaTracker />
-        {children}
+        <NotesProvider>
+          {children}
+          <NotesDrawer />
+        </NotesProvider>
         {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <Script
             src={

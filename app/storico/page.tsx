@@ -148,7 +148,7 @@ export default function StoricoMetagamePage() {
                 Storico del Metagame
               </h1>
               <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-                Analizza l&apos;evoluzione dei comandanti più giocati, l&apos;equilibrio dei colori, la concentrazione del meta e chi sta salendo nelle ultime settimane.
+                Monitora l&apos;andamento del metagame Centurion 1v1 nel tempo: quote dei comandanti principali, distribuzione delle identità colore, diversità del campo e principali variazioni di popolarità.
               </p>
             </div>
             <Link

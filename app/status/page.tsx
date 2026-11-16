@@ -113,12 +113,14 @@ export default function StatusPage() {
       <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10">
         <BackToDashboardLink />
 
-        <div className="mb-10 text-center md:text-left">
-          <h1 className="font-display text-3xl md:text-5xl font-bold text-white flex items-center justify-center md:justify-start gap-4 mb-4 tracking-wide">
-            <Activity className="w-10 h-10 text-blue-500" strokeWidth={2.5} />
+        <div className="border-b border-slate-700/70 pb-6 mb-10 space-y-1.5">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-400 font-bold inline-flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5" /> Monitoraggio Infrastruttura
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-wide">
             Stato dei Servizi
           </h1>
-          <p className="text-slate-400 text-sm md:text-base">
+          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
             Monitoraggio in tempo reale delle API esterne e del motore di database di CentMeta.
           </p>
         </div>

@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { getPeriodParam } from "../utils/mtg";
+import ScrollableFilterStrip from "./ScrollableFilterStrip";
+import AddToNotesButton from "./AddToNotesButton";
 import { ChevronLeft, ChevronRight, HelpCircle, Sparkles, Layers } from "lucide-react";
 
 export interface ExpansionCardItem {
@@ -14,6 +16,7 @@ export interface ExpansionCardItem {
   delta?: number | null;
   category?: string;
   color_identity?: string[];
+  cmc?: number;
   set_code?: string | null;
 }
 
@@ -110,28 +113,28 @@ export default function ExpansionsCarousel({
   };
 
   return (
-    <div className="mb-8 md:mb-10">
+    <div className="mb-8 md:mb-10 min-w-0">
       {/* Header + Selettore Espansioni */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-3 md:mb-4">
-        <div className="flex items-center">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-3 md:mb-4 min-w-0">
+        <div className="flex items-center shrink-0">
           <a
             href={viewAllHref}
             onClick={(e) => handleNav(e, () => onViewAll(activeExp.code))}
             data-umami-event="Vedi Tutte Carte Espansione"
             data-umami-event-set={activeExp.code}
-            className="text-lg md:text-xl font-black text-slate-100 flex items-center gap-2 cursor-pointer hover:text-purple-400 transition"
+            className="text-base sm:text-lg md:text-xl font-black text-slate-100 flex items-center gap-2 cursor-pointer hover:text-purple-400 transition"
           >
-            <span className="w-1.5 h-6 rounded-full bg-purple-500"></span>
+            <span className="w-1.5 h-6 rounded-full bg-purple-500 shrink-0"></span>
             <span>Top Carte Ultime Espansioni</span>
             <span className="text-slate-500 hover:text-purple-400 ml-1">➔</span>
           </a>
           {/* Tooltip Didattico */}
-          <div className="group/info relative inline-flex items-center justify-center cursor-help ml-3">
+          <div className="group/info relative inline-flex items-center justify-center cursor-help ml-2.5 sm:ml-3">
             <HelpCircle
               className="w-4 h-4 text-slate-500 hover:text-purple-400 transition-colors"
               strokeWidth={2.5}
             />
-            <div className="absolute bottom-full mb-2 right-0 sm:right-auto sm:left-0 hidden group-hover/info:block w-60 sm:w-72 p-3 bg-slate-800 text-xs text-slate-200 rounded-xl shadow-xl border border-slate-700 z-50 pointer-events-none normal-case font-normal text-left leading-relaxed">
+            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 hidden group-hover/info:block w-60 sm:w-72 max-w-[calc(100vw-2rem)] p-3 bg-slate-800 text-xs text-slate-200 rounded-xl shadow-xl border border-slate-700 z-50 pointer-events-none normal-case font-normal text-left leading-relaxed">
               <span>
                 <strong className="text-purple-400">Nuove Uscite:</strong>{" "}
                 Mostra le nuove carte (escluse le ristampe) più giocate nel
@@ -144,55 +147,57 @@ export default function ExpansionsCarousel({
         </div>
 
         {/* Tabs per le 3 espansioni + Tutte le ultime espansioni */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {displayExpansions.map((exp, idx) => {
-            const isSelected = idx === selectedIdx;
-            const isAllTab = exp.code === "ALL";
-            return (
-              <button
-                key={exp.code}
-                type="button"
-                onClick={() => handleSelectExpansion(idx)}
-                data-umami-event="Cambio Tab Espansione"
-                data-umami-event-set={exp.code}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border shrink-0 ${
-                  isSelected
-                    ? "bg-purple-600/20 text-white border-purple-500/60 shadow-md shadow-purple-950/40"
-                    : "bg-slate-900/80 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200 hover:border-slate-700"
-                }`}
-              >
-                {isAllTab ? (
-                  <Layers
-                    className={`w-4 h-4 shrink-0 ${
-                      isSelected ? "text-purple-400" : "text-slate-400"
-                    }`}
-                  />
-                ) : exp.icon_svg_uri ? (
-                  <img
-                    src={exp.icon_svg_uri}
-                    alt={exp.code}
-                    className={`w-4 h-4 object-contain invert brightness-200 transition-opacity ${
-                      isSelected ? "opacity-100" : "opacity-60"
-                    }`}
-                  />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                )}
-                <span>{exp.name}</span>
-                {!isAllTab && (
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider ${
-                      isSelected
-                        ? "bg-purple-500/30 text-purple-200"
-                        : "bg-slate-800 text-slate-400"
-                    }`}
-                  >
-                    {exp.code}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        <div className="w-full lg:w-auto lg:max-w-[55%] min-w-0">
+          <ScrollableFilterStrip innerClassName="py-0.5">
+            {displayExpansions.map((exp, idx) => {
+              const isSelected = idx === selectedIdx;
+              const isAllTab = exp.code === "ALL";
+              return (
+                <button
+                  key={exp.code}
+                  type="button"
+                  onClick={() => handleSelectExpansion(idx)}
+                  data-umami-event="Cambio Tab Espansione"
+                  data-umami-event-set={exp.code}
+                  className={`flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border shrink-0 ${
+                    isSelected
+                      ? "bg-purple-600/20 text-white border-purple-500/60 shadow-md shadow-purple-950/40"
+                      : "bg-slate-900/80 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200 hover:border-slate-700"
+                  }`}
+                >
+                  {isAllTab ? (
+                    <Layers
+                      className={`w-4 h-4 shrink-0 ${
+                        isSelected ? "text-purple-400" : "text-slate-400"
+                      }`}
+                    />
+                  ) : exp.icon_svg_uri ? (
+                    <img
+                      src={exp.icon_svg_uri}
+                      alt={exp.code}
+                      className={`w-4 h-4 object-contain invert brightness-200 transition-opacity ${
+                        isSelected ? "opacity-100" : "opacity-60"
+                      }`}
+                    />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                  )}
+                  <span>{exp.name}</span>
+                  {!isAllTab && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider ${
+                        isSelected
+                          ? "bg-purple-500/30 text-purple-200"
+                          : "bg-slate-800 text-slate-400"
+                      }`}
+                    >
+                      {exp.code}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </ScrollableFilterStrip>
         </div>
       </div>
 
@@ -207,19 +212,19 @@ export default function ExpansionsCarousel({
         <div className="relative group/carousel">
           <button
             onClick={() => scroll(-500)}
-            className="absolute left-0 top-[148px] -translate-y-1/2 -ml-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full flex items-center justify-center hover:bg-purple-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
+            className="hidden md:flex absolute left-0 top-[148px] -translate-y-1/2 -ml-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:bg-purple-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
           >
             <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => scroll(500)}
-            className="absolute right-0 top-[148px] -translate-y-1/2 -mr-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full flex items-center justify-center hover:bg-purple-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
+            className="hidden md:flex absolute right-0 top-[148px] -translate-y-1/2 -mr-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:bg-purple-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
           >
             <ChevronRight className="w-6 h-6" strokeWidth={2.5} />
           </button>
           <div
             ref={scrollRef}
-            className="flex gap-6 overflow-x-auto snap-x pt-5 pb-4 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto overscroll-x-contain touch-pan-x snap-x pt-4 md:pt-5 pb-4 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {items.map((item, idx) => {
               const itemHref = `/?card=${encodeURIComponent(item.name)}${periodParam}`;
@@ -232,9 +237,9 @@ export default function ExpansionsCarousel({
                   onDragStart={(e) =>
                     handleCardDragStart(e, item.name, item.images?.[0])
                   }
-                  className="snap-start flex-shrink-0 w-48 flex flex-col items-center cursor-pointer group/card"
+                  className="snap-start flex-shrink-0 w-36 sm:w-44 md:w-48 flex flex-col items-center cursor-pointer group/card"
                 >
-                  <div className="relative w-full h-64 flex justify-center items-center mb-3">
+                  <div className="relative w-full h-52 sm:h-60 md:h-64 flex justify-center items-center mb-2.5 md:mb-3">
                     {item.images && item.images.length > 0 ? (
                       <img
                         src={item.images[0]}
@@ -252,6 +257,16 @@ export default function ExpansionsCarousel({
                         {item.name}
                       </div>
                     )}
+                    <AddToNotesButton
+                      card={{
+                        name: item.name,
+                        image: item.images?.[0],
+                        category: item.category,
+                        color_identity: item.color_identity,
+                        cmc: item.cmc,
+                      }}
+                      className="absolute top-1.5 right-1.5 z-30"
+                    />
                   </div>
                   <div className="text-center w-full px-1">
                     <div className="font-bold text-xs text-slate-200 truncate flex items-center justify-center gap-1.5">

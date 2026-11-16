@@ -6,6 +6,7 @@ import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { shareOrCopyUrl } from "../utils/share";
 import { trackEvent } from "../utils/analytics";
+import AddToNotesButton from "./AddToNotesButton";
 import { RefreshCw, Share2, Check } from "lucide-react";
 
 interface CardDetailProps {
@@ -189,29 +190,38 @@ export default function CardDetail({
                         <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-blue-400 font-bold inline-block">
                           Analisi Carta ({filtroTempo})
                         </span>
-                        <button
-                          onClick={handleShare}
-                          title="Condividi o copia link carta"
-                          data-umami-event="Condividi Carta"
-                          data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
-                          className={`hidden lg:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border ${
-                            isCopied
-                              ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
-                              : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
-                          }`}
-                        >
-                          {isCopied ? (
-                            <>
-                              <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
-                              <span>Link Copiato!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
-                              <span>Condividi</span>
-                            </>
-                          )}
-                        </button>
+                        <div className="hidden lg:flex items-center gap-2">
+                          <AddToNotesButton
+                            variant="pill"
+                            card={{
+                              name: cardDetailData.card_name || selectedCardDetail,
+                              image: cardDetailData.images?.[0],
+                            }}
+                          />
+                          <button
+                            onClick={handleShare}
+                            title="Condividi o copia link carta"
+                            data-umami-event="Condividi Carta"
+                            data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
+                            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border ${
+                              isCopied
+                                ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 shadow-emerald-900/30 scale-105"
+                                : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600 shadow-slate-950/50 hover:scale-105 active:scale-95"
+                            }`}
+                          >
+                            {isCopied ? (
+                              <>
+                                <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                                <span>Link Copiato!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Share2 className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                                <span>Condividi</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
                       <div className="flex flex-wrap items-center justify-between gap-3 mt-1">
                         <h2 className="font-display text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-white leading-tight tracking-tight drop-shadow-md">
@@ -247,13 +257,21 @@ export default function CardDetail({
                         {cardDetailData.total_decks_global ?? 0} mazzi.
                       </div>
                     </div>
-                    <div className="mt-2 flex lg:hidden justify-end">
+                    <div className="mt-2 flex lg:hidden flex-wrap justify-end gap-2">
+                      <AddToNotesButton
+                        variant="pill"
+                        card={{
+                          name: cardDetailData.card_name || selectedCardDetail,
+                          image: cardDetailData.images?.[0],
+                        }}
+                        className="flex-1 sm:flex-initial"
+                      />
                       <button
                         onClick={handleShare}
                         title="Condividi o copia link carta"
                         data-umami-event="Condividi Carta"
                         data-umami-event-card={cardDetailData.card_name || selectedCardDetail}
-                        className={`text-sm font-bold px-5 py-3 rounded-xl transition-all duration-300 shadow-md border inline-flex items-center justify-center gap-2 w-full sm:w-auto ${
+                        className={`text-sm font-bold px-5 py-3 rounded-xl transition-all duration-300 shadow-md border inline-flex items-center justify-center gap-2 flex-1 sm:flex-initial sm:w-auto ${
                           isCopied
                             ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50"
                             : "bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border-slate-700"
@@ -538,6 +556,15 @@ export default function CardDetail({
                                 {syn.card_name}
                               </div>
                             )}
+                            <AddToNotesButton
+                              card={{
+                                name: syn.card_name,
+                                image: displayImages[0],
+                                category: syn.category,
+                                color_identity: syn.color_identity,
+                              }}
+                              className="absolute top-1.5 right-1.5 z-30"
+                            />
                           </div>
                           <div className="text-center w-full px-1">
                             <div

@@ -6,6 +6,7 @@ import { handleCardDragStart } from "../utils/dragCard";
 import { getPeriodQuery } from "../utils/mtg";
 import EmptyState from "./EmptyState";
 import TrendIndicator from "./TrendIndicator";
+import ScrollableFilterStrip from "./ScrollableFilterStrip";
 import { ArrowLeft, ArrowDown } from "lucide-react";
 
 interface CommandersGridProps {
@@ -43,31 +44,33 @@ export default function CommandersGrid({
   return (
     <>
       {/* Filtri Colore Comandante */}
-      <div className="flex justify-center sm:justify-start gap-1.5 overflow-x-auto pb-6 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {colors.map((col) => {
-          const isActive =
-            activeColors.length === 0
-              ? col.val === "Tutti"
-              : activeColors.includes(col.val);
-          return (
-            <button
-              key={col.val}
-              onClick={() => toggleColor(col.val)}
-              title={col.label}
-              className={`px-3 py-1.5 rounded-lg flex items-center justify-center min-w-[44px] h-9 transition-all border ${
-                isActive
-                  ? "bg-slate-700 text-white border-slate-500 shadow-inner"
-                  : "bg-slate-900/50 text-slate-500 border-slate-800 hover:bg-slate-800"
-              }`}
-            >
-              {col.icon ? (
-                <i className={`${col.icon} text-lg`}></i>
-              ) : (
-                <span className="text-xs font-bold">{col.label}</span>
-              )}
-            </button>
-          );
-        })}
+      <div className="pb-6 w-full min-w-0">
+        <ScrollableFilterStrip innerClassName="gap-1.5 py-0.5">
+          {colors.map((col) => {
+            const isActive =
+              activeColors.length === 0
+                ? col.val === "Tutti"
+                : activeColors.includes(col.val);
+            return (
+              <button
+                key={col.val}
+                onClick={() => toggleColor(col.val)}
+                title={col.label}
+                className={`px-3 py-1.5 rounded-lg flex items-center justify-center min-w-[44px] h-9 transition-all border shrink-0 ${
+                  isActive
+                    ? "bg-slate-700 text-white border-slate-500 shadow-inner"
+                    : "bg-slate-900/50 text-slate-500 border-slate-800 hover:bg-slate-800"
+                }`}
+              >
+                {col.icon ? (
+                  <i className={`${col.icon} text-lg`}></i>
+                ) : (
+                  <span className="text-xs font-bold">{col.label}</span>
+                )}
+              </button>
+            );
+          })}
+        </ScrollableFilterStrip>
       </div>
       {listToRender.length === 0 ? (
         <EmptyState

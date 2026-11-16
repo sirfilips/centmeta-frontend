@@ -21,6 +21,7 @@ import { trackEvent } from "../../../utils/analytics";
 import CommunityNav from "../../../components/CommunityNav";
 import Footer from "../../../components/Footer";
 import ScrollToTop from "../../../components/ScrollToTop";
+import AddToNotesButton from "../../../components/AddToNotesButton";
 
 interface CardData {
   card_name: string;
@@ -384,14 +385,28 @@ export default function VotaPage() {
                 )}
               </div>
 
-              <div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
-                  {loading ? "Caricamento carta..." : currentCard?.card_name}
-                </h2>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
+                    {loading ? "Caricamento carta..." : currentCard?.card_name}
+                  </h2>
 
-                <p className="text-xs sm:text-sm text-slate-400 font-medium mt-0.5">
-                  {currentCard?.type || "Tipologia carta"}
-                </p>
+                  <p className="text-xs sm:text-sm text-slate-400 font-medium mt-0.5">
+                    {currentCard?.type || "Tipologia carta"}
+                  </p>
+                </div>
+
+                {!loading && currentCard && (
+                  <AddToNotesButton
+                    variant="compact"
+                    card={{
+                      name: currentCard.card_name,
+                      image: currentCard.images?.[0],
+                      color_identity: currentCard.color_identity,
+                      cmc: currentCard.cmc,
+                    }}
+                  />
+                )}
               </div>
 
               {/* SE L'UTENTE AVEVA GIÀ VOTATO LA CARTA IN PASSATO */}

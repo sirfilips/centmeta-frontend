@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import TrendIndicator from "./TrendIndicator";
+import AddToNotesButton from "./AddToNotesButton";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { getPeriodParam, getPeriodQuery } from "../utils/mtg";
@@ -66,19 +67,19 @@ const Carousel = ({
       <div className="relative group/carousel">
         <button
           onClick={() => scroll(-500)}
-          className="absolute left-0 top-[148px] -translate-y-1/2 -ml-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
+          className="hidden md:flex absolute left-0 top-[148px] -translate-y-1/2 -ml-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
         >
           <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
         </button>
         <button
           onClick={() => scroll(500)}
-          className="absolute right-0 top-[148px] -translate-y-1/2 -mr-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
+          className="hidden md:flex absolute right-0 top-[148px] -translate-y-1/2 -mr-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto"
         >
           <ChevronRight className="w-6 h-6" strokeWidth={2.5} />
         </button>
         <div
           ref={scrollRef}
-          className="flex gap-6 overflow-x-auto snap-x pt-5 pb-4 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto overscroll-x-contain touch-pan-x snap-x pt-4 md:pt-5 pb-4 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {items.map((item: any, idx: number) => {
             const isPartner =
@@ -99,9 +100,9 @@ const Carousel = ({
                     item.images?.[0],
                   )
                 }
-                className="snap-start flex-shrink-0 w-48 flex flex-col items-center cursor-pointer group/card"
+                className="snap-start flex-shrink-0 w-36 sm:w-44 md:w-48 flex flex-col items-center cursor-pointer group/card"
               >
-                <div className="relative w-full h-64 flex justify-center items-center mb-3">
+                <div className="relative w-full h-52 sm:h-60 md:h-64 flex justify-center items-center mb-2.5 md:mb-3">
                   {isPartner && item.images.length > 1 ? (
                     <div className="relative w-full h-full flex justify-center items-center">
                       <img
@@ -145,6 +146,18 @@ const Carousel = ({
                     <div className="text-xs text-slate-500 w-full h-full bg-slate-900 rounded-xl flex items-center justify-center border border-slate-800">
                       {item.name}
                     </div>
+                  )}
+                  {isCard && (
+                    <AddToNotesButton
+                      card={{
+                        name: item.name,
+                        image: item.images?.[0],
+                        category: item.category,
+                        color_identity: item.color_identity,
+                        cmc: item.cmc,
+                      }}
+                      className="absolute top-1.5 right-1.5 z-30"
+                    />
                   )}
                 </div>
                 <div className="text-center w-full px-1">

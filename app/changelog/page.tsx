@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, History } from 'lucide-react';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import ScrollToTop from '../../components/ScrollToTop';
@@ -70,21 +70,56 @@ export default function Changelog() {
       <div className="flex-grow pb-24 max-w-[1150px] w-full mx-auto px-4 md:px-8 mt-10">
         <BackToDashboardLink />
 
-        <div className="mb-10">
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">Note di Rilascio</h1>
-          <p className="text-base lg:text-lg text-slate-400">
+        <div className="border-b border-slate-700/70 pb-6 mb-10 space-y-1.5">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-400 font-bold inline-flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5" /> Aggiornamenti Piattaforma
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-wide">
+            Note di Rilascio
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
             Cronologia degli aggiornamenti, ottimizzazioni e nuove funzionalità di CentMeta. Clicca su una versione per espanderne i dettagli.
           </p>
         </div>
 
-        {/* Blocco Versione v5.3.0 (ATTUALE - Espanso di default) */}
+        {/* Blocco Versione v5.4.0 (ATTUALE - Espanso di default) */}
+        <ReleaseCard
+          title="v5.4.0 - Categorie per Ruolo, Sintassi Scryfall & Appunti Mazzo"
+          date="17 Novembre 2026"
+          gradient="from-rose-400 via-blue-500 to-emerald-400"
+          titleColor="text-blue-400"
+          badgeStyle="bg-blue-900/30 text-blue-300 border-blue-500/30"
+          defaultOpen={true}
+        >
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-rose-500 pl-4">
+              Nuove Sezioni per Ruolo nella Home &amp; Sintassi Scryfall
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-rose-400 font-bold">•</span> <div><strong className="text-slate-200">Migliori Carte per Ruolo:</strong> Aggiunta nella Home la sezione dedicata alle categorie chiave del Centurion (<em>Removal</em>, <em>Botti</em>, <em>Counterspell</em>, <em>Card Draw</em>, <em>Scartini</em>, <em>Board Wipe</em>, <em>Tutori</em> e <em>Ramp</em>), calcolate dinamicamente sul periodo selezionato con trend di posizione e vista completa dedicata.</div></li>
+              <li className="flex gap-3"><span className="text-rose-400 font-bold">•</span> <div><strong className="text-slate-200">Sintassi Scryfall Ovunque:</strong> Tutte le barre di ricerca (Home, Comandanti, Carte, Dettaglio Comandante e Classifica Community) supportano operatori Scryfall (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">t:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">o:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">id:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">c:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">mv/cmc</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">kw:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">is:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">role:</code>, logica booleana <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">OR</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">-</code>, parentesi e regex), accompagnati dal pulsante guida rapida <strong>?</strong>.</div></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-blue-500 pl-4">
+              Appunti Mazzo, Esperienza Mobile &amp; Coerenza Visiva
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Appunti Mazzo Client-Side:</strong> Nuovo pannello flottante persistente in <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">localStorage</code> per salvare carte e comandante da qualsiasi sezione (incluso drag &amp; drop), verificare l&apos;identità colore e copiare o scaricare in <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">.txt</code> la lista pronta per l&apos;importazione su Moxfield.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Filtri Scrollabili Mobile &amp; Header Uniformati:</strong> Migliorato lo scroll orizzontale delle barre filtro su smartphone e schermi piccoli e uniformate tutte le intestazioni editoriali delle pagine secondarie.</div></li>
+            </ul>
+          </div>
+        </ReleaseCard>
+
+        {/* Blocco Versione v5.3.0 */}
         <ReleaseCard
           title="v5.3.0 - Storico Metagame, Nuova Identità Grafica & Ottimizzazione SEO"
           date="14 Novembre 2026"
           gradient="from-blue-400 via-sky-500 to-amber-400"
           titleColor="text-blue-400"
           badgeStyle="bg-blue-900/30 text-blue-300 border-blue-500/30"
-          defaultOpen={true}
+          defaultOpen={false}
         >
           {/* Sezione Storico Metagame */}
           <div>

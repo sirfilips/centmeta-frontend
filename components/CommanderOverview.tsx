@@ -5,6 +5,7 @@ import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { CATEGORY_INFO } from "../utils/mtg";
 import { shareOrCopyUrl } from "../utils/share";
+import { useNotes } from "./NotesContext";
 import {
   RefreshCw,
   ChevronUp,
@@ -14,6 +15,8 @@ import {
   Share2,
   Check,
   GitCompareArrows,
+  BookmarkPlus,
+  BookmarkCheck,
 } from "lucide-react";
 
 interface CommanderOverviewProps {
@@ -54,6 +57,16 @@ export default function CommanderOverview({
   canCompare = false,
 }: CommanderOverviewProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const { notes, isHydrated, setCommander } = useNotes();
+  const isNotesCommander = isHydrated && notes.commander === selectedCommander;
+
+  const handleToggleNotesCommander = () => {
+    setCommander(
+      isNotesCommander ? null : selectedCommander,
+      selectedCmdObj?.images || [],
+      selectedCmdObj?.color_identity || [],
+    );
+  };
 
   const handleShare = async () => {
     let shareQuery = "";
@@ -238,6 +251,29 @@ export default function CommanderOverview({
 
               {/* Azioni Comandante (Solo Desktop, in alto a destra) */}
               <div className="hidden lg:flex items-center gap-2.5 self-start shrink-0">
+                <button
+                  type="button"
+                  onClick={handleToggleNotesCommander}
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border hover:scale-105 active:scale-95 ${
+                    isNotesCommander
+                      ? "bg-emerald-600/25 text-emerald-300 border-emerald-500/50"
+                      : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700 hover:border-slate-600"
+                  }`}
+                  title={isNotesCommander ? "Rimuovi comandante dagli appunti" : "Imposta come comandante negli appunti"}
+                >
+                  {isNotesCommander ? (
+                    <>
+                      <BookmarkCheck className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                      <span>Comandante Appunti</span>
+                    </>
+                  ) : (
+                    <>
+                      <BookmarkPlus className="w-4 h-4 text-amber-400" strokeWidth={2.5} />
+                      <span>+ Appunti</span>
+                    </>
+                  )}
+                </button>
+
                 {canCompare && onOpenCompare && (
                   <button
                     type="button"
@@ -462,6 +498,30 @@ export default function CommanderOverview({
                 <ArrowLeft className="w-4 h-4" strokeWidth={2.5} /> Torna alla
                 Dashboard
               </a>
+
+              {/* Tasto Comandante Appunti (Solo Mobile/Tablet) */}
+              <button
+                type="button"
+                onClick={handleToggleNotesCommander}
+                className={`lg:hidden inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-xs font-bold transition-all duration-300 shadow-md border shrink-0 active:scale-95 ${
+                  isNotesCommander
+                    ? "bg-emerald-600/25 text-emerald-300 border-emerald-500/50"
+                    : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 hover:text-white border-slate-700"
+                }`}
+                title={isNotesCommander ? "Rimuovi comandante dagli appunti" : "Imposta come comandante negli appunti"}
+              >
+                {isNotesCommander ? (
+                  <>
+                    <BookmarkCheck className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
+                    <span>Comandante Appunti</span>
+                  </>
+                ) : (
+                  <>
+                    <BookmarkPlus className="w-4 h-4 text-amber-400" strokeWidth={2.5} />
+                    <span>+ Appunti</span>
+                  </>
+                )}
+              </button>
 
               {/* Tasto Confronta Lista (Solo Mobile/Tablet, in fondo alla box) */}
               {canCompare && onOpenCompare && (
