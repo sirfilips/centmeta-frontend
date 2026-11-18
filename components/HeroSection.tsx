@@ -35,6 +35,7 @@ interface HeroSectionProps {
   onSelectCard?: (name: string) => void;
   setCardSearch?: (val: string) => void;
   setActiveTab?: (val: string) => void;
+  onSearchCards?: (query: string) => void;
   onSearchFocus?: () => void;
 }
 
@@ -62,6 +63,27 @@ const COLOR_MAP: Record<string, string> = {
   C: "ms ms-c ms-cost",
 };
 
+function compareSearchRelevance(
+  aNameRaw: string,
+  bNameRaw: string,
+  aCount: number,
+  bCount: number,
+  cleanQ: string,
+  isScryfallQuery: boolean,
+): number {
+  if (!isScryfallQuery) {
+    const aName = aNameRaw.toLowerCase();
+    const bName = bNameRaw.toLowerCase();
+    if (aName === cleanQ && bName !== cleanQ) return -1;
+    if (bName === cleanQ && aName !== cleanQ) return 1;
+    const aStarts = aName.startsWith(cleanQ);
+    const bStarts = bName.startsWith(cleanQ);
+    if (aStarts && !bStarts) return -1;
+    if (!aStarts && bStarts) return 1;
+  }
+  return bCount - aCount;
+}
+
 export default function HeroSection({
   homeMode,
   setHomeMode,
@@ -77,6 +99,7 @@ export default function HeroSection({
   onSelectCard,
   setCardSearch,
   setActiveTab,
+  onSearchCards,
   onSearchFocus,
 }: HeroSectionProps) {
   const isDashboard = homeMode === "dashboard";
@@ -146,17 +169,16 @@ export default function HeroSection({
     if (cleanQ.length < 2 || !commanders.length) return [];
     return commanders
       .filter((c) => c?.comandante && scryfallPredicate(c))
-      .sort((a, b) => {
-        if (!isScryfallQuery) {
-          const aName = a.comandante.toLowerCase();
-          const bName = b.comandante.toLowerCase();
-          if (aName === cleanQ) return -1;
-          if (bName === cleanQ) return 1;
-          if (aName.startsWith(cleanQ) && !bName.startsWith(cleanQ)) return -1;
-          if (!aName.startsWith(cleanQ) && bName.startsWith(cleanQ)) return 1;
-        }
-        return (b.cnt || b.decks_count || 0) - (a.cnt || a.decks_count || 0);
-      });
+      .sort((a, b) =>
+        compareSearchRelevance(
+          a.comandante,
+          b.comandante,
+          a.cnt || a.decks_count || 0,
+          b.cnt || b.decks_count || 0,
+          cleanQ,
+          isScryfallQuery,
+        ),
+      );
   }, [commanders, cleanQ, isScryfallQuery, scryfallPredicate]);
 
   // Pool unificato carte (preferisce cards completo con tutti i metadati Scryfall)
@@ -192,17 +214,16 @@ export default function HeroSection({
     if (cleanQ.length < 2) return [];
     return unifiedCardPool
       .filter((c) => scryfallPredicate(c))
-      .sort((a, b) => {
-        if (!isScryfallQuery) {
-          const aName = (a.card_name || a.name || "").toLowerCase();
-          const bName = (b.card_name || b.name || "").toLowerCase();
-          if (aName === cleanQ) return -1;
-          if (bName === cleanQ) return 1;
-          if (aName.startsWith(cleanQ) && !bName.startsWith(cleanQ)) return -1;
-          if (!aName.startsWith(cleanQ) && bName.startsWith(cleanQ)) return 1;
-        }
-        return (b.freq || b.val1 || 0) - (a.freq || a.val1 || 0);
-      });
+      .sort((a, b) =>
+        compareSearchRelevance(
+          a.card_name || a.name || "",
+          b.card_name || b.name || "",
+          a.freq || a.val1 || 0,
+          b.freq || b.val1 || 0,
+          cleanQ,
+          isScryfallQuery,
+        ),
+      );
   }, [unifiedCardPool, cleanQ, isScryfallQuery, scryfallPredicate]);
 
   // Lista visibile in base al tab attivo
@@ -271,32 +292,52 @@ export default function HeroSection({
     }
   };
 
-  const routeSearchFallback = (trimmedQuery: string) => {
-    const looksLikeCardScryfall =
-      hasScryfallSyntax(trimmedQuery) &&
-      matchingCommanders.length === 0 &&
-      /\b(t:(instant|sorcery|artifact|enchantment|land)|role:|otag:|function:)/i.test(trimmedQuery);
-    const shouldRouteToCards =
-      searchTab === "cards" ||
-      looksLikeCardScryfall ||
-      (searchTab === "all" &&
-        matchingCommanders.length === 0 &&
-        matchingCards.length > 0);
-    if (shouldRouteToCards && setCardSearch) {
-      setCardSearch(trimmedQuery);
-      if (setActiveTab) setActiveTab("Top Cards");
-      setHomeMode("cards");
+  const navigateToSearchList = (
+    targetMode: "commanders" | "cards",
+    trimmedQuery: string,
+  ) => {
+    setIsOpen(false);
+    if (targetMode === "cards") {
+      if (onSearchCards) {
+        onSearchCards(trimmedQuery);
+      } else {
+        if (setCardSearch) setCardSearch(trimmedQuery);
+        if (setActiveTab) setActiveTab("Top Cards");
+        setHomeMode("cards");
+      }
     } else {
       setCommanderSearch(trimmedQuery);
       setHomeMode("commanders");
     }
   };
 
+  const routeSearchFallback = (trimmedQuery: string) => {
+    const queryHasScryfall = hasScryfallSyntax(trimmedQuery);
+    const isExplicitCommanderOnly =
+      /\bis:(commander|partner)\b/i.test(trimmedQuery) &&
+      matchingCommanders.length > 0 &&
+      !/\b(t:(instant|sorcery|artifact|enchantment|land)|otag:|role:|function:)\b/i.test(
+        trimmedQuery,
+      );
+
+    let shouldRouteToCards = false;
+    if (searchTab === "cards") {
+      shouldRouteToCards = true;
+    } else if (searchTab === "commanders") {
+      shouldRouteToCards = false;
+    } else if (queryHasScryfall) {
+      shouldRouteToCards = !isExplicitCommanderOnly && (matchingCards.length > 0 || matchingCommanders.length === 0 || isDashboard);
+    } else {
+      shouldRouteToCards = matchingCommanders.length === 0 && matchingCards.length > 0;
+    }
+
+    navigateToSearchList(shouldRouteToCards ? "cards" : "commanders", trimmedQuery);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isOpen || flatItems.length === 0) {
       if (e.key === "Enter" && query.trim()) {
         e.preventDefault();
-        setIsOpen(false);
         routeSearchFallback(query.trim());
       }
       return;
@@ -312,10 +353,9 @@ export default function HeroSection({
       e.preventDefault();
       if (highlightedIndex >= 0 && flatItems[highlightedIndex]) {
         handleSelect(flatItems[highlightedIndex]);
-      } else if (flatItems.length > 0) {
+      } else if (!isScryfallQuery && flatItems.length > 0) {
         handleSelect(flatItems[0]);
-      } else {
-        setIsOpen(false);
+      } else if (query.trim()) {
         routeSearchFallback(query.trim());
       }
     } else if (e.key === "Escape") {
@@ -729,23 +769,14 @@ export default function HeroSection({
               {totalResults > 0 && (
                 <div className="p-2 bg-slate-950/80 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
                   <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      setCommanderSearch(query.trim());
-                      setHomeMode("commanders");
-                    }}
+                    onClick={() => navigateToSearchList("commanders", query.trim())}
                     className="text-blue-400 hover:text-blue-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
                   >
                     <Layers className="w-3.5 h-3.5" />
                     Vedi comandanti per &ldquo;{query}&rdquo;
                   </button>
                   <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      if (setCardSearch) setCardSearch(query.trim());
-                      if (setActiveTab) setActiveTab("Top Cards");
-                      setHomeMode("cards");
-                    }}
+                    onClick={() => navigateToSearchList("cards", query.trim())}
                     className="text-emerald-400 hover:text-emerald-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
                   >
                     <Sparkles className="w-3.5 h-3.5" />

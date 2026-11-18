@@ -84,16 +84,16 @@ export default function ScryfallHelpButton({
               <code className="text-blue-300 font-mono">o:</code> testo oracle
             </div>
             <div>
-              <code className="text-blue-300 font-mono">id: / c:</code> colori
+              <code className="text-blue-300 font-mono">id: / commander:</code> identità
             </div>
             <div>
-              <code className="text-blue-300 font-mono">mv / cmc</code> costo mana
+              <code className="text-blue-300 font-mono">c: / mv</code> colore e costo
             </div>
             <div>
               <code className="text-blue-300 font-mono">kw:</code> keyword
             </div>
             <div>
-              <code className="text-blue-300 font-mono">role:</code> ruolo meta
+              <code className="text-blue-300 font-mono">otag: / role:</code> ruolo meta
             </div>
             <div>
               <code className="text-blue-300 font-mono">is: / not:</code> proprietà

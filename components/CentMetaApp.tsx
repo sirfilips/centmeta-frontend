@@ -25,17 +25,6 @@ import { compileScryfallQuery } from "../utils/scryfallSearch";
 import { handleNav } from "../utils/navigation";
 import { ArrowLeft } from "lucide-react";
 
-function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
-}
-
 async function fetchJson(url: string): Promise<any> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -76,8 +65,23 @@ export default function CentMetaApp({
   const [loading, setLoading] = useState(false);
 
   const [commanderSearch, setCommanderSearch] = useState("");
+  const [debouncedCommanderSearch, setDebouncedCommanderSearch] = useState("");
   const [cardSearch, setCardSearch] = useState("");
-  const debouncedCardSearch = useDebounce(cardSearch, 300);
+  const [debouncedCardSearch, setDebouncedCardSearch] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCardSearch(cardSearch);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [cardSearch]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCommanderSearch(commanderSearch);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [commanderSearch]);
 
   const [selectedCardDetail, setSelectedCardDetail] = useState<string | null>(
     null,
@@ -128,9 +132,31 @@ export default function CentMetaApp({
 
     setSelectedCardDetail(params.get("card") || null);
     setSelectedCommander(cmdFromUrl || initialCommander || "Tutti i mazzi");
-    const viewMode = (params.get("view") as any) || "dashboard";
+    const searchParam = params.get("search") ?? params.get("q") ?? "";
+    const rawView = params.get("view") as
+      | "dashboard"
+      | "commanders"
+      | "cards"
+      | null;
+    const viewMode: "dashboard" | "commanders" | "cards" =
+      rawView ||
+      (searchParam.trim() !== "" && !cmdFromUrl && !initialCommander
+        ? "cards"
+        : "dashboard");
     setHomeMode(viewMode);
     setActiveTab(params.get("tab") || "Top Cards");
+
+    if (viewMode === "commanders" && !cmdFromUrl && !initialCommander) {
+      setCommanderSearch(searchParam);
+      setDebouncedCommanderSearch(searchParam);
+      setCardSearch("");
+      setDebouncedCardSearch("");
+    } else {
+      setCardSearch(searchParam);
+      setDebouncedCardSearch(searchParam);
+      setCommanderSearch("");
+      setDebouncedCommanderSearch("");
+    }
 
     // Supporta sia 'cardsort' che il vecchio 'csort' con retrocompatibilità per vecchi bookmark
     const cmdSortParam = (params.get("csort") as any) || "top";
@@ -193,6 +219,13 @@ export default function CentMetaApp({
       params.set("exp", selectedExpansion);
     if (homeMode === "cards" && selectedCommander === "Tutti i mazzi" && selectedRole)
       params.set("role", selectedRole);
+    const activeUrlSearch =
+      homeMode === "commanders" && selectedCommander === "Tutti i mazzi"
+        ? debouncedCommanderSearch.trim()
+        : homeMode === "cards" || selectedCommander !== "Tutti i mazzi"
+          ? debouncedCardSearch.trim()
+          : "";
+    if (activeUrlSearch) params.set("search", activeUrlSearch);
 
     let basePath = "/";
     if (selectedCommander !== "Tutti i mazzi") {
@@ -227,6 +260,8 @@ export default function CentMetaApp({
     cardSort,
     selectedExpansion,
     selectedRole,
+    debouncedCardSearch,
+    debouncedCommanderSearch,
     filtroTempo,
     isInitialized,
   ]);
@@ -432,6 +467,9 @@ export default function CentMetaApp({
   const handleSelectCommander = (val: string) => {
     setSelectedCommander(val);
     setCommanderSearch("");
+    setDebouncedCommanderSearch("");
+    setCardSearch("");
+    setDebouncedCardSearch("");
     setSelectedRole("");
     setActiveTab("Top Cards");
     setActiveColors([]);
@@ -531,6 +569,8 @@ export default function CentMetaApp({
         );
       }
 
+      const hasSearchQuery = !isSynergyList && debouncedCardSearch.trim() !== "";
+
       if (tab === "Top Sinergie" || tab === "In Crescita") {
         filtered = filtered.filter(
           (c) => !isBasicLand(c.card_name) && c.category !== "Terre",
@@ -545,7 +585,9 @@ export default function CentMetaApp({
           );
         }
       } else if (tab === "Top Cards") {
-        filtered = filtered.filter((c) => !isBasicLand(c.card_name));
+        if (!hasSearchQuery) {
+          filtered = filtered.filter((c) => !isBasicLand(c.card_name));
+        }
         if (isHotCardsMode) {
           filtered = [...filtered].sort(
             (a, b) => (b.delta || 0) - (a.delta || 0),
@@ -567,7 +609,7 @@ export default function CentMetaApp({
         filtered = filtered.filter((c) => c.category === tab);
       }
 
-      if (!isSynergyList && debouncedCardSearch.trim() !== "") {
+      if (hasSearchQuery) {
         filtered = filtered.filter((c) => cardSearchPredicate(c));
       }
 
@@ -697,13 +739,20 @@ export default function CentMetaApp({
     [applyFilters, cardDetailData?.synergies, activeSynergyTab],
   );
 
-  const handleResetHome = () => {
+  const resetGlobalNavigationState = (nextCardSearch = "") => {
     setSelectedCardDetail(null);
     setSelectedCommander("Tutti i mazzi");
     setCommanderSearch("");
+    setDebouncedCommanderSearch("");
+    setCardSearch(nextCardSearch);
+    setDebouncedCardSearch(nextCardSearch);
+    setActiveColors([]);
+  };
+
+  const handleResetHome = () => {
+    resetGlobalNavigationState();
     setSelectedRole("");
     setActiveTab("Top Cards");
-    setActiveColors([]);
     setHomeMode("dashboard");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -714,12 +763,10 @@ export default function CentMetaApp({
     sort: "top" | "hot" | "expansions" = "top",
     expCode?: string,
     roleKey?: string,
+    searchQuery?: string,
   ) => {
     // 1. Azzera la navigazione profonda per forzare il ritorno alla "Home" (/)
-    setSelectedCommander("Tutti i mazzi");
-    setSelectedCardDetail(null);
-    setCommanderSearch("");
-    setActiveColors([]);
+    resetGlobalNavigationState(searchQuery ?? "");
     setSelectedRole(mode === "cards" ? roleKey || "" : "");
 
     // 2. Imposta la nuova visualizzazione globale richiesta dalle tendine
@@ -732,7 +779,6 @@ export default function CentMetaApp({
         setSelectedExpansion(expCode || displayExpansions[0]?.code || "");
       }
     }
-
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -886,6 +932,9 @@ export default function CentMetaApp({
                       onSelectCard={handleSelectCard}
                       setCardSearch={setCardSearch}
                       setActiveTab={setActiveTab}
+                      onSearchCards={(q) =>
+                        navigateToTab("cards", "Top Cards", "top", undefined, undefined, q)
+                      }
                       onSearchFocus={() => setSearchPreloadRequested(true)}
                     />
 

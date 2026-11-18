@@ -109,7 +109,7 @@ const KNOWN_FIELDS = new Set([
   "o", "oracle", "fo", "fulloracle",
   "t", "type",
   "c", "color", "colors",
-  "id", "identity", "ci",
+  "id", "identity", "ci", "commander", "cmd",
   "mv", "cmc", "manavalue",
   "m", "mana",
   "kw", "keyword",
@@ -123,6 +123,17 @@ const KNOWN_FIELDS = new Set([
   "role", "function", "otag",
   "decks", "freq", "perc", "sinergia",
 ]);
+
+const STAT_FIELD_MAP: Record<string, "power" | "toughness" | "loyalty"> = {
+  pow: "power",
+  power: "power",
+  tou: "toughness",
+  toughness: "toughness",
+  loy: "loyalty",
+  loyalty: "loyalty",
+};
+
+const VALID_COLORS = new Set(["W", "U", "B", "R", "G"]);
 
 type Token =
   | { kind: "LPAREN" }
@@ -250,15 +261,15 @@ function parseRegexLiteral(val: string): RegExp | null {
   return null;
 }
 
-function matchText(text: string, rawVal: string, exact = false): boolean {
+function compileTextMatcher(rawVal: string, exact = false): (text: string) => boolean {
   const regex = parseRegexLiteral(rawVal);
   if (regex) {
-    return regex.test(text);
+    return (text) => regex.test(text);
   }
   const needle = stripQuotes(rawVal).trim().toLowerCase();
-  if (!needle) return true;
-  const hay = text.toLowerCase();
-  return exact ? hay === needle : hay.includes(needle);
+  if (!needle) return () => true;
+  if (exact) return (text) => text.toLowerCase() === needle;
+  return (text) => text.toLowerCase().includes(needle);
 }
 
 function parseColorExpr(val: string): {
@@ -282,8 +293,9 @@ function parseColorExpr(val: string): {
   }
   const letters = new Set<string>();
   for (const ch of v) {
-    if (ch === "w" || ch === "u" || ch === "b" || ch === "r" || ch === "g") {
-      letters.add(ch.toUpperCase());
+    const up = ch.toUpperCase();
+    if (VALID_COLORS.has(up)) {
+      letters.add(up);
     } else {
       return { numericCount: null, special: null, target: new Set() };
     }
@@ -291,29 +303,46 @@ function parseColorExpr(val: string): {
   return { numericCount: null, special: null, target: letters };
 }
 
-function compareNumeric(actual: number | null | undefined, op: string, targetStr: string): boolean {
-  if (actual === null || actual === undefined || Number.isNaN(actual)) return false;
+function compileNumericComparator(
+  op: string,
+  targetStr: string,
+): (actual: number | null | undefined) => boolean {
   const t = stripQuotes(targetStr).trim().toLowerCase();
-  if (t === "even") return Number.isInteger(actual) && actual % 2 === 0;
-  if (t === "odd") return Number.isInteger(actual) && Math.abs(actual % 2) === 1;
+  if (t === "even") {
+    return (actual) =>
+      actual !== null &&
+      actual !== undefined &&
+      !Number.isNaN(actual) &&
+      Number.isInteger(actual) &&
+      actual % 2 === 0;
+  }
+  if (t === "odd") {
+    return (actual) =>
+      actual !== null &&
+      actual !== undefined &&
+      !Number.isNaN(actual) &&
+      Number.isInteger(actual) &&
+      Math.abs(actual % 2) === 1;
+  }
   const target = Number(t);
-  if (t === "" || Number.isNaN(target)) return false;
+  if (t === "" || Number.isNaN(target)) return () => false;
+
   switch (op) {
     case ":":
     case "=":
-      return actual === target;
+      return (a) => a !== null && a !== undefined && a === target;
     case "!=":
-      return actual !== target;
+      return (a) => a !== null && a !== undefined && a !== target;
     case "<":
-      return actual < target;
+      return (a) => a !== null && a !== undefined && a < target;
     case "<=":
-      return actual <= target;
+      return (a) => a !== null && a !== undefined && a <= target;
     case ">":
-      return actual > target;
+      return (a) => a !== null && a !== undefined && a > target;
     case ">=":
-      return actual >= target;
+      return (a) => a !== null && a !== undefined && a >= target;
     default:
-      return false;
+      return () => false;
   }
 }
 
@@ -325,39 +354,53 @@ function setsEqual(a: Set<string>, b: Set<string>): boolean {
   return a.size === b.size && isSubset(a, b);
 }
 
-function compareColorSet(
-  actualList: string[] | undefined,
+function normalizeColorList(actualList: string[] | undefined): Set<string> {
+  const actual = new Set<string>();
+  if (!actualList) return actual;
+  for (const c of actualList) {
+    const up = (c || "").toUpperCase();
+    if (VALID_COLORS.has(up)) actual.add(up);
+  }
+  return actual;
+}
+
+function compileColorComparator(
   op: string,
   val: string,
   isIdentity: boolean,
-): boolean {
-  const actual = new Set(
-    (actualList || [])
-      .map((c) => (c || "").toUpperCase())
-      .filter((c) => c === "W" || c === "U" || c === "B" || c === "R" || c === "G"),
-  );
+): (actualList: string[] | undefined) => boolean {
   const { numericCount, special, target } = parseColorExpr(val);
 
   if (numericCount !== null) {
-    return compareNumeric(actual.size, op, String(numericCount));
+    const numCmp = compileNumericComparator(op, String(numericCount));
+    return (actualList) => numCmp(normalizeColorList(actualList).size);
   }
   if (special === "c") {
-    const isC = actual.size === 0;
-    return op === "!=" ? !isC : isC;
+    const wantNot = op === "!=";
+    return (actualList) => {
+      const isC = normalizeColorList(actualList).size === 0;
+      return wantNot ? !isC : isC;
+    };
   }
   if (special === "m") {
-    const isM = actual.size > 1;
-    return op === "!=" ? !isM : isM;
+    const wantNot = op === "!=";
+    return (actualList) => {
+      const isM = normalizeColorList(actualList).size > 1;
+      return wantNot ? !isM : isM;
+    };
   }
-  if (target.size === 0) return false;
+  if (target.size === 0) return () => false;
 
-  if (op === "=") return setsEqual(actual, target);
-  if (op === "!=") return !setsEqual(actual, target);
-  if (op === "<=") return isSubset(actual, target);
-  if (op === "<") return isSubset(actual, target) && actual.size < target.size;
-  if (op === ">=") return isSubset(target, actual);
-  if (op === ">") return isSubset(target, actual) && actual.size > target.size;
-  return isIdentity ? isSubset(actual, target) : isSubset(target, actual);
+  return (actualList) => {
+    const actual = normalizeColorList(actualList);
+    if (op === "=") return setsEqual(actual, target);
+    if (op === "!=") return !setsEqual(actual, target);
+    if (op === "<=") return isSubset(actual, target);
+    if (op === "<") return isSubset(actual, target) && actual.size < target.size;
+    if (op === ">=") return isSubset(target, actual);
+    if (op === ">") return isSubset(target, actual) && actual.size > target.size;
+    return isIdentity ? isSubset(actual, target) : isSubset(target, actual);
+  };
 }
 
 function normalizeManaQuery(rawVal: string): string {
@@ -494,57 +537,60 @@ function buildTermPredicate(term: string): CardPredicate {
 
     if (KNOWN_FIELDS.has(field)) {
       if (field === "o" || field === "oracle" || field === "fo" || field === "fulloracle") {
+        const baseMatcher = compileTextMatcher(val);
+        const hasTilde = val.includes("~");
         return (card) => {
           const oraclesStr = (card.oracles || []).join("\n");
           if (!oraclesStr) return false;
-          const name = getItemName(card);
-          const cleanVal = val.includes("~") && name ? val.replace(/~/g, name) : val;
-          return matchText(oraclesStr, cleanVal) || matchText(oraclesStr, val);
+          if (baseMatcher(oraclesStr)) return true;
+          if (hasTilde) {
+            const name = getItemName(card);
+            if (name) return compileTextMatcher(val.replace(/~/g, name))(oraclesStr);
+          }
+          return false;
         };
       }
 
       if (field === "t" || field === "type") {
-        return (card) => matchText(card.type || "", val);
+        const typeMatcher = compileTextMatcher(val);
+        return (card) => typeMatcher(card.type || "");
       }
 
       if (field === "n" || field === "name") {
-        return (card) => matchText(getItemName(card), val, op === "=");
-      }
-
-      if (field === "id" || field === "identity" || field === "ci") {
-        return (card) => compareColorSet(card.color_identity, op, val, true);
-      }
-
-      if (field === "c" || field === "color" || field === "colors") {
-        return (card) => compareColorSet(getEffectiveColors(card), op, val, false);
-      }
-
-      if (field === "mv" || field === "cmc" || field === "manavalue") {
-        return (card) => compareNumeric(card.cmc, op, val);
+        const nameMatcher = compileTextMatcher(val, op === "=");
+        return (card) => nameMatcher(getItemName(card));
       }
 
       if (
-        field === "pow" ||
-        field === "power" ||
-        field === "tou" ||
-        field === "toughness" ||
-        field === "loy" ||
-        field === "loyalty"
+        field === "id" ||
+        field === "identity" ||
+        field === "ci" ||
+        field === "commander" ||
+        field === "cmd"
       ) {
-        const key =
-          field === "pow" || field === "power"
-            ? "power"
-            : field === "tou" || field === "toughness"
-              ? "toughness"
-              : "loyalty";
+        const idCmp = compileColorComparator(op, val, true);
+        return (card) => idCmp(card.color_identity);
+      }
+
+      if (field === "c" || field === "color" || field === "colors") {
+        const colorCmp = compileColorComparator(op, val, false);
+        return (card) => colorCmp(getEffectiveColors(card));
+      }
+
+      if (field === "mv" || field === "cmc" || field === "manavalue") {
+        const cmcCmp = compileNumericComparator(op, val);
+        return (card) => cmcCmp(card.cmc);
+      }
+
+      if (STAT_FIELD_MAP[field]) {
+        const key = STAT_FIELD_MAP[field];
+        const statCmp = compileNumericComparator(op, val);
+        const valLower = stripQuotes(val).trim().toLowerCase();
         return (card) => {
           const raw = card[key];
           if (raw === null || raw === undefined || raw === "") return false;
           const num = Number(raw);
-          if (!Number.isNaN(num)) {
-            return compareNumeric(num, op, val);
-          }
-          return stripQuotes(val).trim().toLowerCase() === String(raw).trim().toLowerCase();
+          return !Number.isNaN(num) ? statCmp(num) : valLower === String(raw).trim().toLowerCase();
         };
       }
 
@@ -563,10 +609,9 @@ function buildTermPredicate(term: string): CardPredicate {
         const kwRegex = kwNeedle ? new RegExp(`(?:^|[\\n,])\\s*${escaped}\\b`, "i") : null;
         return (card) => {
           if (!kwNeedle) return true;
-          const kws = (card.keywords || []).map((k) => k.toLowerCase());
-          if (kws.some((k) => k === kwNeedle || k.includes(kwNeedle))) return true;
-          const oraclesStr = (card.oracles || []).join("\n");
-          return kwRegex ? kwRegex.test(oraclesStr) : false;
+          const kws = card.keywords || [];
+          if (kws.some((k) => k.toLowerCase().includes(kwNeedle))) return true;
+          return kwRegex ? kwRegex.test((card.oracles || []).join("\n")) : false;
         };
       }
 
@@ -585,12 +630,10 @@ function buildTermPredicate(term: string): CardPredicate {
         return (card) => (card.rarity || "").trim().toLowerCase() === rTarget;
       }
 
-      if (field === "is") {
-        return (card) => matchIsProperty(card, val);
-      }
-
-      if (field === "not") {
-        return (card) => !matchIsProperty(card, val);
+      if (field === "is" || field === "not") {
+        const propClean = stripQuotes(val).trim().toLowerCase();
+        const negate = field === "not";
+        return negate ? (card) => !matchIsProperty(card, propClean) : (card) => matchIsProperty(card, propClean);
       }
 
       if (field === "role" || field === "function" || field === "otag") {
@@ -602,6 +645,7 @@ function buildTermPredicate(term: string): CardPredicate {
       }
 
       if (field === "decks" || field === "freq" || field === "perc" || field === "sinergia") {
+        const metricCmp = compileNumericComparator(op, val);
         return (card) => {
           const raw =
             field === "perc"
@@ -609,13 +653,14 @@ function buildTermPredicate(term: string): CardPredicate {
               : field === "sinergia"
                 ? card.Sinergia
                 : card.freq ?? card.cnt ?? card.val1;
-          return compareNumeric(raw, op, val);
+          return metricCmp(raw);
         };
       }
     }
   }
 
-  return (card) => matchText(getItemName(card), term);
+  const plainMatcher = compileTextMatcher(term);
+  return (card) => plainMatcher(getItemName(card));
 }
 
 export function compileScryfallQuery(query: string): CardPredicate {
@@ -704,9 +749,9 @@ export function hasScryfallSyntax(query: string): boolean {
 
 export const SCRYFALL_HELP_EXAMPLES = [
   { query: "t:instant cmc<=2", desc: "Istantanei a costo ≤ 2" },
+  { query: "commander:jund otag:removal", desc: "Removal giocabili in Jund" },
   { query: 'o:"draw a card" id<=ur', desc: "Peschini Izzet" },
   { query: "t:creature (c:b OR c:r) mv=1", desc: "Creature B o R a costo 1" },
-  { query: "role:removal -c:w", desc: "Removal non bianchi" },
-  { query: "kw:flash cmc<=3", desc: "Carte con Flash a costo ≤ 3" },
+  { query: "id:jund -is:fetchland -t:land", desc: "Magie giocabili in Jund" },
   { query: '!"Lightning Bolt"', desc: "Nome esatto della carta" },
 ];

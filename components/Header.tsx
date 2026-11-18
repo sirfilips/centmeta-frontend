@@ -21,6 +21,7 @@ import {
   History,
   ShieldCheck,
   Compass,
+  Layers,
 } from "lucide-react";
 import { trackEvent } from "../utils/analytics";
 
@@ -33,7 +34,9 @@ interface HeaderProps {
   onNavigate?: (
     mode: "commanders" | "cards",
     tab: string,
-    sort: "top" | "hot" | "expansions"
+    sort: "top" | "hot" | "expansions",
+    expCode?: string,
+    roleKey?: string
   ) => void;
 }
 
@@ -89,23 +92,26 @@ export default function Header({
 
   const handleNavClick = (
     mode: "commanders" | "cards",
-    sort: "top" | "hot" | "expansions"
+    sort: "top" | "hot" | "expansions",
+    roleKey?: string
   ) => {
     setOpenDropdown(null);
     setMobileMenuOpen(false);
     if (onNavigate) {
-      onNavigate(mode, "Top Cards", sort);
+      onNavigate(mode, "Top Cards", sort, undefined, roleKey);
     } else if (mode === "commanders") {
       router.push(`/?view=commanders&csort=${sort}${periodParam}`);
     } else {
-      router.push(`/?view=cards&tab=Top+Cards&cardsort=${sort}${periodParam}`);
+      const roleQuery = roleKey ? `&role=${encodeURIComponent(roleKey)}` : "";
+      router.push(`/?view=cards&tab=Top+Cards&cardsort=${sort}${roleQuery}${periodParam}`);
     }
   };
 
   const handleLinkClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     mode: "commanders" | "cards",
-    sort: "top" | "hot" | "expansions"
+    sort: "top" | "hot" | "expansions",
+    roleKey?: string
   ) => {
     if (!onNavigate || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) {
       setOpenDropdown(null);
@@ -113,7 +119,7 @@ export default function Header({
       return;
     }
     e.preventDefault();
-    handleNavClick(mode, sort);
+    handleNavClick(mode, sort, roleKey);
   };
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -343,9 +349,17 @@ export default function Header({
                     href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`}
                     onClick={(e) => handleLinkClick(e, "cards", "expansions")}
                     data-umami-event="Header Menu - Ultime Espansioni"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
                   >
                     <Sparkles className="w-4 h-4 text-purple-400" /> Ultime Espansioni
+                  </a>
+                  <a
+                    href={`/?view=cards&tab=Top+Cards&cardsort=top&role=removal${periodParam}`}
+                    onClick={(e) => handleLinkClick(e, "cards", "top", "removal")}
+                    data-umami-event="Header Menu - Carte per Ruolo"
+                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                  >
+                    <Layers className="w-4 h-4 text-rose-400" /> Carte per Ruolo
                   </a>
                 </div>
               </div>
@@ -588,10 +602,18 @@ export default function Header({
                 <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                 Ultime Espansioni
               </a>
+              <a
+                href={`/?view=cards&tab=Top+Cards&cardsort=top&role=removal${periodParam}`}
+                onClick={(e) => handleLinkClick(e, "cards", "top", "removal")}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-xs font-semibold text-slate-200"
+              >
+                <Layers className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                Carte per Ruolo
+              </a>
               <Link
                 href="/storico"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-semibold ${
+                className={`col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-semibold ${
                   isStoricoActive
                     ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
                     : "bg-slate-800/70 border-slate-700/60 text-slate-200"
