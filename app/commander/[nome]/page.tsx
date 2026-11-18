@@ -10,10 +10,11 @@ type Props = {
 
 // --- HELPER DI VALIDAZIONE E DECODIFICA ---
 
-// Cache in memoria: Set dei nomi validi, mappa art_crop e timestamp dell'ultimo aggiornamento
+// Cache in memoria: Set dei nomi validi, mappa art_crop, mappa artisti e timestamp dell'ultimo aggiornamento
 const cache = {
   names: new Set<string>(),
   artCrops: new Map<string, string>(),
+  artists: new Map<string, string>(),
   ts: 0,
 };
 
@@ -76,14 +77,18 @@ async function commanderExists(name: string): Promise<boolean> {
       return true;
     }
 
-    // Costruisci il nuovo Set e la mappa art_crop a parte, senza toccare la cache esistente
+    // Costruisci il nuovo Set, la mappa art_crop e la mappa artisti a parte, senza toccare la cache esistente
     const fresh = new Set<string>();
     const freshArtCrops = new Map<string, string>();
+    const freshArtists = new Map<string, string>();
     for (const item of data) {
       if (item && typeof item.comandante === 'string') {
         fresh.add(item.comandante);
         if (Array.isArray(item.art_crops) && item.art_crops.length > 0 && item.art_crops[0]) {
           freshArtCrops.set(item.comandante, item.art_crops[0]);
+        }
+        if (typeof item.artist === 'string' && item.artist.trim()) {
+          freshArtists.set(item.comandante, item.artist.trim());
         }
       }
     }
@@ -97,6 +102,7 @@ async function commanderExists(name: string): Promise<boolean> {
     // Lista valida e popolata: aggiorna la cache e rispondi
     cache.names = fresh;
     cache.artCrops = freshArtCrops;
+    cache.artists = freshArtists;
     cache.ts = now;
     return fresh.has(name);
 
@@ -127,6 +133,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const commanderArtCrop =
     cache.artCrops.get(commanderName) || getScryfallArtCropUrl(commanderName);
+  const commanderArtist = cache.artists.get(commanderName) || '';
+  const artCredit = commanderArtist
+    ? `Art: ${commanderArtist} · © Wizards of the Coast`
+    : '© Wizards of the Coast';
+  const ogDescription = `Analisi statistica e liste mazzi per ${commanderName}. (${artCredit})`;
   
   return {
     title: `${commanderName} — Centurion Commander | Liste, Sinergie e Statistiche`,
@@ -136,7 +147,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     },
     openGraph: {
       title: `${commanderName} - CentMeta`,
-      description: `Analisi statistica e liste mazzi per ${commanderName}.`,
+      description: ogDescription,
       url: `https://centmeta.it/commander/${params.nome}`,
       siteName: 'CentMeta',
       images: [
@@ -144,7 +155,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
           url: commanderArtCrop,
           width: 626,
           height: 457,
-          alt: `Analisi per ${commanderName}`,
+          alt: `Analisi per ${commanderName} (${artCredit})`,
         },
       ],
       locale: 'it_IT',
@@ -153,7 +164,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     twitter: {
       card: 'summary_large_image',
       title: `${commanderName} - CentMeta`,
-      description: `Analisi statistica e liste mazzi per ${commanderName}.`,
+      description: ogDescription,
       images: [commanderArtCrop],
     },
   };

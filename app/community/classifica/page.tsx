@@ -35,6 +35,7 @@ interface LeaderboardItem {
   last_voted_at: string | null;
   images: string[];
   art_crops: string[];
+  artist?: string;
   type: string;
   cmc: number;
   color_identity: string[];
@@ -589,6 +590,9 @@ export default function ClassificaPage() {
                       </div>
                       <p className="text-xs text-slate-400 truncate mt-0.5">
                         {item.type}
+                        {item.artist && (
+                          <span className="text-slate-500"> · Art: {item.artist}</span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -656,6 +660,9 @@ export default function ClassificaPage() {
                 </button>
               </div>
             )}
+            <p className="text-[10px] text-slate-500 text-right pt-1">
+              Illustrazioni © Wizards of the Coast LLC · Dati e immagini via Scryfall
+            </p>
           </div>
         )}
 

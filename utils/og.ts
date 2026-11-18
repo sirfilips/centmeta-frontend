@@ -13,15 +13,15 @@ export function getScryfallArtCropUrl(cardOrCmdName: string): string {
 }
 
 /**
- * Risolve l'URL dell'art_crop di una carta interrogando il backend interno (se configurato)
+ * Risolve l'URL dell'art_crop e il nome dell'artista di una carta interrogando il backend interno (se configurato)
  * per ottenere l'URL diretto CDN (cards.scryfall.io) dalla cache SQLite;
  * in caso contrario o di fallback, restituisce l'endpoint art_crop di Scryfall.
  */
-export async function resolveCardArtCrop(cardName: string): Promise<string> {
+export async function resolveCardArtMeta(cardName: string): Promise<{ artCrop: string; artist: string }> {
   const fallback = getScryfallArtCropUrl(cardName);
   const apiUrl = process.env.API_INTERNAL_URL;
   if (!apiUrl) {
-    return fallback;
+    return { artCrop: fallback, artist: "" };
   }
 
   try {
@@ -34,24 +34,38 @@ export async function resolveCardArtCrop(cardName: string): Promise<string> {
     );
     if (res.ok) {
       const data = await res.json();
+      const artist = typeof data?.artist === "string" ? data.artist : "";
       if (Array.isArray(data?.art_crops) && data.art_crops.length > 0 && data.art_crops[0]) {
-        return data.art_crops[0];
+        return { artCrop: data.art_crops[0], artist };
       }
+      return { artCrop: fallback, artist };
     }
   } catch {
     // Fallback silenzioso all'endpoint art_crop di Scryfall
   }
 
-  return fallback;
+  return { artCrop: fallback, artist: "" };
+}
+
+/**
+ * Risolve l'URL dell'art_crop di una carta interrogando il backend interno (se configurato).
+ */
+export async function resolveCardArtCrop(cardName: string): Promise<string> {
+  const { artCrop } = await resolveCardArtMeta(cardName);
+  return artCrop;
 }
 
 /**
  * Costruisce i metadati OpenGraph e Twitter condivisi per una singola carta (?card=...).
  */
 export async function buildCardMetadata(cardName: string): Promise<Metadata> {
-  const cardArtCrop = await resolveCardArtCrop(cardName);
+  const { artCrop: cardArtCrop, artist } = await resolveCardArtMeta(cardName);
   const canonicalUrl = `https://centmeta.it/?card=${encodeURIComponent(cardName)}`;
   const description = `Statistiche di utilizzo, comandanti e sinergie per ${cardName} in Centurion Commander.`;
+  const artCredit = artist
+    ? `Art: ${artist} · © Wizards of the Coast`
+    : "© Wizards of the Coast";
+  const ogDescription = `${description} (${artCredit})`;
 
   return {
     title: `${cardName} | Statistiche, Comandanti e Sinergie Centurion`,
@@ -61,7 +75,7 @@ export async function buildCardMetadata(cardName: string): Promise<Metadata> {
     },
     openGraph: {
       title: `${cardName} - CentMeta`,
-      description,
+      description: ogDescription,
       url: canonicalUrl,
       siteName: "CentMeta",
       images: [
@@ -69,7 +83,7 @@ export async function buildCardMetadata(cardName: string): Promise<Metadata> {
           url: cardArtCrop,
           width: 626,
           height: 457,
-          alt: `Artwork di ${cardName}`,
+          alt: `Artwork di ${cardName} (${artCredit})`,
         },
       ],
       locale: "it_IT",
@@ -78,7 +92,7 @@ export async function buildCardMetadata(cardName: string): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: `${cardName} - CentMeta`,
-      description,
+      description: ogDescription,
       images: [cardArtCrop],
     },
   };

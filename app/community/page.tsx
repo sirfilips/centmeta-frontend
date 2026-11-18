@@ -27,6 +27,7 @@ interface CardPreview {
   avg_score: number;
   images: string[];
   art_crops: string[];
+  artist?: string;
 }
 
 interface OverviewData {
@@ -375,6 +376,11 @@ export default function CommunityPage() {
                               {card.total_votes} {card.total_votes === 1 ? "voto" : "voti"}
                             </span>
                           </div>
+                          {card.artist && (
+                            <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                              Art: {card.artist}
+                            </div>
+                          )}
                         </div>
 
                         <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -440,6 +446,11 @@ export default function CommunityPage() {
                               {card.avg_score.toFixed(1)}
                             </span>
                           </div>
+                          {card.artist && (
+                            <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                              Art: {card.artist}
+                            </div>
+                          )}
                         </div>
 
                         <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -450,6 +461,9 @@ export default function CommunityPage() {
               </div>
 
             </div>
+            <p className="text-[10px] text-slate-500 text-right">
+              Illustrazioni © Wizards of the Coast LLC · Dati e immagini via Scryfall
+            </p>
           </section>
         )}
 
@@ -467,9 +481,9 @@ export default function CommunityPage() {
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div className="flex-1 space-y-0.5">
-            <span className="font-bold text-slate-200">Voto Anonimo e Cookie-Free</span>
+            <span className="font-bold text-slate-200">Voto Pseudonimizzato e Cookie-Free</span>
             <p className="leading-relaxed">
-              Nessun dato personale viene profilato o ceduto. L&apos;identificativo anonimo salvato in locale nel browser serve esclusivamente a evitare la ripetizione delle carte già votate. Maggiori dettagli nella pagina{" "}
+              Nessun cookie né profilazione di terze parti. Un identificativo pseudonimo salvato in locale nel browser e il relativo hash lato server (conservato per 12 mesi) servono esclusivamente a evitare voti duplicati e ricordare le carte già valutate. Maggiori dettagli nella pagina{" "}
               <Link href="/legal" className="text-blue-400 hover:underline">
                 Note Legali e Privacy
               </Link>.

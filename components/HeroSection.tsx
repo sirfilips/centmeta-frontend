@@ -40,16 +40,56 @@ interface HeroSectionProps {
 }
 
 const BACKGROUND_IMAGES = [
-  "bg-1.webp",
-  "bg-2.webp",
-  "bg-3.webp",
-  "bg-4.webp",
-  "bg-5.webp",
-  "bg-6.webp",
-  "bg-7.webp",
-  "bg-8.webp",
-  "bg-9.webp",
-  "bg-10.webp",
+  {
+    file: "bg-1.webp",
+    artist: "Todd Lockwood",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CTodd+Lockwood%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-2.webp",
+    artist: "Keith Parkinson",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CKeith+Parkinson%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-3.webp",
+    artist: "Drew Tucker",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CDrew+Tucker%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-4.webp",
+    artist: "Christopher Moeller",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CChristopher+Moeller%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-5.webp",
+    artist: "Mark Tedin",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CMark+Tedin%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-6.webp",
+    artist: "Anson Maddocks",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CAnson+Maddocks%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-7.webp",
+    artist: "Tim Hildebrandt",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CTim+Hildebrandt%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-8.webp",
+    artist: "Pete Venters",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CPete+Venters%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-9.webp",
+    artist: "Mark Tedin",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CMark+Tedin%E2%80%9D&unique=art",
+  },
+  {
+    file: "bg-10.webp",
+    artist: "Mark Poole",
+    url: "https://scryfall.com/search?q=a%3A%E2%80%9CMark+Poole%E2%80%9D&unique=art",
+  },
 ];
 
 const CAROUSEL_INTERVAL = 7000;
@@ -104,6 +144,7 @@ export default function HeroSection({
 }: HeroSectionProps) {
   const isDashboard = homeMode === "dashboard";
   const [bgIndex, setBgIndex] = useState(0);
+  const currentBg = BACKGROUND_IMAGES[bgIndex];
   const [loadedBgIndices, setLoadedBgIndices] = useState<Set<number>>(
     () => new Set([0, 1]),
   );
@@ -384,20 +425,36 @@ export default function HeroSection({
       {/* SFONDO CON CAROSELLO (Visibile solo in Dashboard) */}
       {isDashboard && (
         <div className="absolute inset-0 -z-20 pointer-events-none rounded-xl overflow-hidden">
-          {BACKGROUND_IMAGES.map((image, index) => (
+          {BACKGROUND_IMAGES.map((bg, index) => (
             <div
-              key={image}
+              key={bg.file}
               className={`absolute inset-0 bg-cover bg-[center_33%] transition-opacity duration-1000 ease-in-out ${
                 index === bgIndex ? "opacity-80" : "opacity-0"
               }`}
               style={
                 loadedBgIndices.has(index)
-                  ? { backgroundImage: `url("/background/${image}")` }
+                  ? { backgroundImage: `url("/background/${bg.file}")` }
                   : undefined
               }
             ></div>
           ))}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-slate-950/40 to-slate-950/75"></div>
+        </div>
+      )}
+
+      {/* CREDITO ARTISTA SFONDO (Discreto in basso a destra) */}
+      {isDashboard && currentBg && (
+        <div className="absolute bottom-2 right-3 z-10 text-[10px] sm:text-[11px] text-slate-300/70 bg-slate-950/45 backdrop-blur-[2px] px-2 py-0.5 rounded-md border border-slate-700/30">
+          Art:{" "}
+          <a
+            href={currentBg.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-200/85 hover:text-blue-300 hover:underline transition-colors"
+          >
+            {currentBg.artist}
+          </a>{" "}
+          <span className="text-slate-400/75">· © WotC</span>
         </div>
       )}
 
@@ -665,8 +722,11 @@ export default function HeroSection({
                                       </span>
                                     )}
                                   </div>
-                                  <div className="text-[11px] text-slate-400">
+                                  <div className="text-[11px] text-slate-400 truncate">
                                     Comandante Centurion
+                                    {cmd.artist && (
+                                      <span className="text-slate-500"> · Art: {cmd.artist}</span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -736,13 +796,18 @@ export default function HeroSection({
                                   <div className="font-bold text-sm text-slate-100 truncate">
                                     {cardName}
                                   </div>
-                                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5 min-w-0">
                                     {card.category && (
-                                      <span className="flex items-center gap-1">
+                                      <span className="flex items-center gap-1 shrink-0">
                                         {catInfo?.icon && (
                                           <i className={`ms ${catInfo.icon} text-[10px]`}></i>
                                         )}
                                         <span>{card.category}</span>
+                                      </span>
+                                    )}
+                                    {card.artist && (
+                                      <span className="text-slate-500 truncate">
+                                        {card.category ? "· " : ""}Art: {card.artist}
                                       </span>
                                     )}
                                   </div>
@@ -767,21 +832,26 @@ export default function HeroSection({
 
               {/* FOOTER AZIONI RAPIDE */}
               {totalResults > 0 && (
-                <div className="p-2 bg-slate-950/80 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <button
-                    onClick={() => navigateToSearchList("commanders", query.trim())}
-                    className="text-blue-400 hover:text-blue-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    Vedi comandanti per &ldquo;{query}&rdquo;
-                  </button>
-                  <button
-                    onClick={() => navigateToSearchList("cards", query.trim())}
-                    className="text-emerald-400 hover:text-emerald-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Vedi carte per &ldquo;{query}&rdquo;
-                  </button>
+                <div>
+                  <div className="p-2 bg-slate-950/80 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <button
+                      onClick={() => navigateToSearchList("commanders", query.trim())}
+                      className="text-blue-400 hover:text-blue-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
+                    >
+                      <Layers className="w-3.5 h-3.5" />
+                      Vedi comandanti per &ldquo;{query}&rdquo;
+                    </button>
+                    <button
+                      onClick={() => navigateToSearchList("cards", query.trim())}
+                      className="text-emerald-400 hover:text-emerald-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Vedi carte per &ldquo;{query}&rdquo;
+                    </button>
+                  </div>
+                  <div className="px-3 py-1 bg-slate-950/90 border-t border-slate-800/70 text-[10px] text-slate-500 text-right">
+                    Artwork © Wizards of the Coast LLC · Immagini via Scryfall
+                  </div>
                 </div>
               )}
             </div>

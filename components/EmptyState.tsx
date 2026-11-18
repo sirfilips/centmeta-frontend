@@ -39,7 +39,7 @@ export default function EmptyState({
         title="Clicca su Fblthp!"
       >
         <img
-          src="https://api.scryfall.com/cards/named?exact=Fblthp,+the+Lost&format=image&version=art_crop"
+          src="https://cards.scryfall.io/art_crop/front/7/9/79b2c547-0d9e-4fd7-a399-347ad908c70b.jpg"
           alt="Fblthp, the Lost"
           className={`w-24 h-24 object-cover rounded-full border-4 border-slate-800 shadow-xl mb-4 transition-all duration-500 hover:border-blue-500 hover:scale-110 active:scale-95 ${
             isAnimating
@@ -80,6 +80,18 @@ export default function EmptyState({
           <span>Azzera filtri di ricerca</span>
         </button>
       )}
+      <p className="mt-5 text-[10px] text-slate-500/80">
+        Art:{" "}
+        <a
+          href="https://scryfall.com/search?q=a%3A%E2%80%9CJesper+Ejsing%E2%80%9D&unique=art"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-slate-300 hover:underline transition-colors"
+        >
+          Jesper Ejsing
+        </a>{" "}
+        · © WotC
+      </p>
     </div>
   );
 }
