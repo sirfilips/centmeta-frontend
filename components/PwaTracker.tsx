@@ -3,6 +3,9 @@
 import { useEffect } from 'react';
 import { trackEvent } from '../utils/analytics';
 
+let promptEligibleTracked = false;
+let standaloneTracked = false;
+
 /**
  * Monitora il ciclo di vita della PWA e invia eventi anonimi a Umami:
  * 1. "PWA Installata": quando l'utente completa l'installazione tramite browser o prompt nativo.
@@ -18,16 +21,11 @@ export default function PwaTracker() {
       trackEvent('PWA Installata');
     };
 
-    // 2. Rilevamento disponibilità del prompt di installazione (una volta per sessione)
+    // 2. Rilevamento disponibilità del prompt di installazione (una volta per caricamento pagina)
     const handleBeforeInstallPrompt = () => {
-      try {
-        const sessionKey = 'cm_pwa_prompt_eligible';
-        if (!sessionStorage.getItem(sessionKey)) {
-          sessionStorage.setItem(sessionKey, '1');
-          trackEvent('PWA Prompt Idoneo');
-        }
-      } catch {
-        // Silenzioso se sessionStorage è bloccato
+      if (!promptEligibleTracked) {
+        promptEligibleTracked = true;
+        trackEvent('PWA Prompt Idoneo');
       }
     };
 
@@ -41,15 +39,12 @@ export default function PwaTracker() {
         (window.navigator as any).standalone === true ||
         document.referrer.includes('android-app://');
 
-      if (isStandalone) {
-        const sessionKey = 'cm_pwa_standalone_tracked';
-        if (!sessionStorage.getItem(sessionKey)) {
-          sessionStorage.setItem(sessionKey, '1');
-          const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-          trackEvent('PWA Apertura Standalone', {
-            platform: isIOS ? 'ios' : 'android_or_desktop',
-          });
-        }
+      if (isStandalone && !standaloneTracked) {
+        standaloneTracked = true;
+        const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        trackEvent('PWA Apertura Standalone', {
+          platform: isIOS ? 'ios' : 'android_or_desktop',
+        });
       }
     } catch {
       // Silenzioso

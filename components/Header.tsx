@@ -10,8 +10,6 @@ import {
   Trophy,
   Flame,
   Coffee,
-  Users,
-  Swords,
   Sparkles,
   TrendingUp,
   Menu,
@@ -40,7 +38,7 @@ interface HeaderProps {
   ) => void;
 }
 
-type DropdownKey = "commanders" | "cards" | "community" | "info" | null;
+type DropdownKey = "commanders" | "cards" | "info" | null;
 
 export default function Header({
   filtroTempo,
@@ -138,7 +136,6 @@ export default function Header({
   };
 
   const isStoricoActive = pathname === "/storico";
-  const isCommunityActive = pathname.startsWith("/community");
   const isInfoActive = ["/about", "/status", "/changelog", "/legal"].includes(
     pathname
   );
@@ -379,65 +376,6 @@ export default function Header({
               Storico
             </Link>
 
-            {/* Community */}
-            <div
-              className="relative group"
-              onMouseEnter={() => setOpenDropdown("community")}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button
-                type="button"
-                onClick={() => toggleDropdown("community")}
-                className={`flex items-center gap-1 font-bold text-sm xl:text-base py-1 transition-colors ${
-                  isCommunityActive
-                    ? "text-blue-400"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Community{" "}
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-300 ${
-                    openDropdown === "community" ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              <div
-                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
-                  openDropdown === "community"
-                    ? "opacity-100 scale-100 visible"
-                    : "opacity-0 scale-95 invisible"
-                }`}
-              >
-                <div className="py-1.5 flex flex-col">
-                  <Link
-                    href="/community"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Community Panoramica"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Users className="w-4 h-4 text-blue-400" /> Panoramica
-                  </Link>
-                  <Link
-                    href="/community/vota"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Vota Carte"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Swords className="w-4 h-4 text-amber-400" /> Vota le Carte
-                  </Link>
-                  <Link
-                    href="/community/classifica"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Classifica"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  >
-                    <Trophy className="w-4 h-4 text-purple-400" /> Classifica
-                  </Link>
-                </div>
-              </div>
-            </div>
-
             {/* Info & Progetto */}
             <div
               className="relative group"
@@ -621,50 +559,6 @@ export default function Header({
               >
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 Storico Meta
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-1 mb-1.5">
-              Community
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <Link
-                href="/community"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl border text-xs font-semibold ${
-                  pathname === "/community"
-                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
-                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
-                }`}
-              >
-                <Users className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                Hub
-              </Link>
-              <Link
-                href="/community/vota"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl border text-xs font-semibold ${
-                  pathname === "/community/vota"
-                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
-                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
-                }`}
-              >
-                <Swords className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                Vota
-              </Link>
-              <Link
-                href="/community/classifica"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-center gap-1.5 px-2.5 py-2.5 rounded-xl border text-xs font-semibold ${
-                  pathname === "/community/classifica"
-                    ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
-                    : "bg-slate-800/70 border-slate-700/60 text-slate-200"
-                }`}
-              >
-                <Trophy className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                Classifica
               </Link>
             </div>
           </div>

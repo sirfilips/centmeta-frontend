@@ -25,7 +25,6 @@ import {
 import { isBasicLand } from "../utils/mtg";
 import { copyTextToClipboard } from "../utils/share";
 import { handleCardDragStart } from "../utils/dragCard";
-import { trackEvent } from "../utils/analytics";
 
 export default function NotesDrawer() {
   const {
@@ -88,7 +87,6 @@ export default function NotesDrawer() {
     const text = formatMoxfieldDecklist(notes, includeCommander);
     if (!text) return;
     const ok = await copyTextToClipboard(text);
-    trackEvent("Appunti - Copia Lista", { cards: mainboardCount });
     if (ok) {
       setExportFeedback(
         "Lista copiata! Incollala direttamente su Moxfield (Import / Bulk Edit).",
@@ -112,7 +110,6 @@ export default function NotesDrawer() {
   const handleDownloadTxt = () => {
     const text = formatMoxfieldDecklist(notes, includeCommander);
     if (!text) return;
-    trackEvent("Appunti - Scarica TXT", { cards: mainboardCount });
     const blob = new Blob([text + "\n"], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

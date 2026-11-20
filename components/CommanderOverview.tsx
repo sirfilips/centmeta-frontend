@@ -278,8 +278,6 @@ export default function CommanderOverview({
                   <button
                     type="button"
                     onClick={onOpenCompare}
-                    data-umami-event="Confronta Lista - Apri"
-                    data-umami-event-commander={selectedCommander}
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-md border bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 hover:text-white border-blue-500/40 hover:border-blue-400/60 hover:scale-105 active:scale-95"
                     title="Confronta una tua lista con quella della community"
                   >
@@ -528,8 +526,6 @@ export default function CommanderOverview({
                 <button
                   type="button"
                   onClick={onOpenCompare}
-                  data-umami-event="Confronta Lista - Apri"
-                  data-umami-event-commander={selectedCommander}
                   className="lg:hidden inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-xs font-bold transition-all duration-300 shadow-md border shrink-0 bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 hover:text-white border-blue-500/40 active:scale-95"
                 >
                   <GitCompareArrows className="w-4 h-4 text-blue-400" strokeWidth={2.5} />

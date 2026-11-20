@@ -82,14 +82,43 @@ export default function Changelog() {
           </p>
         </div>
 
-        {/* Blocco Versione v5.4.0 (ATTUALE - Espanso di default) */}
+        {/* Blocco Versione v5.5.0 (ATTUALE - Espanso di default) */}
+        <ReleaseCard
+          title="v5.5.0 - Dismissione Beta Osservatorio Community, Isolamento Strumenti Locali & Adeguamento GDPR"
+          date="20 Novembre 2026"
+          gradient="from-emerald-400 via-blue-500 to-indigo-500"
+          titleColor="text-emerald-400"
+          badgeStyle="bg-emerald-900/30 text-emerald-300 border-emerald-500/30"
+          defaultOpen={true}
+        >
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-amber-500 pl-4">
+              Chiusura Beta Osservatorio Community &amp; Arena di Voto
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-amber-400 font-bold">•</span> <div><strong className="text-slate-200">Rimozione Sezione Community e Voto Carte:</strong> Conclusa la fase Beta dell&apos;Osservatorio Community. Rimosse le rotte <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">/community</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">/community/vota</code> e <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">/community/classifica</code> insieme al relativo database dei voti e al token locale di voto, per concentrare la piattaforma sull&apos;analisi statistica oggettiva del metagame e sugli strumenti di deckbuilding locali.</div></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-emerald-500 pl-4">
+              Isolamento Strumenti Locali, Header Privacy &amp; Informativa GDPR
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Isolamento 100% Client-Side:</strong> Rimossa ogni chiamata analitica verso Umami Analytics da <strong className="text-slate-200">Appunti Mazzo</strong> e <strong className="text-slate-200">Confronta Lista</strong>, ed eliminato l&apos;uso di <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">sessionStorage</code> dal rilevamento PWA.</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Informativa Privacy &amp; Header HTTP:</strong> Aggiornate le pagine <a href="/legal" className="text-blue-400 hover:underline">/legal</a> e <a href="/about" className="text-blue-400 hover:underline">/about</a> in conformità al GDPR e all&apos;art. 122 del D.Lgs. 196/2003, e aggiunti gli header HTTP <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Referrer-Policy</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Permissions-Policy</code> e <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">X-Content-Type-Options</code>.</div></li>
+            </ul>
+          </div>
+        </ReleaseCard>
+
+        {/* Blocco Versione v5.4.0 */}
         <ReleaseCard
           title="v5.4.0 - Categorie per Ruolo, Sintassi Scryfall & Appunti Mazzo"
           date="17 Novembre 2026"
           gradient="from-rose-400 via-blue-500 to-emerald-400"
           titleColor="text-blue-400"
           badgeStyle="bg-blue-900/30 text-blue-300 border-blue-500/30"
-          defaultOpen={true}
+          defaultOpen={false}
         >
           <div>
             <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-rose-500 pl-4">
@@ -97,7 +126,7 @@ export default function Changelog() {
             </h3>
             <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
               <li className="flex gap-3"><span className="text-rose-400 font-bold">•</span> <div><strong className="text-slate-200">Migliori Carte per Ruolo:</strong> Aggiunta nella Home la sezione dedicata alle categorie chiave del Centurion (<em>Removal</em>, <em>Botti</em>, <em>Counterspell</em>, <em>Card Draw</em>, <em>Scartini</em>, <em>Board Wipe</em>, <em>Tutori</em> e <em>Ramp</em>), calcolate dinamicamente sul periodo selezionato con trend di posizione e vista completa dedicata.</div></li>
-              <li className="flex gap-3"><span className="text-rose-400 font-bold">•</span> <div><strong className="text-slate-200">Sintassi Scryfall Ovunque:</strong> Tutte le barre di ricerca (Home, Comandanti, Carte, Dettaglio Comandante e Classifica Community) supportano operatori Scryfall (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">t:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">o:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">id:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">c:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">mv/cmc</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">kw:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">is:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">role:</code>, logica booleana <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">OR</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">-</code>, parentesi e regex), accompagnati dal pulsante guida rapida <strong>?</strong>.</div></li>
+              <li className="flex gap-3"><span className="text-rose-400 font-bold">•</span> <div><strong className="text-slate-200">Sintassi Scryfall Ovunque:</strong> Tutte le barre di ricerca (Home, Comandanti, Carte e Dettaglio Comandante) supportano operatori Scryfall (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">t:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">o:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">id:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">c:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">mv/cmc</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">kw:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">is:</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">role:</code>, logica booleana <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">OR</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">-</code>, parentesi e regex), accompagnati dal pulsante guida rapida <strong>?</strong>.</div></li>
             </ul>
           </div>
 

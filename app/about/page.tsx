@@ -143,7 +143,7 @@ export default function About() {
               <ul className="list-none space-y-3 text-sm md:text-base text-slate-400 pl-1">
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong className="text-slate-200">Zero cookie di profilazione:</strong> la piattaforma non impiega cookie di profilazione o tracciamento pubblicitario e non raccoglie dati personali, rendendo superflui banner di consenso o richieste invasive all&apos;accesso.</span>
+                  <span><strong className="text-slate-200">Zero cookie di profilazione:</strong> la piattaforma non impiega cookie di profilazione o tracciamento pubblicitario e non raccoglie dati anagrafici, di contatto o di profilazione, utilizzando esclusivamente memoria locale tecnica e statistiche aggregate anonime esenti da consenso ai sensi dell&apos;art. 122 del D.Lgs. 196/2003.</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />

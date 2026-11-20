@@ -32,12 +32,6 @@ interface DeckCompareModalProps {
 
 type CompareTab = "missing" | "shared" | "unique";
 
-function trackUmami(eventName: string, data?: Record<string, string | number>) {
-  if (typeof window !== "undefined" && (window as any).umami?.track) {
-    (window as any).umami.track(eventName, data);
-  }
-}
-
 export default function DeckCompareModal({
   isOpen,
   onClose,
@@ -71,26 +65,15 @@ export default function DeckCompareModal({
       return;
     }
     setInputError(null);
-    const res = compareDeckWithMeta(check, statsData);
     setHasAnalyzed(true);
     setActiveTab("missing");
-    trackUmami("Confronta Lista - Analizza", {
-      commander: selectedCommander,
-      cards: check.totalQuantity,
-      affinity: res.affinityPercent,
-    });
   };
 
   const handleTabChange = (tab: CompareTab) => {
     setActiveTab(tab);
-    trackUmami("Confronta Lista - Cambio Tab", { tab });
   };
 
   const handleCardClick = (cardName: string) => {
-    trackUmami("Confronta Lista - Click Carta", {
-      commander: selectedCommander,
-      card: cardName,
-    });
     onClose();
     onSelectCard(cardName);
   };

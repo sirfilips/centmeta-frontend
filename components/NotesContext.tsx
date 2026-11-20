@@ -19,7 +19,6 @@ import {
   normalizeCardKey,
 } from "../utils/notesStorage";
 import { isBasicLand } from "../utils/mtg";
-import { trackEvent } from "../utils/analytics";
 
 export type AddCardInput = Omit<NoteCardItem, "quantity"> & { quantity?: number };
 
@@ -145,7 +144,6 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
         };
       });
 
-      trackEvent("Appunti - Aggiungi Carta", { card: cleanName });
       showToast(
         !alreadyExists || isBasic
           ? `"${cleanName}" aggiunta agli appunti`
@@ -213,7 +211,6 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
         updatedAt: new Date().toISOString(),
       }));
       if (clean) {
-        trackEvent("Appunti - Imposta Comandante", { commander: clean });
         showToast(`Comandante appunti: ${clean}`);
       } else {
         showToast("Comandante rimosso dagli appunti");
