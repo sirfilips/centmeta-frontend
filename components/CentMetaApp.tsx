@@ -36,8 +36,27 @@ import { compileScryfallQuery } from "../utils/scryfallSearch";
 import { handleNav } from "../utils/navigation";
 import { ArrowLeft } from "lucide-react";
 
-async function fetchJson(url: string): Promise<any> {
-  const res = await fetch(url);
+type ApiResourceKey =
+  | "dashboard"
+  | "commanders"
+  | "stats"
+  | "cardDetail"
+  | "decks";
+
+const EMPTY_STATS_DATA = { total_decks: 0, cards: [] as any[] };
+
+function isAbortError(err: unknown): boolean {
+  return (
+    (err instanceof DOMException && err.name === "AbortError") ||
+    (typeof err === "object" &&
+      err !== null &&
+      "name" in err &&
+      (err as { name?: string }).name === "AbortError")
+  );
+}
+
+async function fetchJson(url: string, signal?: AbortSignal): Promise<any> {
+  const res = await fetch(url, signal ? { signal } : undefined);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -116,7 +135,45 @@ export default function CentMetaApp({
   }, [selectedCommander]);
 
   const [isInitialized, setIsInitialized] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiErrors, setApiErrors] = useState<
+    Partial<Record<ApiResourceKey, string>>
+  >({});
+
+  const setResourceError = useCallback(
+    (key: ApiResourceKey, message: string | null) => {
+      setApiErrors((prev) => {
+        if (message === null) {
+          if (!(key in prev)) return prev;
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        }
+        if (prev[key] === message) return prev;
+        return { ...prev, [key]: message };
+      });
+    },
+    [],
+  );
+
+  const activeApiError = useMemo(() => {
+    if (selectedCardDetail) return apiErrors.cardDetail ?? null;
+    if (selectedCommander !== "Tutti i mazzi") {
+      return activeTab === "Liste Mazzi"
+        ? (apiErrors.decks ?? apiErrors.stats ?? null)
+        : (apiErrors.stats ?? null);
+    }
+    if (homeMode === "dashboard") return apiErrors.dashboard ?? null;
+    if (homeMode === "commanders") {
+      return apiErrors.commanders ?? apiErrors.dashboard ?? null;
+    }
+    return apiErrors.stats ?? apiErrors.dashboard ?? null;
+  }, [
+    apiErrors,
+    selectedCardDetail,
+    selectedCommander,
+    activeTab,
+    homeMode,
+  ]);
 
   // SENTINELLE PER LA CRONOLOGIA BROWSER
   const isPopState = useRef(false);
@@ -301,43 +358,47 @@ export default function CentMetaApp({
   }, [selectedCommander, selectedCardDetail]);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     setDashboardLoading(true);
-    setApiError(null);
+    setResourceError("dashboard", null);
     fetchJson(
       `/api/home/dashboard?filtro_tempo=${encodeURIComponent(filtroTempo)}`,
+      controller.signal,
     )
       .then((data) => {
-        if (!active) return;
+        if (controller.signal.aborted) return;
         setDashboardData(data);
         setDashboardLoading(false);
       })
-      .catch(() => {
-        if (!active) return;
+      .catch((err) => {
+        if (controller.signal.aborted || isAbortError(err)) return;
         setDashboardLoading(false);
-        setApiError("Impossibile caricare i dati. Riprova tra poco.");
+        setResourceError("dashboard", "Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [filtroTempo]);
+  }, [filtroTempo, setResourceError]);
 
   useEffect(() => {
-    let active = true;
-    setApiError(null);
-    fetchJson(`/api/commanders?filtro_tempo=${encodeURIComponent(filtroTempo)}`)
+    const controller = new AbortController();
+    setResourceError("commanders", null);
+    fetchJson(
+      `/api/commanders?filtro_tempo=${encodeURIComponent(filtroTempo)}`,
+      controller.signal,
+    )
       .then((data) => {
-        if (!active) return;
+        if (controller.signal.aborted) return;
         setCommanders(Array.isArray(data) ? data : []);
       })
-      .catch(() => {
-        if (!active) return;
-        setApiError("Impossibile caricare i dati. Riprova tra poco.");
+      .catch((err) => {
+        if (controller.signal.aborted || isAbortError(err)) return;
+        setResourceError("commanders", "Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [filtroTempo]);
+  }, [filtroTempo, setResourceError]);
 
   const needsFullStats =
     selectedCommander !== "Tutti i mazzi" ||
@@ -351,17 +412,21 @@ export default function CentMetaApp({
     const cacheKey = `${filtroTempo}_${selectedCommander}`;
     if (cacheStatsRef.current[cacheKey]) {
       setStatsData(cacheStatsRef.current[cacheKey]);
+      setResourceError("stats", null);
       setLoading(false);
       return;
     }
 
     if (!needsFullStats) {
+      setStatsData(EMPTY_STATS_DATA);
+      setResourceError("stats", null);
       setLoading(false);
       return;
     }
 
-    let active = true;
-    setApiError(null);
+    const controller = new AbortController();
+    setStatsData(EMPTY_STATS_DATA);
+    setResourceError("stats", null);
     setLoading(true);
     const cmdParam =
       selectedCommander === "Tutti i mazzi"
@@ -369,9 +434,10 @@ export default function CentMetaApp({
         : `&comandante=${encodeURIComponent(selectedCommander)}`;
     fetchJson(
       `/api/decks/stats?filtro_tempo=${encodeURIComponent(filtroTempo)}${cmdParam}`,
+      controller.signal,
     )
       .then((data) => {
-        if (!active) return;
+        if (controller.signal.aborted) return;
         const normalizedData = {
           ...data,
           total_decks: data?.total_decks ?? 0,
@@ -381,32 +447,37 @@ export default function CentMetaApp({
         setStatsData(normalizedData);
         setLoading(false);
       })
-      .catch(() => {
-        if (!active) return;
+      .catch((err) => {
+        if (controller.signal.aborted || isAbortError(err)) return;
+        setStatsData(EMPTY_STATS_DATA);
         setLoading(false);
-        setApiError("Impossibile caricare i dati. Riprova tra poco.");
+        setResourceError("stats", "Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [filtroTempo, selectedCommander, needsFullStats]);
+  }, [filtroTempo, selectedCommander, needsFullStats, setResourceError]);
 
   useEffect(() => {
-    let active = true;
     if (!selectedCardDetail) {
+      setCardDetailData(null);
+      setResourceError("cardDetail", null);
       setLoadingCardDetail(false);
       return;
     }
+    const controller = new AbortController();
     setIsFlipped(false);
+    setCardDetailData(null);
     setLoadingCardDetail(true);
     setActiveSynergyTab("Tutte");
     setVisibleCount(50);
-    setApiError(null);
+    setResourceError("cardDetail", null);
     fetchJson(
       `/api/card/details?card_name=${encodeURIComponent(selectedCardDetail)}&filtro_tempo=${encodeURIComponent(filtroTempo)}`,
+      controller.signal,
     )
       .then((data) => {
-        if (!active) return;
+        if (controller.signal.aborted) return;
         setCardDetailData({
           ...data,
           commanders: Array.isArray(data?.commanders) ? data.commanders : [],
@@ -414,41 +485,47 @@ export default function CentMetaApp({
         });
         setLoadingCardDetail(false);
       })
-      .catch(() => {
-        if (!active) return;
+      .catch((err) => {
+        if (controller.signal.aborted || isAbortError(err)) return;
+        setCardDetailData(null);
         setLoadingCardDetail(false);
-        setApiError("Impossibile caricare i dati. Riprova tra poco.");
+        setResourceError("cardDetail", "Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [selectedCardDetail, filtroTempo]);
+  }, [selectedCardDetail, filtroTempo, setResourceError]);
 
   useEffect(() => {
-    let active = true;
     if (selectedCommander === "Tutti i mazzi" || activeTab !== "Liste Mazzi") {
+      setCommanderDecks([]);
+      setResourceError("decks", null);
       setLoadingDecks(false);
       return;
     }
+    const controller = new AbortController();
+    setCommanderDecks([]);
     setLoadingDecks(true);
-    setApiError(null);
+    setResourceError("decks", null);
     fetchJson(
       `/api/commander/decks?comandante=${encodeURIComponent(selectedCommander)}&filtro_tempo=${encodeURIComponent(filtroTempo)}`,
+      controller.signal,
     )
       .then((data) => {
-        if (!active) return;
+        if (controller.signal.aborted) return;
         setCommanderDecks(Array.isArray(data) ? data : []);
         setLoadingDecks(false);
       })
-      .catch(() => {
-        if (!active) return;
+      .catch((err) => {
+        if (controller.signal.aborted || isAbortError(err)) return;
+        setCommanderDecks([]);
         setLoadingDecks(false);
-        setApiError("Impossibile caricare i dati. Riprova tra poco.");
+        setResourceError("decks", "Impossibile caricare i dati. Riprova tra poco.");
       });
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [selectedCommander, filtroTempo, activeTab]);
+  }, [selectedCommander, filtroTempo, activeTab, setResourceError]);
 
   useEffect(() => {
     setVisibleCount(50);
@@ -754,12 +831,13 @@ export default function CentMetaApp({
       return;
     }
 
-    let active = true;
+    const controller = new AbortController();
     fetchJson(
       `/api/commanders?filtro_tempo=${encodeURIComponent("Tutti i tempi")}`,
+      controller.signal,
     )
       .then((data) => {
-        if (!active || !Array.isArray(data)) return;
+        if (controller.signal.aborted || !Array.isArray(data)) return;
         allTimeCommandersRef.current = data;
         const found = data.find((c) => c.comandante === selectedCommander);
         setFallbackCmdObj(found || null);
@@ -769,7 +847,7 @@ export default function CentMetaApp({
       });
 
     return () => {
-      active = false;
+      controller.abort();
     };
   }, [selectedCommander, matchedCmdObj, commanders.length]);
 
@@ -917,10 +995,10 @@ export default function CentMetaApp({
           onNavigate={navigateToTab}
         />
 
-        {apiError && (
+        {activeApiError && (
           <div className="max-w-[1600px] mx-auto px-4 md:px-8 mt-4">
             <div className="bg-red-950/40 border border-red-900/50 text-red-200 rounded-xl px-4 py-3 text-sm flex items-center justify-between">
-              <span>{apiError}</span>
+              <span>{activeApiError}</span>
               <button
                 onClick={() => window.location.reload()}
                 className="bg-red-900/50 hover:bg-red-800 text-white font-bold py-1 px-3 rounded-lg border border-red-700/50 transition-colors"
@@ -984,10 +1062,10 @@ export default function CentMetaApp({
 
                     {homeMode === "dashboard" && (
                       <>
-                        {apiError && !dashboardLoading && !dashboardData ? (
+                        {activeApiError && !dashboardLoading && !dashboardData ? (
                           <div className="mt-10 py-12 text-center text-slate-500 flex flex-col items-center animate-fade-in">
                             <p className="text-slate-300 font-bold mb-4">
-                              {apiError}
+                              {activeApiError}
                             </p>
                             <button
                               onClick={() => window.location.reload()}

@@ -66,35 +66,43 @@ export default function StoricoMetagamePage() {
   const [data, setData] = useState<HistoryResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadNonce, setReloadNonce] = useState<number>(0);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     const loadHistory = async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetch(
-          `${API_BASE}/api/metagame/history?granularity=${granularity}&months=${months}&top_n=6`
+          `${API_BASE}/api/metagame/history?granularity=${granularity}&months=${months}&top_n=6`,
+          { signal: controller.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json: HistoryResponse = await res.json();
-        if (active) setData(json);
+        if (!controller.signal.aborted) setData(json);
       } catch (err) {
+        if (
+          controller.signal.aborted ||
+          (err instanceof Error && err.name === "AbortError")
+        ) {
+          return;
+        }
         console.error("Errore fetch storico metagame:", err);
-        if (active)
-          setError(
-            "Impossibile caricare lo storico del metagame in questo momento."
-          );
+        setData(null);
+        setError(
+          "Impossibile caricare lo storico del metagame in questo momento."
+        );
       } finally {
-        if (active) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     loadHistory();
     return () => {
-      active = false;
+      controller.abort();
     };
-  }, [granularity, months]);
+  }, [granularity, months, reloadNonce]);
 
   const handleGranularityChange = (g: "month" | "week") => {
     setGranularity(g);
@@ -246,8 +254,15 @@ export default function StoricoMetagamePage() {
               <div className="h-72 w-full bg-slate-800 rounded-2xl"></div>
             </div>
           ) : error || !data ? (
-            <div className="bg-red-950/40 border border-red-900/50 rounded-2xl p-8 text-center text-red-200 text-sm">
-              {error || "Dati non disponibili."}
+            <div className="bg-red-950/40 border border-red-900/50 rounded-2xl p-8 text-center text-red-200 text-sm flex flex-col items-center gap-4">
+              <p>{error || "Dati non disponibili."}</p>
+              <button
+                type="button"
+                onClick={() => setReloadNonce((n) => n + 1)}
+                className="bg-red-900/50 hover:bg-red-800 text-white font-bold py-2 px-5 rounded-xl border border-red-700/50 transition-colors"
+              >
+                Riprova
+              </button>
             </div>
           ) : (
             <>
