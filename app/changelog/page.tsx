@@ -98,14 +98,55 @@ export default function Changelog() {
           </p>
         </div>
 
-        {/* Blocco Versione v5.6.0 (ATTUALE - Espanso di default) */}
+        {/* Blocco Versione v5.7.0 (ATTUALE - Espanso di default) */}
         <ReleaseCard
-          title="v5.6.0 - Sicurezza HTTP/CORS, Parser Avanzato, Performance & Accessibilità"
+          title="v5.7.0 - Resilienza Backend, Ricerca & Navigazione, Accessibilità e Pagine di Errore"
           date="23 Novembre 2026"
           gradient="from-sky-400 via-blue-500 to-emerald-400"
           titleColor="text-sky-400"
           badgeStyle="bg-sky-900/30 text-sky-300 border-sky-500/30"
           defaultOpen={true}
+        >
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-emerald-500 pl-4">
+              Affidabilità Infrastrutturale, Scraper &amp; Performance API
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Ciclo di Vita, Scraper &amp; Orari UTC:</strong> Spostato <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">init_db</code> nel <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">lifespan()</code> all&apos;avvio con graceful shutdown di server e scheduler, healthcheck <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">/api/health</code> con verifica reale SQLite (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">503</code> su anomalia), protezione dello scraper Moxfield da cancellazioni su ricerche troncate (10.000 risultati) o drift di paginazione, timestamp ISO UTC (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Z</code>), scheduler delle 23:00 resistente al cambio ora legale (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Europe/Rome</code>) e ping <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">health.db</code> senza lock sull&apos;event loop HTTP.</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Compressione API, Database &amp; Rate-Limit:</strong> Attivata la compressione automatica <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">GZip</code> sulle risposte API, introdotto il nuovo indice composito <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">(comandante, data_aggiornamento)</code> con query di dettaglio carta e sinergie ottimizzate (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">CTE</code> + <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">LIMIT 50</code>), cache SQLite bilanciata per connessione e hardening del rate-limit admin dietro Cloudflare Tunnel (salt di processo persistente e tetto memoria anti-OOM).</div></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-blue-500 pl-4">
+              Navigazione, Ricerca Scryfall, SEO &amp; Pagine di Errore
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Storia Browser &amp; Resilienza Fetch:</strong> Corretta la navigazione Avanti/Indietro sul comandante iniziale con validazione runtime dei parametri URL (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">?view=</code>, ordinamenti) ed eliminazione dei doppi <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">pushState</code>; introdotto <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">AbortController</code> su tutte le chiamate di dashboard e <Link href="/storico" className="text-blue-400 hover:underline">/storico</Link> per prevenire race condition e dati stantii, con gestione errori per risorsa e pulsante <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Riprova</code>.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Motore Scryfall &amp; SEO/OG:</strong> Corretti gli operatori <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">is!=</code>/<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">not!=</code>, introdotto il validatore strutturale anti-ReDoS e completato il parser per <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">-/regex/</code>, simboli mana (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">m:g/w/p</code>), carte bifronte (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">~</code>) e casi limite; aggiunta validazione con cache LRU bounded per <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">?card=</code> (con <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">noindex</code>), aggiornamento <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">robots.txt</code>/<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">sitemap.xml</code> e deduplicazione dei refresh SSR concorrenti.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Pagine di Errore Personalizzate &amp; Fblthp:</strong> Aggiunte le nuove pagine <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">404</code> ed errore applicativo (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">not-found</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">error</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">global-error</code>) in stile editoriale coordinato al sito, complete dell&apos;easter egg interattivo di <strong className="text-slate-200">Fblthp</strong>.</div></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-amber-500 pl-4">
+              Accessibilità, UX &amp; Pipeline CI
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-amber-400 font-bold">•</span> <div><strong className="text-slate-200">Menu Header, Autocomplete &amp; Modali:</strong> Hover bridge continuo e chiusura click-outside/blur sui dropdown desktop, attributi ARIA <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">combobox</code>/<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">listbox</code> con navigazione tastiera migliorata nell&apos;autocomplete (coordinata con la guida Scryfall) e gestione stack/focus trap rafforzata per dialog sovrapposti e <strong className="text-slate-200">Confronta Lista</strong>.</div></li>
+              <li className="flex gap-3"><span className="text-amber-400 font-bold">•</span> <div><strong className="text-slate-200">CI &amp; Deploy Sicuro:</strong> Introdotti controlli automatici (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">ruff</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">shellcheck</code>), cache Next.js, build condizionale, healthcheck HTTP post-deploy e rollback automatico su frontend e backend.</div></li>
+            </ul>
+          </div>
+        </ReleaseCard>
+
+        {/* Blocco Versione v5.6.0 */}
+        <ReleaseCard
+          title="v5.6.0 - Sicurezza HTTP/CORS, Parser Avanzato, Performance & Accessibilità"
+          date="23 Novembre 2026"
+          gradient="from-sky-400 via-blue-500 to-emerald-400"
+          titleColor="text-emerald-400"
+          badgeStyle="bg-emerald-900/30 text-emerald-300 border-emerald-500/30"
+          defaultOpen={false}
         >
           <div>
             <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-emerald-500 pl-4">
