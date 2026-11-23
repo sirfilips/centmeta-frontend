@@ -199,15 +199,61 @@ test("scryfallSearch: != operators, mv!=even/odd, is:dual reminder-text, mana to
   assert.deepEqual(run("mv!=even t:instant"), ["Lightning Bolt"]);
   assert.deepEqual(run("mv!=odd mv>0"), ["Counterspell"]);
   assert.deepEqual(run("is:dual"), ["Tundra"]);
+  assert.deepEqual(run("is!=land t:instant"), ["Lightning Bolt", "Counterspell"]);
+  assert.deepEqual(run("not:land t:instant"), ["Lightning Bolt", "Counterspell"]);
+  assert.deepEqual(run("not!=land"), ["Tundra"]);
   assert.deepEqual(run("m:uu"), ["Counterspell"]);
   assert.deepEqual(run("m:{2}{w/u}"), ["Card (Alpha)"]);
   assert.deepEqual(run('o:"When ~ enters"'), ["Card (Alpha)"]);
   assert.deepEqual(run("r!=common r!=rare"), ["Card (Alpha)"]);
   assert.deepEqual(run("t!=instant t!=land"), ["Card (Alpha)"]);
 
-  // Anti-ReDoS: pattern nidificati pericolosi non devono bloccare o lanciare eccezioni
-  const redosPred = search.compileScryfallQuery("o:/(a+)+$/");
-  assert.equal(typeof redosPred(cards[0]), "boolean");
+  // Edge-case parser: parentesi spaiate, OR pendente, regex negate, mana ibrido phyrexiano, m: vuoto, DFC ~
+  assert.deepEqual(run("t:instant) c:r"), ["Lightning Bolt"]);
+  assert.deepEqual(run("t:artifact OR "), ["Card (Alpha)"]);
+  assert.deepEqual(run("OR t:artifact"), ["Card (Alpha)"]);
+  assert.deepEqual(run("-/counter/ t:instant"), ["Lightning Bolt"]);
+  assert.deepEqual(run("m:"), []);
+  assert.equal(
+    search.compileScryfallQuery("m:g/w/p")({ card_name: "Tamiyo", mana_cost: "{2}{G/W/P}" }),
+    true,
+  );
+  assert.equal(
+    search.compileScryfallQuery('o:"When ~ enters"')({
+      card_name: "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
+      oracles: ["When Fable of the Mirror-Breaker enters the battlefield, create a token."],
+    }),
+    true,
+  );
+  assert.equal(
+    search.compileScryfallQuery("pow>*")({ card_name: "Tarmogoyf", power: "*" }),
+    false,
+  );
+  assert.equal(
+    search.compileScryfallQuery("is:dual")({ card_name: "Dryad Arbor", type: "Land Creature — Forest Dryad", oracles: ["(Dryad Arbor isn't a spell...)"] }),
+    false,
+  );
+  assert.equal(search.hasScryfallSyntax("Thalia and The Gitrog Monster"), false);
+  assert.equal(search.hasScryfallSyntax("/bolt/"), true);
+
+  // Anti-ReDoS: tutti i pattern pericolosi (compresi bypass annidati/alternati) devono essere rifiutati
+  for (const unsafe of [
+    "o:/(a+)+$/",
+    "o:/((a)+)+$/",
+    "o:/(a|a)+$/",
+    "o:/(a{1,5})+$/",
+    "o:/a+a+a+a+a+a+a+a+$/",
+  ]) {
+    const pred = search.compileScryfallQuery(unsafe);
+    assert.equal(pred({ card_name: "Test", oracles: ["aaaaaaaa"] }), false);
+  }
+  assert.equal(
+    search.compileScryfallQuery("o:/draw (two|three) cards/")({
+      card_name: "Divination",
+      oracles: ["Draw two cards."],
+    }),
+    true,
+  );
 });
 
 test("notesStorage: quick add, off-color check & Moxfield export formatting", () => {

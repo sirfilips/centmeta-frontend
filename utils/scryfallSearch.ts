@@ -201,7 +201,7 @@ function tokenizeScryfallQuery(query: string): Token[] {
       const isFieldRegex =
         c === "/" &&
         ((buf.length > 0 && (prevChar === ":" || prevChar === "=" || prevChar === "<" || prevChar === ">")) ||
-          (buf.length === 0 &&
+          ((buf.length === 0 || buf === "-") &&
             i + 1 < n &&
             query[i + 1] !== "/" &&
             query[i + 1] !== " " &&
@@ -251,16 +251,94 @@ function stripQuotes(val: string): string {
 }
 
 const MAX_REGEX_LENGTH = 120;
+const MAX_REGEX_QUANTIFIERS = 6;
 
 function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 }
 
+function isSafeRegexPattern(pattern: string): boolean {
+  if (!pattern || pattern.length > MAX_REGEX_LENGTH) return false;
+  if (/\\(?:[1-9]|k<)/.test(pattern)) return false;
+
+  const groupStack: Array<{ hasQuantifier: boolean; hasAlternation: boolean }> = [
+    { hasQuantifier: false, hasAlternation: false },
+  ];
+  let inCharClass = false;
+  let totalRepeatQuantifiers = 0;
+
+  let i = 0;
+  while (i < pattern.length) {
+    const ch = pattern[i];
+    if (ch === "\\") {
+      i += 2;
+      continue;
+    }
+    if (inCharClass) {
+      if (ch === "]") inCharClass = false;
+      i++;
+      continue;
+    }
+    if (ch === "[") {
+      inCharClass = true;
+      i++;
+      continue;
+    }
+    if (ch === "(") {
+      groupStack.push({ hasQuantifier: false, hasAlternation: false });
+      i++;
+      continue;
+    }
+    if (ch === ")") {
+      if (groupStack.length <= 1) return false;
+      const closed = groupStack.pop()!;
+      const parent = groupStack[groupStack.length - 1];
+      if (closed.hasQuantifier) parent.hasQuantifier = true;
+
+      let nextIdx = i + 1;
+      if (nextIdx < pattern.length && (pattern[nextIdx] === "+" || pattern[nextIdx] === "*" || pattern[nextIdx] === "{")) {
+        if (closed.hasQuantifier || closed.hasAlternation) {
+          return false;
+        }
+      }
+      i++;
+      continue;
+    }
+    if (ch === "|") {
+      groupStack[groupStack.length - 1].hasAlternation = true;
+      i++;
+      continue;
+    }
+
+    if (ch === "+" || ch === "*") {
+      const next = pattern[i + 1];
+      if (next === "+" || next === "*") return false;
+      totalRepeatQuantifiers++;
+      if (totalRepeatQuantifiers > MAX_REGEX_QUANTIFIERS) return false;
+      groupStack[groupStack.length - 1].hasQuantifier = true;
+      i++;
+      continue;
+    }
+    if (ch === "{") {
+      const closeBrace = pattern.indexOf("}", i + 1);
+      if (closeBrace !== -1 && /^\d+(?:,\d*)?$/.test(pattern.slice(i + 1, closeBrace))) {
+        totalRepeatQuantifiers++;
+        if (totalRepeatQuantifiers > MAX_REGEX_QUANTIFIERS) return false;
+        groupStack[groupStack.length - 1].hasQuantifier = true;
+        i = closeBrace + 1;
+        continue;
+      }
+    }
+    i++;
+  }
+
+  return !inCharClass && groupStack.length === 1;
+}
+
 function parseRegexLiteral(val: string): RegExp | null {
   if (val.length >= 2 && val.startsWith("/") && val.endsWith("/")) {
     const pattern = val.slice(1, -1);
-    if (!pattern || pattern.length > MAX_REGEX_LENGTH) return null;
-    if (/\([^)]*[+*][^)]*\)[+*{]/.test(pattern) || /[+*]{2,}/.test(pattern)) {
+    if (!isSafeRegexPattern(pattern)) {
       return null;
     }
     try {
@@ -420,7 +498,7 @@ function normalizeManaQuery(rawVal: string): string {
   if (v.includes("{")) return v;
   const compact = v.replace(/\s+/g, "");
   if (!compact) return "";
-  const tokens = compact.match(/\d+|[WUBRG2]\/[WUBRGP]|[A-Z]/g);
+  const tokens = compact.match(/\d+|[WUBRG]\/[WUBRG]\/P|[WUBRG2C]\/[WUBRGP]|[A-Z]/g);
   return tokens ? tokens.map((tok) => `{${tok}}`).join("") : "";
 }
 
@@ -512,12 +590,15 @@ function matchIsProperty(card: ScryfallSearchableItem, prop: string): boolean {
   if (p === "phyrexian") return /\{[wubrg]\/p\}/i.test(manaCost || oracles);
   if (p === "etb") return oracles.includes("enters");
   if (p === "fetchland") {
-    return typeLine.includes("land") && oracles.includes("sacrifice this land: search your library for");
+    return typeLine.includes("land") && /sacrifice [^:]+: search your library for/i.test(oracles);
   }
   if (p === "shockland") return typeLine.includes("land") && oracles.includes("you may pay 2 life");
   if (p === "dual") {
     const oraclesNoReminder = oracles.replace(/\([^)]*\)/g, "").trim();
-    return typeLine.includes("land") && !oraclesNoReminder && !typeLine.includes("basic");
+    const basicTypeCount = ["plains", "island", "swamp", "mountain", "forest"].filter((bt) =>
+      typeLine.includes(bt),
+    ).length;
+    return typeLine.includes("land") && !oraclesNoReminder && !typeLine.includes("basic") && basicTypeCount >= 2;
   }
   if (p === "painland") return typeLine.includes("land") && oracles.includes("deals 1 damage to you");
   if (p === "surveilland") return typeLine.includes("land") && oracles.includes("surveil 1");
@@ -554,6 +635,7 @@ function buildTermPredicate(term: string): CardPredicate {
         const baseMatcher = compileTextMatcher(val);
         const hasTilde = val.includes("~");
         const isRegex = val.length >= 2 && val.startsWith("/") && val.endsWith("/");
+        const needleTemplate = isRegex ? "" : stripQuotes(val).trim().toLowerCase();
         return (card) => {
           const oraclesStr = (card.oracles || []).join("\n");
           let matched = false;
@@ -563,8 +645,21 @@ function buildTermPredicate(term: string): CardPredicate {
             } else if (hasTilde) {
               const name = getItemName(card);
               if (name) {
-                const replacement = isRegex ? escapeRegExp(name) : name;
-                matched = compileTextMatcher(val.replace(/~/g, replacement))(oraclesStr);
+                const candidates = Array.from(
+                  new Set(
+                    [name, ...name.split(" // ").map((p) => p.trim())].filter(Boolean),
+                  ),
+                );
+                if (isRegex) {
+                  matched = candidates.some((cand) =>
+                    compileTextMatcher(val.replace(/~/g, escapeRegExp(cand)))(oraclesStr),
+                  );
+                } else if (needleTemplate) {
+                  const oraclesLower = oraclesStr.toLowerCase();
+                  matched = candidates.some((cand) =>
+                    oraclesLower.includes(needleTemplate.replace(/~/g, cand.toLowerCase())),
+                  );
+                }
               }
             }
           }
@@ -613,11 +708,13 @@ function buildTermPredicate(term: string): CardPredicate {
         const key = STAT_FIELD_MAP[field];
         const statCmp = compileNumericComparator(op, val);
         const valLower = stripQuotes(val).trim().toLowerCase();
+        const supportsTextFallback = op === ":" || op === "=" || op === "!=";
         return (card) => {
           const raw = card[key];
           if (raw === null || raw === undefined || raw === "") return false;
           const num = Number(raw);
           if (!Number.isNaN(num)) return statCmp(num);
+          if (!supportsTextFallback) return false;
           const eq = valLower === String(raw).trim().toLowerCase();
           return isNeg ? !eq : eq;
         };
@@ -625,6 +722,7 @@ function buildTermPredicate(term: string): CardPredicate {
 
       if (field === "m" || field === "mana") {
         const normQ = normalizeManaQuery(val);
+        if (!normQ) return () => false;
         return (card) => {
           const mc = (card.mana_cost || "").toUpperCase();
           const matched = !mc ? false : op === "=" ? mc === normQ : mc.includes(normQ);
@@ -672,7 +770,7 @@ function buildTermPredicate(term: string): CardPredicate {
 
       if (field === "is" || field === "not") {
         const propClean = stripQuotes(val).trim().toLowerCase();
-        const negate = field === "not";
+        const negate = (field === "not") !== isNeg;
         return negate ? (card) => !matchIsProperty(card, propClean) : (card) => matchIsProperty(card, propClean);
       }
 
@@ -715,18 +813,26 @@ export function compileScryfallQuery(query: string): CardPredicate {
   const peek = (): Token | undefined => tokens[pos];
   const consume = (): Token => tokens[pos++];
 
-  function parseOr(): CardPredicate {
-    let left = parseAnd();
+  function parseOr(): CardPredicate | null {
     while (peek()?.kind === "OR") {
       consume();
+    }
+    let left: CardPredicate | null = parseAnd();
+    if (!left) return null;
+    while (peek()?.kind === "OR") {
+      consume();
+      while (peek()?.kind === "OR") {
+        consume();
+      }
       const right = parseAnd();
-      const prev = left;
+      if (!right) break;
+      const prev: CardPredicate = left;
       left = (card) => prev(card) || right(card);
     }
     return left;
   }
 
-  function parseAnd(): CardPredicate {
+  function parseAnd(): CardPredicate | null {
     const terms: CardPredicate[] = [];
     while (true) {
       const nxt = peek();
@@ -737,7 +843,7 @@ export function compileScryfallQuery(query: string): CardPredicate {
       }
       terms.push(parseUnary());
     }
-    if (terms.length === 0) return () => true;
+    if (terms.length === 0) return null;
     if (terms.length === 1) return terms[0];
     return (card) => terms.every((fn) => fn(card));
   }
@@ -750,13 +856,16 @@ export function compileScryfallQuery(query: string): CardPredicate {
       consume();
       const inner = parseOr();
       if (peek()?.kind === "RPAREN") consume();
-      return inner;
+      return inner || (() => true);
     }
 
     if (nxt.kind === "TERM") {
       consume();
       const val = nxt.value;
       if (val === "-") {
+        if (!peek() || peek()?.kind === "RPAREN" || peek()?.kind === "OR") {
+          return () => true;
+        }
         const sub = parseUnary();
         return (card) => !sub(card);
       }
@@ -771,13 +880,29 @@ export function compileScryfallQuery(query: string): CardPredicate {
     return () => true;
   }
 
-  return parseOr();
+  const rootBranches: CardPredicate[] = [];
+  while (pos < tokens.length) {
+    if (peek()?.kind === "RPAREN") {
+      consume();
+      continue;
+    }
+    const branch = parseOr();
+    if (branch) rootBranches.push(branch);
+  }
+  if (rootBranches.length === 0) return () => true;
+  if (rootBranches.length === 1) return rootBranches[0];
+  return (card) => rootBranches.every((fn) => fn(card));
 }
 
 export function hasScryfallSyntax(query: string): boolean {
   const q = (query || "").trim();
   if (!q) return false;
-  if (/[()!"]/.test(q) || /\sOR\s|\sAND\s/i.test(q) || /(?:^|\s)-/.test(q)) {
+  if (
+    /[()!"]/.test(q) ||
+    /\s(?:OR|AND)\s/.test(q) ||
+    /(?:^|\s)-/.test(q) ||
+    /(?:^|\s)-?\/[^/\s][^/]*\//.test(q)
+  ) {
     return true;
   }
   const tokens = tokenizeScryfallQuery(q);
