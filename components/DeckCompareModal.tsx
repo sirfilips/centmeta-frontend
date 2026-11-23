@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import {
   X,
   GitCompareArrows,
@@ -16,6 +16,7 @@ import {
   compareDeckWithMeta,
   ComparedMetaCard,
 } from "../utils/decklistParser";
+import { useDialogFocus } from "../utils/useDialogFocus";
 
 interface DeckCompareModalProps {
   isOpen: boolean;
@@ -44,6 +45,7 @@ export default function DeckCompareModal({
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [activeTab, setActiveTab] = useState<CompareTab>("missing");
   const [inputError, setInputError] = useState<string | null>(null);
+  const dialogPanelRef = useRef<HTMLDivElement>(null);
 
   const parsed = useMemo(
     () => (hasAnalyzed ? parseDecklistText(rawList, selectedCommander) : null),
@@ -55,19 +57,7 @@ export default function DeckCompareModal({
     [parsed, statsData]
   );
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isOpen, onClose]);
+  useDialogFocus(isOpen, onClose, dialogPanelRef);
 
   if (!isOpen) return null;
 
@@ -172,7 +162,11 @@ export default function DeckCompareModal({
       aria-modal="true"
       aria-labelledby="compare-modal-title"
     >
-      <div className="w-full sm:max-w-4xl max-h-[92vh] sm:max-h-[88vh] bg-slate-900 border border-slate-700/80 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div
+        ref={dialogPanelRef}
+        tabIndex={-1}
+        className="w-full sm:max-w-4xl max-h-[92vh] sm:max-h-[88vh] bg-slate-900 border border-slate-700/80 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden focus:outline-none"
+      >
         {/* Header fisso */}
         <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-slate-900/95 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">

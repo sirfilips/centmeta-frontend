@@ -48,14 +48,6 @@ export async function resolveCardArtMeta(cardName: string): Promise<{ artCrop: s
 }
 
 /**
- * Risolve l'URL dell'art_crop di una carta interrogando il backend interno (se configurato).
- */
-export async function resolveCardArtCrop(cardName: string): Promise<string> {
-  const { artCrop } = await resolveCardArtMeta(cardName);
-  return artCrop;
-}
-
-/**
  * Costruisce i metadati OpenGraph e Twitter condivisi per una singola carta (?card=...).
  */
 export async function buildCardMetadata(cardName: string): Promise<Metadata> {

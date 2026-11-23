@@ -5,7 +5,7 @@ import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { CATEGORY_INFO } from "../utils/mtg";
 import { shareOrCopyUrl } from "../utils/share";
-import { useNotes } from "./NotesContext";
+import { useNotesData } from "./NotesContext";
 import {
   RefreshCw,
   ChevronUp,
@@ -57,7 +57,7 @@ export default function CommanderOverview({
   canCompare = false,
 }: CommanderOverviewProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const { notes, isHydrated, setCommander } = useNotes();
+  const { notes, isHydrated, setCommander } = useNotesData();
   const isNotesCommander = isHydrated && notes.commander === selectedCommander;
 
   const handleToggleNotesCommander = () => {
@@ -455,11 +455,13 @@ export default function CommanderOverview({
                           const bgColor =
                             CATEGORY_INFO[type]?.bgColor || "bg-slate-500";
                           return (
-                            <div
+                            <button
                               key={type}
+                              type="button"
                               onClick={() => handleTypeClick(type)}
                               style={{ width }}
-                              className={`${bgColor} h-full transition-all hover:brightness-125 hover:scale-105 cursor-pointer`}
+                              className={`${bgColor} h-full border-0 p-0 transition-all hover:brightness-125 hover:scale-105 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400`}
+                              aria-label={`Filtra per ${type}: ${Math.round(Number(count) || 0)} carte (${perc.toFixed(1)}%)`}
                               title={`Filtra per ${type}: ${Math.round(Number(count) || 0)} carte (${perc.toFixed(1)}%)`}
                             />
                           );
@@ -471,19 +473,22 @@ export default function CommanderOverview({
                               CATEGORY_INFO[type]?.dotColor || "text-slate-500";
                             let iconClass = CATEGORY_INFO[type]?.icon || "";
                             return (
-                              <div
+                              <button
                                 key={type}
+                                type="button"
                                 onClick={() => handleTypeClick(type)}
+                                aria-label={`Filtra per ${type} (${Math.round(count as number)})`}
                                 title={`Filtra per ${type}`}
-                                className="flex items-center gap-1.5 text-[10px] md:text-[11px] text-slate-300 font-medium cursor-pointer hover:text-white transition-colors group"
+                                className="flex items-center gap-1.5 text-[10px] md:text-[11px] text-slate-300 font-medium cursor-pointer hover:text-white transition-colors group rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                               >
                                 <i
                                   className={`ms ${iconClass} ${dotColor} text-sm group-hover:scale-110 transition-transform`}
+                                  aria-hidden="true"
                                 ></i>
                                 <span>
                                   {type} ({Math.round(count as number)})
                                 </span>
-                              </div>
+                              </button>
                             );
                           })}
                       </div>

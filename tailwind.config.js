@@ -17,6 +17,15 @@ const config: Config = {
         display: ['"Newsreader"', "Georgia", "serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "fade-in": "fadeIn 0.2s ease-out both",
+      },
       borderRadius: {
         lg: "0.25rem",
         xl: "0.375rem",

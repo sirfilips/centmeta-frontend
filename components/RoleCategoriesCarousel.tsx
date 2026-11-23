@@ -273,17 +273,17 @@ export default function RoleCategoriesCarousel({
             type="button"
             onClick={() => scroll(-500)}
             aria-label="Scorri a sinistra"
-            className={`hidden md:flex absolute left-0 top-[148px] -translate-y-1/2 -ml-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto ${style.arrowBtnHover}`}
+            className={`hidden md:flex absolute left-0 top-[148px] -translate-y-1/2 -ml-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 focus:opacity-100 focus:pointer-events-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 pointer-events-none md:group-hover/carousel:pointer-events-auto ${style.arrowBtnHover}`}
           >
-            <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
+            <ChevronLeft className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
           </button>
           <button
             type="button"
             onClick={() => scroll(500)}
             aria-label="Scorri a destra"
-            className={`hidden md:flex absolute right-0 top-[148px] -translate-y-1/2 -mr-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 pointer-events-none md:group-hover/carousel:pointer-events-auto ${style.arrowBtnHover}`}
+            className={`hidden md:flex absolute right-0 top-[148px] -translate-y-1/2 -mr-6 z-20 bg-slate-900 border border-slate-700 text-slate-300 w-12 h-12 rounded-full items-center justify-center hover:text-white transition shadow-xl opacity-0 md:group-hover/carousel:opacity-100 focus:opacity-100 focus:pointer-events-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 pointer-events-none md:group-hover/carousel:pointer-events-auto ${style.arrowBtnHover}`}
           >
-            <ChevronRight className="w-6 h-6" strokeWidth={2.5} />
+            <ChevronRight className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
           </button>
 
           <div

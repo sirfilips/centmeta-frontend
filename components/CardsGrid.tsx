@@ -83,7 +83,7 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                 card.images?.length > 0 ? [card.images[0]] : [];
               return (
                 <a
-                  key={idx}
+                  key={card.card_name}
                   href={`/?card=${encodeURIComponent(card.card_name)}${periodParam}`}
                   onClick={(e) =>
                     handleNav(e, () => handleSelectCard(card.card_name))

@@ -139,10 +139,6 @@ export default function MetagameHistoryChart({
     () => Math.max(1, ...buckets.map((b) => b.total_decks)),
     [buckets]
   );
-  const maxUniquePeriod = useMemo(
-    () => Math.max(1, ...buckets.map((b) => b.unique_commanders)),
-    [buckets]
-  );
 
   const activeBucket = buckets[selectedIdx] || buckets[buckets.length - 1];
   const xLabelStep = buckets.length > 10 ? Math.ceil(buckets.length / 8) : 1;
@@ -340,66 +336,59 @@ export default function MetagameHistoryChart({
             return (
               <div
                 key={cmd.name}
-                onClick={() =>
-                  setFocusedCmd((prev) => (prev === cmd.name ? null : cmd.name))
-                }
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setFocusedCmd((prev) =>
-                      prev === cmd.name ? null : cmd.name
-                    );
-                  }
-                }}
-                className={`flex items-center justify-between gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
+                className={`flex items-center justify-between gap-2.5 p-3 rounded-xl border transition-all ${
                   isFocused
                     ? "bg-slate-800 border-blue-500/60 shadow-lg"
                     : "bg-slate-900/70 border-slate-700/50 hover:border-slate-600"
                 }`}
               >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ backgroundColor: color }}
-                  />
-                  {cmd.image && (
-                    <img
-                      src={cmd.image}
-                      alt={cmd.name}
-                      loading="lazy"
-                      className="w-8 h-10 object-cover rounded-md border border-slate-700 shrink-0"
+                <button
+                  type="button"
+                  aria-pressed={isFocused}
+                  onClick={() =>
+                    setFocusedCmd((prev) => (prev === cmd.name ? null : cmd.name))
+                  }
+                  className="flex items-center justify-between gap-2.5 flex-1 min-w-0 text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: color }}
                     />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-xs sm:text-sm font-bold text-slate-100 truncate">
-                      {cmd.name}
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      Media: {cmd.avg_share}% ({cmd.total_decks} mazzi)
-                    </p>
+                    {cmd.image && (
+                      <img
+                        src={cmd.image}
+                        alt={cmd.name}
+                        loading="lazy"
+                        className="w-8 h-10 object-cover rounded-md border border-slate-700 shrink-0"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-bold text-slate-100 truncate">
+                        {cmd.name}
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Media: {cmd.avg_share}% ({cmd.total_decks} mazzi)
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-xs font-extrabold text-white bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+                  <span className="text-xs font-extrabold text-white bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 shrink-0">
                     {metric === "share"
                       ? `${periodStat?.share ?? 0}%`
                       : `${periodStat?.count ?? 0}`}
                   </span>
-                  <Link
-                    href={`/commander/${encodeURIComponent(cmd.name)}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCommanderClick?.(cmd.name);
-                    }}
-                    title={`Apri analisi di ${cmd.name}`}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-blue-600/30 text-slate-400 hover:text-blue-300 transition"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+                </button>
+
+                <Link
+                  href={`/commander/${encodeURIComponent(cmd.name)}`}
+                  onClick={() => onCommanderClick?.(cmd.name)}
+                  aria-label={`Apri analisi di ${cmd.name}`}
+                  title={`Apri analisi di ${cmd.name}`}
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-blue-600/30 text-slate-400 hover:text-blue-300 transition shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                </Link>
               </div>
             );
           })}

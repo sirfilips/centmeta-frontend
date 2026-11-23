@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
 import ScrollToTop from "./ScrollToTop";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -12,8 +13,11 @@ import RoleCategoriesCarousel from "./RoleCategoriesCarousel";
 import HeroSection from "./HeroSection";
 import CommandersGrid from "./CommandersGrid";
 import CommanderOverview from "./CommanderOverview";
-import DeckCompareModal from "./DeckCompareModal";
 import CardsFilterBar from "./CardsFilterBar";
+
+const DeckCompareModal = dynamic(() => import("./DeckCompareModal"), {
+  ssr: false,
+});
 import { CardsGrid } from "./CardsGrid";
 import {
   COLOR_FILTERS,

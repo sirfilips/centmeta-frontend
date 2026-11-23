@@ -2,11 +2,11 @@
 
 import React from "react";
 import { BookmarkPlus, BookmarkCheck, Check, Plus } from "lucide-react";
-import { useNotes, AddCardInput } from "./NotesContext";
+import { useNotesData, AddCardInput } from "./NotesContext";
 
 interface AddToNotesButtonProps {
   card: AddCardInput;
-  variant?: "icon" | "pill" | "compact";
+  variant?: "icon" | "pill";
   className?: string;
 }
 
@@ -15,7 +15,7 @@ export default function AddToNotesButton({
   variant = "icon",
   className = "",
 }: AddToNotesButtonProps) {
-  const { hasCard, toggleCard, isHydrated } = useNotes();
+  const { hasCard, toggleCard, isHydrated } = useNotesData();
   const isAdded = isHydrated && hasCard(card.name);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -46,28 +46,6 @@ export default function AddToNotesButton({
             <BookmarkPlus className="w-4 h-4 text-blue-400" strokeWidth={2.3} />
             <span>+ Appunti</span>
           </>
-        )}
-      </button>
-    );
-  }
-
-  if (variant === "compact") {
-    return (
-      <button
-        type="button"
-        onClick={handleClick}
-        title={isAdded ? "Rimuovi dagli appunti" : "Aggiungi agli appunti"}
-        aria-label={isAdded ? `Rimuovi ${card.name} dagli appunti` : `Aggiungi ${card.name} agli appunti`}
-        className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all shrink-0 ${
-          isAdded
-            ? "bg-emerald-600/25 text-emerald-300 border-emerald-500/50 hover:bg-emerald-600/35"
-            : "bg-slate-900/80 text-slate-400 border-slate-700 hover:bg-blue-600/20 hover:text-blue-300 hover:border-blue-500/50"
-        } ${className}`}
-      >
-        {isAdded ? (
-          <Check className="w-4 h-4" strokeWidth={2.5} />
-        ) : (
-          <Plus className="w-4 h-4" strokeWidth={2.5} />
         )}
       </button>
     );

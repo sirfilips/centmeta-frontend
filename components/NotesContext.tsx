@@ -22,13 +22,9 @@ import { isBasicLand } from "../utils/mtg";
 
 export type AddCardInput = Omit<NoteCardItem, "quantity"> & { quantity?: number };
 
-interface NotesContextValue {
+export interface NotesDataContextValue {
   notes: NotesState;
   isHydrated: boolean;
-  isDrawerOpen: boolean;
-  openDrawer: () => void;
-  closeDrawer: () => void;
-  toggleDrawer: () => void;
   hasCard: (name: string) => boolean;
   addCard: (card: AddCardInput) => void;
   removeCard: (name: string) => void;
@@ -41,10 +37,20 @@ interface NotesContextValue {
   ) => void;
   clearNotes: () => void;
   mainboardCount: number;
+}
+
+export interface NotesUIContextValue {
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
+  toggleDrawer: () => void;
   toastMessage: string | null;
 }
 
-const NotesContext = createContext<NotesContextValue | null>(null);
+type NotesContextValue = NotesDataContextValue & NotesUIContextValue;
+
+const NotesDataContext = createContext<NotesDataContextValue | null>(null);
+const NotesUIContext = createContext<NotesUIContextValue | null>(null);
 
 export function NotesProvider({ children }: { children: React.ReactNode }) {
   const [notes, setNotes] = useState<NotesState>(createEmptyNotesState);
@@ -52,6 +58,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextPersistRef = useRef(true);
 
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
@@ -61,12 +68,18 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     }, 2200);
   }, []);
 
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
+  const toggleDrawer = useCallback(() => setIsDrawerOpen((v) => !v), []);
+
   useEffect(() => {
+    skipNextPersistRef.current = true;
     setNotes(loadNotesFromStorage());
     setIsHydrated(true);
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === NOTES_STORAGE_KEY) {
+        skipNextPersistRef.current = true;
         setNotes(loadNotesFromStorage());
       }
     };
@@ -77,12 +90,17 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (skipNextPersistRef.current) {
+      skipNextPersistRef.current = false;
+      return;
+    }
+    saveNotesToStorage(notes);
+  }, [notes, isHydrated]);
+
   const persistUpdate = useCallback((updater: (prev: NotesState) => NotesState) => {
-    setNotes((prev) => {
-      const next = updater(prev);
-      saveNotesToStorage(next);
-      return next;
-    });
+    setNotes(updater);
   }, []);
 
   const cardKeysSet = useMemo(() => {
@@ -232,14 +250,10 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     [notes.cards],
   );
 
-  const value = useMemo<NotesContextValue>(
+  const dataValue = useMemo<NotesDataContextValue>(
     () => ({
       notes,
       isHydrated,
-      isDrawerOpen,
-      openDrawer: () => setIsDrawerOpen(true),
-      closeDrawer: () => setIsDrawerOpen(false),
-      toggleDrawer: () => setIsDrawerOpen((v) => !v),
       hasCard,
       addCard,
       removeCard,
@@ -248,12 +262,10 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       setCommander,
       clearNotes,
       mainboardCount,
-      toastMessage,
     }),
     [
       notes,
       isHydrated,
-      isDrawerOpen,
       hasCard,
       addCard,
       removeCard,
@@ -262,17 +274,45 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       setCommander,
       clearNotes,
       mainboardCount,
-      toastMessage,
     ],
   );
 
-  return <NotesContext.Provider value={value}>{children}</NotesContext.Provider>;
+  const uiValue = useMemo<NotesUIContextValue>(
+    () => ({
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
+      toggleDrawer,
+      toastMessage,
+    }),
+    [isDrawerOpen, openDrawer, closeDrawer, toggleDrawer, toastMessage],
+  );
+
+  return (
+    <NotesDataContext.Provider value={dataValue}>
+      <NotesUIContext.Provider value={uiValue}>{children}</NotesUIContext.Provider>
+    </NotesDataContext.Provider>
+  );
+}
+
+export function useNotesData(): NotesDataContextValue {
+  const ctx = useContext(NotesDataContext);
+  if (!ctx) {
+    throw new Error("useNotesData deve essere usato dentro NotesProvider");
+  }
+  return ctx;
+}
+
+export function useNotesUI(): NotesUIContextValue {
+  const ctx = useContext(NotesUIContext);
+  if (!ctx) {
+    throw new Error("useNotesUI deve essere usato dentro NotesProvider");
+  }
+  return ctx;
 }
 
 export function useNotes(): NotesContextValue {
-  const ctx = useContext(NotesContext);
-  if (!ctx) {
-    throw new Error("useNotes deve essere usato dentro NotesProvider");
-  }
-  return ctx;
+  const data = useNotesData();
+  const ui = useNotesUI();
+  return useMemo(() => ({ ...data, ...ui }), [data, ui]);
 }

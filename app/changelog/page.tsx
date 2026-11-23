@@ -98,14 +98,55 @@ export default function Changelog() {
           </p>
         </div>
 
-        {/* Blocco Versione v5.5.0 (ATTUALE - Espanso di default) */}
+        {/* Blocco Versione v5.6.0 (ATTUALE - Espanso di default) */}
+        <ReleaseCard
+          title="v5.6.0 - Sicurezza HTTP/CORS, Parser Avanzato, Performance & Accessibilità"
+          date="23 Novembre 2026"
+          gradient="from-sky-400 via-blue-500 to-emerald-400"
+          titleColor="text-sky-400"
+          badgeStyle="bg-sky-900/30 text-sky-300 border-sky-500/30"
+          defaultOpen={true}
+        >
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-emerald-500 pl-4">
+              Sicurezza, Privacy &amp; Affidabilità Infrastrutturale
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Hardening HTTP, CSP &amp; CORS:</strong> Aggiunta la Content Security Policy insieme a <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">X-Frame-Options</code> e <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Strict-Transport-Security</code>, disabilitato il Next.js Image Optimizer non utilizzato e ristretti di default i domini CORS alle sole origini di produzione.</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Protezione Dati, Cache &amp; Scraper:</strong> Streaming incrementale anti-OOM per il backfill bulk da Scryfall, preservazione atomica della cache carte dopo i reset giornalieri, isolamento privacy Umami anche durante il Drag &amp; Drop, escaping sicuro dei blocchi JSON-LD, rotazione dei log scraper e chiusura garantita delle connessioni SQLite con <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">PRAGMA</code> ottimizzati.</div></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-blue-500 pl-4">
+              Confronta Lista, Ricerca Scryfall &amp; Miglioramenti UI/SEO
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Confronta Lista &amp; Parser Decklist:</strong> Risolti i problemi di confronto contro i dati di meta e ampliato il parser per gestire intestazioni con conteggio (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Deck (100)</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Sideboard (15)</code>), prefissi MTGO <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">SB:</code>, blocchi Arena <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">About/Name</code>, tag multipli, numeri collettore speciali e comandanti Partner bifronte.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Motore Scryfall Più Completo:</strong> Introdotto il supporto completo a <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">!=</code> (inclusi <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">mv!=even/odd</code>), rilevamento <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">is:dual</code> al netto del reminder text, normalizzazione mana multi-cifra e ibridi (<code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">&#123;w/u&#125;</code>), escape di <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">~</code> nei pattern regex e protezione anti-ReDoS.</div></li>
+              <li className="flex gap-3"><span className="text-blue-400 font-bold">•</span> <div><strong className="text-slate-200">Storico, Stato Sistema &amp; Navigazione:</strong> Corretto l&apos;aggregamento settimanale del lunedì su <Link href="/storico" className="text-blue-400 hover:underline">/storico</Link>, il reset dei selettori periodo sui grafici, l&apos;attribuzione degli artisti sugli artwork principali, il deep-link <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">/?search=</code>, la gestione errori con retry su <Link href="/status" className="text-blue-400 hover:underline">/status</Link> e la coerenza SEO/PWA tra SSR e client.</div></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-amber-500 pl-4">
+              Performance, Accessibilità &amp; Qualità del Codice
+            </h3>
+            <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
+              <li className="flex gap-3"><span className="text-amber-400 font-bold">•</span> <div><strong className="text-slate-200">Reattività Frontend &amp; API:</strong> Separato lo stato dati degli Appunti dallo stato UI per azzerare i re-render superflui sulle griglie carte, caricato in lazy-load il modale di confronto mazzo, stabilizzato il filtro a scorrimento orizzontale e ridotte le query/fetch ridondanti lato API (pre-compilazione regex ruoli e taglio top 15 comandanti prima del fetch Scryfall).</div></li>
+              <li className="flex gap-3"><span className="text-amber-400 font-bold">•</span> <div><strong className="text-slate-200">Accessibilità Tastiera &amp; Test Automatici:</strong> Focus trap, blocco dello scroll e chiusura <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Escape</code> nei dialog/drawer, pulsanti semantici nella barra composizione comandante e nella legenda dello storico, frecce dei caroselli navigabili da tastiera, supporto <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">prefers-reduced-motion</code> e nuove suite di test automatici in CI per frontend e backend.</div></li>
+            </ul>
+          </div>
+        </ReleaseCard>
+
+        {/* Blocco Versione v5.5.0 */}
         <ReleaseCard
           title="v5.5.0 - Dismissione Beta Osservatorio Community, Isolamento Strumenti Locali & Adeguamento GDPR"
           date="20 Novembre 2026"
           gradient="from-emerald-400 via-blue-500 to-indigo-500"
           titleColor="text-emerald-400"
           badgeStyle="bg-emerald-900/30 text-emerald-300 border-emerald-500/30"
-          defaultOpen={true}
+          defaultOpen={false}
         >
           <div>
             <h3 className="text-lg lg:text-xl font-bold text-slate-200 mb-4 border-l-4 border-amber-500 pl-4">

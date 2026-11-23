@@ -33,17 +33,25 @@ export default function ScrollableFilterStrip({
     const el = scrollerRef.current;
     if (!el) return;
 
-    let observer: ResizeObserver | null = null;
+    let resizeObserver: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(updateScrollState);
-      observer.observe(el);
+      resizeObserver = new ResizeObserver(updateScrollState);
+      resizeObserver.observe(el);
     }
+
+    let mutationObserver: MutationObserver | null = null;
+    if (typeof MutationObserver !== "undefined") {
+      mutationObserver = new MutationObserver(updateScrollState);
+      mutationObserver.observe(el, { childList: true });
+    }
+
     window.addEventListener("resize", updateScrollState);
     return () => {
-      if (observer) observer.disconnect();
+      if (resizeObserver) resizeObserver.disconnect();
+      if (mutationObserver) mutationObserver.disconnect();
       window.removeEventListener("resize", updateScrollState);
     };
-  }, [updateScrollState, children]);
+  }, [updateScrollState]);
 
   const scrollByAmount = (delta: number) => {
     const el = scrollerRef.current;

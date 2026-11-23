@@ -321,7 +321,7 @@ export default function CardDetail({
                     !cmd.comandante.includes(" // ");
                   return (
                     <a
-                      key={idx}
+                      key={cmd.comandante}
                       href={`/commander/${encodeURIComponent(cmd.comandante)}${periodQuery}`}
                       onClick={(e) =>
                         handleNav(e, () => {
@@ -528,7 +528,7 @@ export default function CardDetail({
                         syn.images?.length > 0 ? [syn.images[0]] : [];
                       return (
                         <a
-                          key={idx}
+                          key={syn.card_name}
                           href={`/?card=${encodeURIComponent(syn.card_name)}${periodParam}`}
                           onClick={(e) =>
                             handleNav(e, () =>

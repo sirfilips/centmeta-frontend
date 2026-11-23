@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   X,
-  Trash2,
   Copy,
   Check,
   Download,
@@ -14,6 +13,7 @@ import {
   Minus,
   AlertTriangle,
   Crown,
+  Trash2,
 } from "lucide-react";
 import { useNotes } from "./NotesContext";
 import {
@@ -25,6 +25,7 @@ import {
 import { isBasicLand } from "../utils/mtg";
 import { copyTextToClipboard } from "../utils/share";
 import { handleCardDragStart } from "../utils/dragCard";
+import { useDialogFocus } from "../utils/useDialogFocus";
 
 export default function NotesDrawer() {
   const {
@@ -49,18 +50,15 @@ export default function NotesDrawer() {
   const [exportFeedback, setExportFeedback] = useState<string | null>(null);
   const [copiedCommander, setCopiedCommander] = useState(false);
   const [isDragOverTrigger, setIsDragOverTrigger] = useState(false);
+  const drawerPanelRef = useRef<HTMLDivElement>(null);
+
+  useDialogFocus(isDrawerOpen, closeDrawer, drawerPanelRef);
 
   useEffect(() => {
     if (!isDrawerOpen) {
       setConfirmClear(false);
-      return;
     }
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeDrawer();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isDrawerOpen, closeDrawer]);
+  }, [isDrawerOpen]);
 
   const hasAnything = notes.cards.length > 0 || Boolean(notes.commander);
 
@@ -202,7 +200,9 @@ export default function NotesDrawer() {
           onClick={closeDrawer}
         >
           <div
-            className="w-full max-w-md h-full bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col overflow-hidden"
+            ref={drawerPanelRef}
+            tabIndex={-1}
+            className="w-full max-w-md h-full bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col overflow-hidden focus:outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Drawer */}

@@ -29,8 +29,8 @@ export default function DeckList({ loadingDecks, commanderDecks, copiedDeck, set
         {commanderDecks.length === 0 && (
           <div className="p-8 text-center text-slate-500">Nessuna lista trovata per questo periodo.</div>
         )}
-        {commanderDecks.map((deck: any, idx: number) => (
-          <div key={idx} className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-slate-800/40 transition-colors gap-4">
+        {commanderDecks.map((deck: any) => (
+          <div key={deck.id_moxfield} className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-slate-800/40 transition-colors gap-4">
             <div>
               <div className="text-sm font-semibold text-slate-200 mb-1">
                 Mazzo <span className="text-blue-400 font-mono text-xs ml-1 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-900">ID: {deck.id_moxfield}</span>
