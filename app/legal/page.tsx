@@ -12,6 +12,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://centmeta.it/legal',
   },
+  openGraph: {
+    title: 'Privacy e Note Legali | CentMeta',
+    description: 'Informativa sulla privacy (GDPR), proprietà intellettuale, fonti dei dati e Wizards of the Coast Fan Content Policy per CentMeta.',
+    url: 'https://centmeta.it/legal',
+    siteName: 'CentMeta',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'CentMeta - Privacy e Note Legali' }],
+    locale: 'it_IT',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy e Note Legali | CentMeta',
+    description: 'Informativa sulla privacy (GDPR), proprietà intellettuale, fonti dei dati e Wizards of the Coast Fan Content Policy per CentMeta.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function Legal() {

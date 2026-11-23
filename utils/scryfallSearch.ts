@@ -250,10 +250,21 @@ function stripQuotes(val: string): string {
   return val;
 }
 
+const MAX_REGEX_LENGTH = 120;
+
+function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+}
+
 function parseRegexLiteral(val: string): RegExp | null {
   if (val.length >= 2 && val.startsWith("/") && val.endsWith("/")) {
+    const pattern = val.slice(1, -1);
+    if (!pattern || pattern.length > MAX_REGEX_LENGTH) return null;
+    if (/\([^)]*[+*][^)]*\)[+*{]/.test(pattern) || /[+*]{2,}/.test(pattern)) {
+      return null;
+    }
     try {
-      return new RegExp(val.slice(1, -1), "i");
+      return new RegExp(pattern, "i");
     } catch {
       return null;
     }
@@ -262,9 +273,9 @@ function parseRegexLiteral(val: string): RegExp | null {
 }
 
 function compileTextMatcher(rawVal: string, exact = false): (text: string) => boolean {
-  const regex = parseRegexLiteral(rawVal);
-  if (regex) {
-    return (text) => regex.test(text);
+  if (rawVal.length >= 2 && rawVal.startsWith("/") && rawVal.endsWith("/")) {
+    const regex = parseRegexLiteral(rawVal);
+    return regex ? (text) => regex.test(text) : () => false;
   }
   const needle = stripQuotes(rawVal).trim().toLowerCase();
   if (!needle) return () => true;
@@ -308,21 +319,22 @@ function compileNumericComparator(
   targetStr: string,
 ): (actual: number | null | undefined) => boolean {
   const t = stripQuotes(targetStr).trim().toLowerCase();
-  if (t === "even") {
-    return (actual) =>
-      actual !== null &&
-      actual !== undefined &&
-      !Number.isNaN(actual) &&
-      Number.isInteger(actual) &&
-      actual % 2 === 0;
-  }
-  if (t === "odd") {
-    return (actual) =>
-      actual !== null &&
-      actual !== undefined &&
-      !Number.isNaN(actual) &&
-      Number.isInteger(actual) &&
-      Math.abs(actual % 2) === 1;
+  if (t === "even" || t === "odd") {
+    const wantOdd = t === "odd";
+    const invert = op === "!=";
+    return (actual) => {
+      if (
+        actual === null ||
+        actual === undefined ||
+        Number.isNaN(actual) ||
+        !Number.isInteger(actual)
+      ) {
+        return false;
+      }
+      const isOdd = Math.abs(actual % 2) === 1;
+      const matchesParity = wantOdd ? isOdd : !isOdd;
+      return invert ? !matchesParity : matchesParity;
+    };
   }
   const target = Number(t);
   if (t === "" || Number.isNaN(target)) return () => false;
@@ -406,11 +418,10 @@ function compileColorComparator(
 function normalizeManaQuery(rawVal: string): string {
   const v = stripQuotes(rawVal).trim().toUpperCase();
   if (v.includes("{")) return v;
-  return v
-    .replace(/\s+/g, "")
-    .split("")
-    .map((ch) => `{${ch}}`)
-    .join("");
+  const compact = v.replace(/\s+/g, "");
+  if (!compact) return "";
+  const tokens = compact.match(/\d+|[WUBRG2]\/[WUBRGP]|[A-Z]/g);
+  return tokens ? tokens.map((tok) => `{${tok}}`).join("") : "";
 }
 
 function getEffectiveColors(card: ScryfallSearchableItem): string[] {
@@ -505,7 +516,8 @@ function matchIsProperty(card: ScryfallSearchableItem, prop: string): boolean {
   }
   if (p === "shockland") return typeLine.includes("land") && oracles.includes("you may pay 2 life");
   if (p === "dual") {
-    return typeLine.includes("land") && !oracles.trim() && !typeLine.includes("basic");
+    const oraclesNoReminder = oracles.replace(/\([^)]*\)/g, "").trim();
+    return typeLine.includes("land") && !oraclesNoReminder && !typeLine.includes("basic");
   }
   if (p === "painland") return typeLine.includes("land") && oracles.includes("deals 1 damage to you");
   if (p === "surveilland") return typeLine.includes("land") && oracles.includes("surveil 1");
@@ -536,29 +548,44 @@ function buildTermPredicate(term: string): CardPredicate {
     const val = m[3];
 
     if (KNOWN_FIELDS.has(field)) {
+      const isNeg = op === "!=";
+
       if (field === "o" || field === "oracle" || field === "fo" || field === "fulloracle") {
         const baseMatcher = compileTextMatcher(val);
         const hasTilde = val.includes("~");
+        const isRegex = val.length >= 2 && val.startsWith("/") && val.endsWith("/");
         return (card) => {
           const oraclesStr = (card.oracles || []).join("\n");
-          if (!oraclesStr) return false;
-          if (baseMatcher(oraclesStr)) return true;
-          if (hasTilde) {
-            const name = getItemName(card);
-            if (name) return compileTextMatcher(val.replace(/~/g, name))(oraclesStr);
+          let matched = false;
+          if (oraclesStr) {
+            if (baseMatcher(oraclesStr)) {
+              matched = true;
+            } else if (hasTilde) {
+              const name = getItemName(card);
+              if (name) {
+                const replacement = isRegex ? escapeRegExp(name) : name;
+                matched = compileTextMatcher(val.replace(/~/g, replacement))(oraclesStr);
+              }
+            }
           }
-          return false;
+          return isNeg ? !matched : matched;
         };
       }
 
       if (field === "t" || field === "type") {
         const typeMatcher = compileTextMatcher(val);
-        return (card) => typeMatcher(card.type || "");
+        return (card) => {
+          const matched = typeMatcher(card.type || "");
+          return isNeg ? !matched : matched;
+        };
       }
 
       if (field === "n" || field === "name") {
         const nameMatcher = compileTextMatcher(val, op === "=");
-        return (card) => nameMatcher(getItemName(card));
+        return (card) => {
+          const matched = nameMatcher(getItemName(card));
+          return isNeg ? !matched : matched;
+        };
       }
 
       if (
@@ -590,7 +617,9 @@ function buildTermPredicate(term: string): CardPredicate {
           const raw = card[key];
           if (raw === null || raw === undefined || raw === "") return false;
           const num = Number(raw);
-          return !Number.isNaN(num) ? statCmp(num) : valLower === String(raw).trim().toLowerCase();
+          if (!Number.isNaN(num)) return statCmp(num);
+          const eq = valLower === String(raw).trim().toLowerCase();
+          return isNeg ? !eq : eq;
         };
       }
 
@@ -598,8 +627,8 @@ function buildTermPredicate(term: string): CardPredicate {
         const normQ = normalizeManaQuery(val);
         return (card) => {
           const mc = (card.mana_cost || "").toUpperCase();
-          if (!mc) return false;
-          return op === "=" ? mc === normQ : mc.includes(normQ);
+          const matched = !mc ? false : op === "=" ? mc === normQ : mc.includes(normQ);
+          return isNeg ? !matched : matched;
         };
       }
 
@@ -608,10 +637,18 @@ function buildTermPredicate(term: string): CardPredicate {
         const escaped = kwNeedle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const kwRegex = kwNeedle ? new RegExp(`(?:^|[\\n,])\\s*${escaped}\\b`, "i") : null;
         return (card) => {
-          if (!kwNeedle) return true;
-          const kws = card.keywords || [];
-          if (kws.some((k) => k.toLowerCase().includes(kwNeedle))) return true;
-          return kwRegex ? kwRegex.test((card.oracles || []).join("\n")) : false;
+          let matched: boolean;
+          if (!kwNeedle) {
+            matched = true;
+          } else {
+            const kws = card.keywords || [];
+            if (kws.some((k) => k.toLowerCase().includes(kwNeedle))) {
+              matched = true;
+            } else {
+              matched = kwRegex ? kwRegex.test((card.oracles || []).join("\n")) : false;
+            }
+          }
+          return isNeg ? !matched : matched;
         };
       }
 
@@ -619,15 +656,18 @@ function buildTermPredicate(term: string): CardPredicate {
         const sNeedle = stripQuotes(val).trim().toLowerCase();
         return (card) => {
           const sc = (card.set_code || card.set || "").trim().toLowerCase();
-          if (!sc) return false;
-          return op === "=" ? sc === sNeedle : sc.includes(sNeedle);
+          const matched = !sc ? false : op === "=" ? sc === sNeedle : sc.includes(sNeedle);
+          return isNeg ? !matched : matched;
         };
       }
 
       if (field === "r" || field === "rarity") {
         const rawR = stripQuotes(val).trim().toLowerCase();
         const rTarget = RARITY_ALIASES[rawR] || rawR;
-        return (card) => (card.rarity || "").trim().toLowerCase() === rTarget;
+        return (card) => {
+          const matched = (card.rarity || "").trim().toLowerCase() === rTarget;
+          return isNeg ? !matched : matched;
+        };
       }
 
       if (field === "is" || field === "not") {
@@ -640,7 +680,8 @@ function buildTermPredicate(term: string): CardPredicate {
         const canonical = ROLE_ALIASES[stripQuotes(val).trim().toLowerCase()];
         return (card) => {
           if (!canonical) return false;
-          return Array.isArray(card.roles) && card.roles.includes(canonical);
+          const matched = Array.isArray(card.roles) && card.roles.includes(canonical);
+          return isNeg ? !matched : matched;
         };
       }
 

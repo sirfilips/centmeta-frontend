@@ -160,9 +160,7 @@ export default function HeroSection({
 
   // Sincronizza input se il valore esterno cambia
   useEffect(() => {
-    if (!isDashboard) {
-      setQuery(commanderSearch);
-    }
+    setQuery(commanderSearch || "");
   }, [commanderSearch, isDashboard]);
 
   // Carosello sfondi con precaricamento progressivo dell'immagine successiva
@@ -170,22 +168,23 @@ export default function HeroSection({
     if (!isDashboard) return;
 
     const intervalId = setInterval(() => {
-      setBgIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % BACKGROUND_IMAGES.length;
-        const preloadIndex = (nextIndex + 1) % BACKGROUND_IMAGES.length;
-        setLoadedBgIndices((prevSet) => {
-          if (prevSet.has(nextIndex) && prevSet.has(preloadIndex)) return prevSet;
-          const nextSet = new Set(prevSet);
-          nextSet.add(nextIndex);
-          nextSet.add(preloadIndex);
-          return nextSet;
-        });
-        return nextIndex;
-      });
+      setBgIndex((prevIndex) => (prevIndex + 1) % BACKGROUND_IMAGES.length);
     }, CAROUSEL_INTERVAL);
 
     return () => clearInterval(intervalId);
   }, [isDashboard]);
+
+  useEffect(() => {
+    if (!isDashboard) return;
+    const nextIndex = (bgIndex + 1) % BACKGROUND_IMAGES.length;
+    setLoadedBgIndices((prevSet) => {
+      if (prevSet.has(bgIndex) && prevSet.has(nextIndex)) return prevSet;
+      const nextSet = new Set(prevSet);
+      nextSet.add(bgIndex);
+      nextSet.add(nextIndex);
+      return nextSet;
+    });
+  }, [bgIndex, isDashboard]);
 
   // Chiusura al click fuori dal contenitore
   useEffect(() => {
@@ -491,7 +490,7 @@ export default function HeroSection({
 
       {/* FILTRI (Top/Hot) */}
       {!isDashboard && homeMode === "commanders" && (
-        <div className="flex bg-slate-900/50 p-1 rounded-lg border border-slate-800 shrink-0 z-10 sm:absolute sm:left-1/2 sm:-translate-x-1/2 order-3 sm:order-none self-center sm:self-auto">
+        <div className="flex bg-slate-900/50 p-1 rounded-lg border border-slate-800 shrink-0 z-10 lg:absolute lg:left-1/2 lg:-translate-x-1/2 order-3 sm:order-none self-center sm:self-auto">
           <button
             onClick={() => setCommanderSort("top")}
             className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${
@@ -652,7 +651,7 @@ export default function HeroSection({
 
               {/* LISTA DEI RISULTATI */}
               <div className="max-h-[55vh] sm:max-h-[380px] overflow-y-auto divide-y divide-slate-800/60">
-                {totalResults === 0 ? (
+                {visibleCommanders.length === 0 && visibleCards.length === 0 ? (
                   <div className="p-6 text-center text-slate-400 text-sm">
                     <p className="font-semibold text-slate-300">
                       Nessun risultato per &ldquo;{query}&rdquo;

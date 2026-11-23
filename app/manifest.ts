@@ -7,13 +7,19 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Statistiche e metagame per il formato di Magic: The Gathering - Centurion Commander.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#020617', // slate-950
-    theme_color: '#0f172a',      // slate-900 (colore dell'Header)
+    background_color: '#16171a', // slate-950
+    theme_color: '#1f2124',      // slate-900 (colore dell'Header)
     icons: [
       {
         src: '/icon.png',
         sizes: '512x512',
         type: 'image/png',
+      },
+      {
+        src: '/icon.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
       },
       {
         src: '/apple-icon.png',

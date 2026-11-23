@@ -199,20 +199,27 @@ export const CardsGrid: React.FC<CardsGridProps> = ({
                           </div>
 
                           {/* Mini-Barra Compatta Centrata (lunghezza fissa 56px, sottile e discreta) */}
-                          <div className="w-14 bg-slate-800 rounded-full h-[2.5px] mt-1 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-300 ${
-                                card.Percentuale >= 70
-                                  ? "bg-blue-400"
-                                  : card.Percentuale >= 40
-                                  ? "bg-cyan-400"
-                                  : "bg-slate-500"
-                              }`}
-                              style={{
-                                width: `${Math.min(100, Math.max(8, card.Percentuale))}%`,
-                              }}
-                            />
-                          </div>
+                          {(() => {
+                            const safePerc = Number.isFinite(Number(card.Percentuale))
+                              ? Number(card.Percentuale)
+                              : 0;
+                            return (
+                              <div className="w-14 bg-slate-800 rounded-full h-[2.5px] mt-1 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${
+                                    safePerc >= 70
+                                      ? "bg-blue-400"
+                                      : safePerc >= 40
+                                      ? "bg-cyan-400"
+                                      : "bg-slate-500"
+                                  }`}
+                                  style={{
+                                    width: `${Math.min(100, Math.max(8, safePerc))}%`,
+                                  }}
+                                />
+                              </div>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>

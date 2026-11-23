@@ -237,6 +237,11 @@ export default function CommanderOverview({
               ></div>
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/50 to-slate-950/40"></div>
+            {selectedCmdObj?.art_crops?.[0] && selectedCmdObj?.artist && (
+              <span className="absolute bottom-2 right-3 text-[10px] text-slate-400/80 font-mono">
+                Art: {selectedCmdObj.artist} · © WotC
+              </span>
+            )}
           </div>
           <div className="relative z-10 flex flex-col gap-2 md:gap-4 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-center lg:text-left">
@@ -423,46 +428,45 @@ export default function CommanderOverview({
                 )}
               {/* Grafico Composizione Media */}
               {statsData.type_distribution &&
-                Object.keys(statsData.type_distribution).length > 0 && (
+                Object.keys(statsData.type_distribution).length > 0 && (() => {
+                  const totalCards = Object.values(
+                    statsData.type_distribution,
+                  ).reduce((a: number, b: any) => a + (Number(b) || 0), 0);
+                  const sortedTypes = Object.entries(statsData.type_distribution).sort(
+                    ([typeA, countA], [typeB, countB]) => {
+                      if (typeA === "Terre") return 1;
+                      if (typeB === "Terre") return -1;
+                      return (countB as number) - (countA as number);
+                    },
+                  );
+                  return (
                   <div className="bg-slate-800/80 px-4 py-3.5 md:px-5 md:py-4 3xl:px-6 3xl:py-5 rounded-xl border border-slate-700/50 shadow-sm flex flex-col flex-1 w-full xl:max-w-[450px]">
                     <span className="text-[10px] md:text-xs text-slate-400 block mb-2 md:mb-4 font-medium text-center xl:text-left">
                       Composizione Media
                     </span>
                     <div className="flex flex-col gap-3 md:gap-5 h-full justify-center">
                       <div className="flex w-full h-3 md:h-4 rounded-md overflow-hidden bg-slate-900 shadow-inner gap-[1px]">
-                        {Object.entries(statsData.type_distribution)
-                          .sort(([typeA, countA], [typeB, countB]) => {
-                            if (typeA === "Terre") return 1;
-                            if (typeB === "Terre") return -1;
-                            return (countB as number) - (countA as number);
-                          })
-                          .map(([type, count]) => {
-                            const totalCards = Object.values(
-                              statsData.type_distribution,
-                            ).reduce((a: any, b: any) => a + b, 0) as number;
-                            const perc = ((count as number) / totalCards) * 100;
-                            const width = `${perc}%`;
-                            const bgColor =
-                              CATEGORY_INFO[type]?.bgColor || "bg-slate-500";
-                            return (
-                              <div
-                                key={type}
-                                onClick={() => handleTypeClick(type)}
-                                style={{ width }}
-                                className={`${bgColor} h-full transition-all hover:brightness-125 hover:scale-105 cursor-pointer`}
-                                title={`Filtra per ${type}: ${Math.round(count as number)} carte (${perc.toFixed(1)}%)`}
-                              />
-                            );
-                          })}
+                        {sortedTypes.map(([type, count]) => {
+                          const perc =
+                            totalCards > 0
+                              ? ((Number(count) || 0) / totalCards) * 100
+                              : 0;
+                          const width = `${perc}%`;
+                          const bgColor =
+                            CATEGORY_INFO[type]?.bgColor || "bg-slate-500";
+                          return (
+                            <div
+                              key={type}
+                              onClick={() => handleTypeClick(type)}
+                              style={{ width }}
+                              className={`${bgColor} h-full transition-all hover:brightness-125 hover:scale-105 cursor-pointer`}
+                              title={`Filtra per ${type}: ${Math.round(Number(count) || 0)} carte (${perc.toFixed(1)}%)`}
+                            />
+                          );
+                        })}
                       </div>
                       <div className="flex flex-wrap justify-center xl:justify-start gap-x-3 gap-y-1.5 mt-1">
-                        {Object.entries(statsData.type_distribution)
-                          .sort(([typeA, countA], [typeB, countB]) => {
-                            if (typeA === "Terre") return 1;
-                            if (typeB === "Terre") return -1;
-                            return (countB as number) - (countA as number);
-                          })
-                          .map(([type, count]) => {
+                        {sortedTypes.map(([type, count]) => {
                             let dotColor =
                               CATEGORY_INFO[type]?.dotColor || "text-slate-500";
                             let iconClass = CATEGORY_INFO[type]?.icon || "";
@@ -485,7 +489,8 @@ export default function CommanderOverview({
                       </div>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
             </div>
             <div className="mt-4 md:mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-3">
               <a

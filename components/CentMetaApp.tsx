@@ -280,9 +280,9 @@ export default function CentMetaApp({
     if (selectedCardDetail) {
       document.title = `${selectedCardDetail} | Statistiche, Comandanti e Sinergie Centurion`;
     } else if (selectedCommander !== "Tutti i mazzi") {
-      document.title = `${selectedCommander} | Top Carte, Sinergie e Liste Centurion`;
+      document.title = `${selectedCommander} — Centurion Commander | Liste, Sinergie e Statistiche`;
     } else {
-      document.title = "CentMeta | Analisi Statistiche Centurion Commander";
+      document.title = "CentMeta | Centurion Meta, Liste Mazzi e Metagame MTG";
     }
   }, [selectedCommander, selectedCardDetail]);
 

@@ -82,69 +82,71 @@ const Carousel = ({
           className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto overscroll-x-contain touch-pan-x snap-x pt-4 md:pt-5 pb-4 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {items.map((item: any, idx: number) => {
+            const itemName = item?.name || "";
+            const imgs = Array.isArray(item?.images) ? item.images : [];
             const isPartner =
-              item.name.includes(" / ") && !item.name.includes(" // ");
+              itemName.includes(" / ") && !itemName.includes(" // ");
             const itemHref = isCard
-              ? `/?card=${encodeURIComponent(item.name)}${periodParam}`
-              : `/commander/${encodeURIComponent(item.name)}${periodQuery}`;
+              ? `/?card=${encodeURIComponent(itemName)}${periodParam}`
+              : `/commander/${encodeURIComponent(itemName)}${periodQuery}`;
             return (
               <a
                 key={idx}
                 href={itemHref}
-                onClick={(e) => handleNav(e, () => onItemClick(item.name))}
+                onClick={(e) => handleNav(e, () => onItemClick(itemName))}
                 draggable={true}
                 onDragStart={(e) =>
                   handleCardDragStart(
                     e,
-                    isPartner ? item.name.split(" / ")[0] : item.name,
-                    item.images?.[0],
+                    isPartner ? itemName.split(" / ")[0] : itemName,
+                    imgs[0],
                   )
                 }
                 className="snap-start flex-shrink-0 w-36 sm:w-44 md:w-48 flex flex-col items-center cursor-pointer group/card"
               >
                 <div className="relative w-full h-52 sm:h-60 md:h-64 flex justify-center items-center mb-2.5 md:mb-3">
-                  {isPartner && item.images.length > 1 ? (
+                  {isPartner && imgs.length > 1 ? (
                     <div className="relative w-full h-full flex justify-center items-center">
                       <img
-                        src={item.images[0]}
+                        src={imgs[0]}
                         draggable={true}
                         onDragStart={(e) =>
                           handleCardDragStart(
                             e,
-                            item.name.split(" / ")[0],
-                            item.images[0],
+                            itemName.split(" / ")[0],
+                            imgs[0],
                           )
                         }
                         loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg -translate-x-3 -translate-y-1 -rotate-6 z-10 hover:z-40 hover:scale-110 transition-all duration-300"
-                        alt={item.name}
+                        alt={itemName}
                       />
                       <img
-                        src={item.images[1]}
+                        src={imgs[1]}
                         draggable={true}
                         onDragStart={(e) =>
                           handleCardDragStart(
                             e,
-                            item.name.split(" / ")[1],
-                            item.images[1],
+                            itemName.split(" / ")[1],
+                            imgs[1],
                           )
                         }
                         loading="lazy" decoding="async" className="absolute w-[70%] max-h-[90%] object-contain rounded-[4.75%] shadow-lg translate-x-3 translate-y-3 rotate-6 z-20 hover:z-40 hover:scale-110 transition-all duration-300"
-                        alt={item.name}
+                        alt={itemName}
                       />
                     </div>
-                  ) : item.images.length > 0 ? (
+                  ) : imgs.length > 0 ? (
                     <img
-                      src={item.images[0]}
+                      src={imgs[0]}
                       draggable={true}
                       onDragStart={(e) =>
-                        handleCardDragStart(e, item.name, item.images[0])
+                        handleCardDragStart(e, itemName, imgs[0])
                       }
                       loading="lazy" decoding="async" className="max-h-full max-w-full rounded-[4.75%] shadow-lg group-hover/card:-translate-y-3 group-hover/card:shadow-blue-900/50 transition-all duration-300 object-contain"
-                      alt={item.name}
+                      alt={itemName}
                     />
                   ) : (
                     <div className="text-xs text-slate-500 w-full h-full bg-slate-900 rounded-xl flex items-center justify-center border border-slate-800">
-                      {item.name}
+                      {itemName}
                     </div>
                   )}
                   {isCard && (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   X,
   GitCompareArrows,
@@ -54,6 +54,20 @@ export default function DeckCompareModal({
     () => (parsed ? compareDeckWithMeta(parsed, statsData) : null),
     [parsed, statsData]
   );
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -150,6 +164,9 @@ export default function DeckCompareModal({
 
   return (
     <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
       className="fixed inset-0 z-[120] bg-slate-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
@@ -202,7 +219,10 @@ export default function DeckCompareModal({
 
               <textarea
                 value={rawList}
-                onChange={(e) => setRawList(e.target.value)}
+                onChange={(e) => {
+                  setRawList(e.target.value);
+                  if (inputError) setInputError(null);
+                }}
                 rows={11}
                 placeholder={`1 Lightning Bolt\n1 Brainstorm\n1 Swords to Plowshares (CMM) 62\n1 Sink into Stupor // Soporific Springs\n...`}
                 className="w-full rounded-2xl bg-slate-950 border border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none p-4 text-xs sm:text-sm text-slate-100 font-mono placeholder:text-slate-600 resize-y"

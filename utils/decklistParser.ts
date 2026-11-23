@@ -84,10 +84,9 @@ export function getFrontFaceKey(name: string): string {
 function getCommanderKeySet(commanderName?: string): Set<string> {
   const keys = new Set<string>();
   if (!commanderName) return keys;
-  const parts =
-    commanderName.includes(" / ") && !commanderName.includes(" // ")
-      ? commanderName.split(" / ")
-      : [commanderName];
+  const parts = commanderName.includes(" / ")
+    ? commanderName.split(" / ")
+    : [commanderName];
   for (const part of parts) {
     const k = normalizeCardKey(part);
     const fk = getFrontFaceKey(part);
@@ -95,6 +94,15 @@ function getCommanderKeySet(commanderName?: string): Set<string> {
     if (fk) keys.add(fk);
   }
   return keys;
+}
+
+function normalizeSectionHeader(raw: string): string {
+  return raw
+    .replace(/^[/#\s]+/, "")
+    .replace(/\s*\(\d+\)\s*$/, "")
+    .replace(/:$/, "")
+    .trim()
+    .toLowerCase();
 }
 
 /**
@@ -110,6 +118,7 @@ export function parseDecklistText(
   let ignoredSectionsCount = 0;
   let inSkippedSection = false;
   let inCommanderSection = false;
+  let inAboutSection = false;
 
   const lines = rawText.split(/\r?\n/);
 
@@ -117,42 +126,63 @@ export function parseDecklistText(
     const line = rawLine.trim();
     if (!line) {
       inCommanderSection = false;
+      inAboutSection = false;
       continue;
     }
 
     if (line.startsWith("//") || line.startsWith("#")) {
-      const headerWord = line.replace(/^[/#\s]+/, "").replace(/:$/, "").toLowerCase();
+      const headerWord = normalizeSectionHeader(line);
       if (SECTION_SKIP.has(headerWord)) {
         inSkippedSection = true;
         inCommanderSection = false;
+        inAboutSection = false;
       } else if (headerWord === "commander") {
         inCommanderSection = true;
         inSkippedSection = false;
+        inAboutSection = false;
+      } else if (headerWord === "about") {
+        inAboutSection = true;
+        inSkippedSection = false;
+        inCommanderSection = false;
       } else if (SECTION_IGNORE_HEADER.has(headerWord)) {
         inSkippedSection = false;
         inCommanderSection = false;
+        inAboutSection = false;
       }
       continue;
     }
 
-    const cleanHeader = line.replace(/:$/, "").toLowerCase();
+    const cleanHeader = normalizeSectionHeader(line);
     if (SECTION_SKIP.has(cleanHeader)) {
       inSkippedSection = true;
       inCommanderSection = false;
+      inAboutSection = false;
       continue;
     }
     if (cleanHeader === "commander") {
       inCommanderSection = true;
       inSkippedSection = false;
+      inAboutSection = false;
+      continue;
+    }
+    if (cleanHeader === "about") {
+      inAboutSection = true;
+      inSkippedSection = false;
+      inCommanderSection = false;
       continue;
     }
     if (SECTION_IGNORE_HEADER.has(cleanHeader)) {
       inSkippedSection = false;
       inCommanderSection = false;
+      inAboutSection = false;
       continue;
     }
 
-    if (inSkippedSection) {
+    if (inAboutSection) {
+      continue;
+    }
+
+    if (inSkippedSection || /^sb:\s*/i.test(line)) {
       ignoredSectionsCount += 1;
       continue;
     }
@@ -166,12 +196,12 @@ export function parseDecklistText(
       cardPart = qtyMatch[2].trim();
     }
 
-    // Rimuove suffissi tipo "(CMM) 412", "[MH2]", "*F*", "*CMDR*", tag "#Ramp"
+    // Rimuove tag multipli "#Ramp #Artifact", marker foil/CMDR, set e collector number (es. "(CMM) 123★", "[MH2]")
     cardPart = cardPart
-      .replace(/\s+#[^#]+$/g, "")
+      .replace(/(?:\s+#\S+)+\s*$/g, "")
       .replace(/\s+\*(?:F|E|A|CMDR)\*\s*$/gi, "")
-      .replace(/\s+\([A-Za-z0-9]{2,6}\)(?:\s+[A-Za-z0-9-]+)?(?:\s+\*[FE]\*)?\s*$/g, "")
-      .replace(/\s+\[[A-Za-z0-9]{2,6}\](?:\s+[A-Za-z0-9-]+)?\s*$/g, "")
+      .replace(/\s+\([A-Za-z0-9]{2,6}\)(?:\s+[^\s*#]+)?(?:\s+\*[FE]\*)?\s*$/g, "")
+      .replace(/\s+\[[A-Za-z0-9]{2,6}\](?:\s+[^\s*#]+)?\s*$/g, "")
       .trim();
 
     if (!cardPart) continue;

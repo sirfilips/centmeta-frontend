@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Coffee } from 'lucide-react';
 
 export default function Footer() {
@@ -29,33 +30,33 @@ export default function Footer() {
 
         {/* Link Utili */}
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2.5 text-xs sm:text-sm font-semibold pb-2">
-          <a 
+          <Link 
             href="/about" 
             className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Il Progetto
-          </a>
+          </Link>
           <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
-          <a 
+          <Link 
             href="/status" 
             className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Stato del Sistema
-          </a>
+          </Link>
           <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
-          <a 
+          <Link 
             href="/changelog" 
             className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Changelog
-          </a>
+          </Link>
           <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
-          <a 
+          <Link 
             href="/legal" 
             className="text-slate-400 hover:text-blue-400 transition-colors"
           >
             Privacy & Note Legali
-          </a>
+          </Link>
           <span className="text-slate-700 hidden sm:inline" aria-hidden="true">•</span>
           <a 
             href="https://github.com/sirfilips" 

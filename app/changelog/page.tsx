@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ChevronDown, History } from 'lucide-react';
 import Footer from '../../components/Footer';
@@ -11,6 +12,21 @@ export const metadata: Metadata = {
   description: 'Cronologia degli aggiornamenti, ottimizzazioni architetturali e nuove funzionalità della piattaforma CentMeta per Centurion Commander.',
   alternates: {
     canonical: 'https://centmeta.it/changelog',
+  },
+  openGraph: {
+    title: 'Note di Rilascio | CentMeta',
+    description: 'Cronologia degli aggiornamenti, ottimizzazioni architetturali e nuove funzionalità della piattaforma CentMeta per Centurion Commander.',
+    url: 'https://centmeta.it/changelog',
+    siteName: 'CentMeta',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'CentMeta - Note di Rilascio' }],
+    locale: 'it_IT',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Note di Rilascio | CentMeta',
+    description: 'Cronologia degli aggiornamenti, ottimizzazioni architetturali e nuove funzionalità della piattaforma CentMeta per Centurion Commander.',
+    images: ['/og-image.png'],
   },
 };
 
@@ -106,7 +122,7 @@ export default function Changelog() {
             </h3>
             <ul className="list-none space-y-3 text-sm md:text-base lg:text-lg text-slate-300 leading-relaxed">
               <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Isolamento 100% Client-Side:</strong> Nessun nome di carta, lista o testo inserito in <strong className="text-slate-200">Appunti Mazzo</strong>, <strong className="text-slate-200">Confronta Lista</strong> o durante il Drag &amp; Drop viene trasmesso a Umami Analytics (limitato ai soli conteggi anonimi aggregati), ed eliminato l&apos;uso di <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">sessionStorage</code> dal rilevamento PWA.</div></li>
-              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Informativa Privacy &amp; Header HTTP:</strong> Aggiornate le pagine <a href="/legal" className="text-blue-400 hover:underline">/legal</a> e <a href="/about" className="text-blue-400 hover:underline">/about</a> in conformità al GDPR e all&apos;art. 122 del D.Lgs. 196/2003, e aggiunti gli header HTTP <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Referrer-Policy</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Permissions-Policy</code> e <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">X-Content-Type-Options</code>.</div></li>
+              <li className="flex gap-3"><span className="text-emerald-400 font-bold">•</span> <div><strong className="text-slate-200">Informativa Privacy &amp; Header HTTP:</strong> Aggiornate le pagine <Link href="/legal" className="text-blue-400 hover:underline">/legal</Link> e <Link href="/about" className="text-blue-400 hover:underline">/about</Link> in conformità al GDPR e all&apos;art. 122 del D.Lgs. 196/2003, e aggiunti gli header HTTP <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Referrer-Policy</code>, <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">Permissions-Policy</code> e <code className="text-blue-300 text-xs bg-slate-900 px-1.5 py-0.5 rounded">X-Content-Type-Options</code>.</div></li>
             </ul>
           </div>
         </ReleaseCard>

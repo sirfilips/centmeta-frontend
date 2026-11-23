@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { 
   Compass, 
@@ -23,6 +24,21 @@ export const metadata: Metadata = {
   description: 'Scopri come nasce e funziona CentMeta: genesi, metodologia analitica, fonti dei dati e filosofia a supporto della community Centurion Commander.',
   alternates: {
     canonical: 'https://centmeta.it/about',
+  },
+  openGraph: {
+    title: 'Il Progetto | CentMeta',
+    description: 'Scopri come nasce e funziona CentMeta: genesi, metodologia analitica, fonti dei dati e filosofia a supporto della community Centurion Commander.',
+    url: 'https://centmeta.it/about',
+    siteName: 'CentMeta',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'CentMeta - Il Progetto' }],
+    locale: 'it_IT',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Il Progetto | CentMeta',
+    description: 'Scopri come nasce e funziona CentMeta: genesi, metodologia analitica, fonti dei dati e filosofia a supporto della community Centurion Commander.',
+    images: ['/og-image.png'],
   },
 };
 
@@ -155,7 +171,7 @@ export default function About() {
                 </li>
               </ul>
               <p className="text-xs md:text-sm text-slate-500 pt-2">
-                Per il testo contrattuale, l&apos;elenco dei diritti GDPR e la Fan Content Policy ufficiale di Wizards of the Coast, consulta la pagina dedicata alle <a href="/legal" className="text-slate-400 hover:text-blue-400 underline underline-offset-2">Privacy &amp; Note Legali</a>.
+                Per il testo contrattuale, l&apos;elenco dei diritti GDPR e la Fan Content Policy ufficiale di Wizards of the Coast, consulta la pagina dedicata alle <Link href="/legal" className="text-slate-400 hover:text-blue-400 underline underline-offset-2">Privacy &amp; Note Legali</Link>.
               </p>
             </div>
           </section>

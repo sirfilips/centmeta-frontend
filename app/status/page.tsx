@@ -14,9 +14,10 @@ interface PingEntry {
 // Il componente dei rettangolini di monitoraggio uptime
 function UptimeBar({ name, pings }: { name: string; pings: PingEntry[] }) {
   const maxPings = 48;
-  const emptySlots = Math.max(0, maxPings - pings.length);
+  const recentPings = pings.slice(-maxPings);
+  const emptySlots = Math.max(0, maxPings - recentPings.length);
   const padding: PingEntry[] = Array(emptySlots).fill({ status: 'unknown', timestamp: '' });
-  const timeline = [...padding, ...pings];
+  const timeline = [...padding, ...recentPings];
 
   const getColor = (status: string) => {
     switch (status) {
@@ -32,10 +33,10 @@ function UptimeBar({ name, pings }: { name: string; pings: PingEntry[] }) {
     }
   };
 
-  const hasData = pings.length > 0;
-  const lastStatus = hasData ? pings[pings.length - 1].status : 'unknown';
-  const goodPings = pings.filter((p) => p.status === 'operational').length;
-  const uptime = hasData ? ((goodPings / pings.length) * 100).toFixed(1) : null;
+  const hasData = recentPings.length > 0;
+  const lastStatus = hasData ? recentPings[recentPings.length - 1].status : 'unknown';
+  const goodPings = recentPings.filter((p) => p.status === 'operational').length;
+  const uptime = hasData ? ((goodPings / recentPings.length) * 100).toFixed(1) : null;
 
   const renderStatusIcon = () => {
     if (!hasData) return <Clock className="w-5 h-5 text-slate-400" />;
@@ -84,16 +85,29 @@ function UptimeBar({ name, pings }: { name: string; pings: PingEntry[] }) {
 export default function StatusPage() {
   const [healthData, setHealthData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
-    fetch('/api/health')
-      .then((res) => res.json())
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    fetch('/api/health', { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setHealthData(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, []);
+      .catch((err) => {
+        if (err?.name === 'AbortError') return;
+        setError('Impossibile recuperare lo stato dei servizi in questo momento.');
+        setLoading(false);
+      });
+    return () => controller.abort();
+  }, [reloadNonce]);
 
   const formatUpdateDate = (dateStr?: string) => {
     if (!dateStr) return 'Scraping non ancora eseguito';
@@ -128,6 +142,17 @@ export default function StatusPage() {
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        ) : error ? (
+          <div className="bg-red-950/40 border border-red-900/50 rounded-2xl p-8 text-center text-red-200 text-sm flex flex-col items-center gap-4">
+            <p>{error}</p>
+            <button
+              type="button"
+              onClick={() => setReloadNonce((n) => n + 1)}
+              className="bg-red-900/50 hover:bg-red-800 text-white font-bold py-2 px-5 rounded-xl border border-red-700/50 transition-colors"
+            >
+              Riprova
+            </button>
           </div>
         ) : (
           <div className="flex flex-col gap-8 animate-fade-in">

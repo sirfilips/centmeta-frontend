@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import SkeletonCard from "./SkeletonCard";
 import { EmptyState } from "./EmptyState";
 import { CATEGORY_INFO, getPeriodParam, getPeriodQuery } from "../utils/mtg";
 import { handleNav } from "../utils/navigation";
 import { handleCardDragStart } from "../utils/dragCard";
 import { shareOrCopyUrl } from "../utils/share";
-import { trackEvent } from "../utils/analytics";
 import AddToNotesButton from "./AddToNotesButton";
 import { RefreshCw, Share2, Check } from "lucide-react";
 
@@ -55,13 +54,19 @@ export default function CardDetail({
   visibleSynergiesData,
 }: CardDetailProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const periodQuery = getPeriodQuery(filtroTempo);
   const periodParam = getPeriodParam(filtroTempo);
 
   const handleShare = async () => {
     const cName = cardDetailData?.card_name || selectedCardDetail;
-    trackEvent("Condividi Carta", { card: cName });
     const origin =
       typeof window !== "undefined"
         ? window.location.origin
@@ -75,7 +80,8 @@ export default function CardDetail({
     });
     if (copied) {
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setIsCopied(false), 2000);
     }
   };
 
@@ -183,6 +189,11 @@ export default function CardDetail({
                       ></div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/50 to-slate-950/40"></div>
+                    {cardDetailData.art_crops?.[0] && cardDetailData.artist && (
+                      <span className="absolute bottom-2 right-3 text-[10px] text-slate-400/80 font-mono">
+                        Art: {cardDetailData.artist} · © WotC
+                      </span>
+                    )}
                   </div>
                   <div className="relative z-10 flex flex-col gap-3 md:gap-4 w-full">
                     <div>
@@ -212,7 +223,7 @@ export default function CardDetail({
                             {isCopied ? (
                               <>
                                 <Check className="w-4 h-4 text-emerald-400" strokeWidth={2.5} />
-                                <span>Link Copiato!</span>
+                                <span>Link copiato!</span>
                               </>
                             ) : (
                               <>
@@ -300,7 +311,7 @@ export default function CardDetail({
                 Comandanti Principali
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
-                {cardDetailData.commanders.map((cmd: any, idx: number) => {
+                {(cardDetailData.commanders || []).map((cmd: any, idx: number) => {
                   const foundIdx = commanders.findIndex(
                     (c) => c.comandante === cmd.comandante,
                   );

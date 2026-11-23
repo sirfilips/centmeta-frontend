@@ -13,8 +13,23 @@ export const metadata: Metadata = {
       "Trend storici, quote dei comandanti e distribuzione dei colori nel formato Centurion Commander.",
     url: "https://centmeta.it/storico",
     siteName: "CentMeta",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Storico Metagame CentMeta",
+      },
+    ],
     locale: "it_IT",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Storico Metagame Centurion Commander | CentMeta",
+    description:
+      "Trend storici, quote dei comandanti e distribuzione dei colori nel formato Centurion Commander.",
+    images: ["/og-image.png"],
   },
 };
 

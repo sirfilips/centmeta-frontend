@@ -70,7 +70,13 @@ export default function MetagameHistoryChart({
 
   useEffect(() => {
     setSelectedIdx(Math.max(0, buckets.length - 1));
-  }, [buckets.length]);
+  }, [buckets]);
+
+  useEffect(() => {
+    if (focusedCmd && !topCommanders.some((c) => c.name === focusedCmd)) {
+      setFocusedCmd(null);
+    }
+  }, [focusedCmd, topCommanders]);
 
   const width = 820;
   const height = 310;
@@ -306,12 +312,13 @@ export default function MetagameHistoryChart({
               const colW =
                 buckets.length > 1 ? innerW / (buckets.length - 1) : innerW;
               const xStart = Math.max(padLeft, getX(bIdx) - colW / 2);
+              const xEnd = Math.min(padLeft + innerW, getX(bIdx) + colW / 2);
               return (
                 <rect
                   key={`hit-${b.period}`}
                   x={xStart}
                   y={padTop}
-                  width={colW}
+                  width={Math.max(1, xEnd - xStart)}
                   height={innerH}
                   fill="transparent"
                   className="cursor-pointer"
