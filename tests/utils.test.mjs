@@ -32,6 +32,39 @@ test("mtg helpers: basic lands, period params and color identity", () => {
   assert.equal(mtg.matchesColorIdentity(["W", "U"], ["M"]), true);
 });
 
+test("mtg URL helpers: view/sort validation and initialCommander Back/Forward resolution", () => {
+  assert.equal(mtg.parseHomeMode("dashboard"), "dashboard");
+  assert.equal(mtg.parseHomeMode("commanders"), "commanders");
+  assert.equal(mtg.parseHomeMode("cards"), "cards");
+  assert.equal(mtg.parseHomeMode("invalid-view"), null);
+  assert.equal(mtg.parseHomeMode(null), null);
+
+  assert.equal(mtg.parseCommanderSort("hot"), "hot");
+  assert.equal(mtg.parseCommanderSort("bogus"), "top");
+  assert.equal(mtg.parseCardSort("expansions"), "expansions");
+  assert.equal(mtg.parseCardSort("bogus"), null);
+
+  // Al primo mount su /commander/Kraum o con prop initialCommander usa initialCommander
+  assert.equal(
+    mtg.resolveCommanderFromUrl("/commander/Kraum", null, "Kraum", true),
+    "Kraum",
+  );
+  assert.equal(
+    mtg.resolveCommanderFromUrl("/", null, "Kraum", true),
+    "Kraum",
+  );
+  // Navigando Back/Forward su '/' (isInitialSync=false) NON deve resuscitare initialCommander
+  assert.equal(
+    mtg.resolveCommanderFromUrl("/", null, "Kraum", false),
+    "Tutti i mazzi",
+  );
+  // Back/Forward su '/commander/Kraum%20%2F%20Tymna' decodifica il comandante dall'URL
+  assert.equal(
+    mtg.resolveCommanderFromUrl("/commander/Kraum%20%2F%20Tymna", null, "Atraxa", false),
+    "Kraum / Tymna",
+  );
+});
+
 test("decklistParser: Moxfield, MTGA About/Name, MTGO SB, counts, tags, special collector & Partner+DFC", () => {
   const raw = [
     "About",

@@ -74,6 +74,65 @@ export function isBasicLand(cardName?: string): boolean {
   return BASIC_LANDS.has(cardName.trim().toLowerCase());
 }
 
+export const VALID_HOME_MODES = ["dashboard", "commanders", "cards"] as const;
+export type HomeMode = (typeof VALID_HOME_MODES)[number];
+
+export const VALID_COMMANDER_SORTS = ["top", "hot"] as const;
+export type CommanderSort = (typeof VALID_COMMANDER_SORTS)[number];
+
+export const VALID_CARD_SORTS = ["top", "hot", "expansions"] as const;
+export type CardSort = (typeof VALID_CARD_SORTS)[number];
+
+export function parseHomeMode(raw: string | null | undefined): HomeMode | null {
+  if (!raw) return null;
+  return (VALID_HOME_MODES as readonly string[]).includes(raw)
+    ? (raw as HomeMode)
+    : null;
+}
+
+export function parseCommanderSort(raw: string | null | undefined): CommanderSort {
+  if (!raw) return "top";
+  return (VALID_COMMANDER_SORTS as readonly string[]).includes(raw)
+    ? (raw as CommanderSort)
+    : "top";
+}
+
+export function parseCardSort(raw: string | null | undefined): CardSort | null {
+  if (!raw) return null;
+  return (VALID_CARD_SORTS as readonly string[]).includes(raw)
+    ? (raw as CardSort)
+    : null;
+}
+
+export function resolveCommanderFromUrl(
+  pathname: string,
+  queryCommander: string | null,
+  initialCommander: string,
+  isInitialSync: boolean,
+): string {
+  if (pathname.startsWith("/commander/")) {
+    const rawCmdSegment = pathname.split("/")[2] || "";
+    if (rawCmdSegment) {
+      try {
+        const decoded = decodeURIComponent(rawCmdSegment).trim();
+        if (decoded) return decoded;
+      } catch {
+        // Segmento URL malformato: fallback sicuro
+      }
+    }
+  }
+
+  if (queryCommander && queryCommander.trim()) {
+    return queryCommander.trim();
+  }
+
+  if (isInitialSync && initialCommander && initialCommander !== "Tutti i mazzi") {
+    return initialCommander;
+  }
+
+  return "Tutti i mazzi";
+}
+
 export const VALID_PERIODS = [
   "Ultimi 7 giorni",
   "Ultimi 30 giorni",

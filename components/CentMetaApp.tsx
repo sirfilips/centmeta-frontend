@@ -22,6 +22,13 @@ import { CardsGrid } from "./CardsGrid";
 import {
   COLOR_FILTERS,
   VALID_PERIODS,
+  HomeMode,
+  CommanderSort,
+  CardSort,
+  parseHomeMode,
+  parseCommanderSort,
+  parseCardSort,
+  resolveCommanderFromUrl,
   isBasicLand,
   matchesColorIdentity,
 } from "../utils/mtg";
@@ -41,11 +48,9 @@ export default function CentMetaApp({
   initialCommander?: string;
 }) {
   const [filtroTempo, setFiltroTempo] = useState("Ultimi 30 giorni");
-  const [homeMode, setHomeMode] = useState<
-    "dashboard" | "commanders" | "cards"
-  >("dashboard");
-  const [commanderSort, setCommanderSort] = useState<"top" | "hot">("top");
-  const [cardSort, setCardSort] = useState<"top" | "hot" | "expansions">("top");
+  const [homeMode, setHomeMode] = useState<HomeMode>("dashboard");
+  const [commanderSort, setCommanderSort] = useState<CommanderSort>("top");
+  const [cardSort, setCardSort] = useState<CardSort>("top");
   const [selectedExpansion, setSelectedExpansion] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<string>("");
 
@@ -116,85 +121,79 @@ export default function CentMetaApp({
   // SENTINELLE PER LA CRONOLOGIA BROWSER
   const isPopState = useRef(false);
   const isInitialUrlCorrected = useRef(false);
+  const shouldReplaceNextUrl = useRef(false);
+  const [popStateTick, setPopStateTick] = useState(0);
 
   const isAnyLoading =
     loading || dashboardLoading || loadingCardDetail || loadingDecks;
 
-  const syncStateFromURL = useCallback(() => {
-    const params = new URLSearchParams(window.location.search);
-    const pathname = window.location.pathname;
+  const syncStateFromURL = useCallback(
+    (isInitialSync: boolean = false) => {
+      const params = new URLSearchParams(window.location.search);
+      const pathname = window.location.pathname;
 
-    let cmdFromUrl = params.get("commander");
-    if (pathname.startsWith("/commander/")) {
-      const rawCmdSegment = pathname.split("/")[2] || "";
-      try {
-        cmdFromUrl = rawCmdSegment ? decodeURIComponent(rawCmdSegment) : null;
-      } catch {
-        cmdFromUrl = null;
+      const resolvedCommander = resolveCommanderFromUrl(
+        pathname,
+        params.get("commander"),
+        initialCommander,
+        isInitialSync,
+      );
+      const hasActiveCommander = resolvedCommander !== "Tutti i mazzi";
+
+      const timeParam = params.get("periodo") || params.get("time");
+      if (timeParam && (VALID_PERIODS as readonly string[]).includes(timeParam)) {
+        setFiltroTempo(timeParam);
+      } else {
+        setFiltroTempo("Ultimi 30 giorni");
       }
-    }
 
-    const timeParam = params.get("periodo") || params.get("time");
-    if (timeParam && (VALID_PERIODS as readonly string[]).includes(timeParam)) {
-      setFiltroTempo(timeParam);
-    } else {
-      setFiltroTempo("Ultimi 30 giorni");
-    }
+      setSelectedCardDetail(params.get("card") || null);
+      setSelectedCommander(resolvedCommander);
+      const searchParam = params.get("search") ?? params.get("q") ?? "";
+      const parsedView = parseHomeMode(params.get("view"));
+      const viewMode: HomeMode =
+        parsedView ??
+        (searchParam.trim() !== "" && !hasActiveCommander
+          ? "cards"
+          : "dashboard");
+      setHomeMode(viewMode);
+      setActiveTab(params.get("tab") || "Top Cards");
 
-    setSelectedCardDetail(params.get("card") || null);
-    setSelectedCommander(cmdFromUrl || initialCommander || "Tutti i mazzi");
-    const searchParam = params.get("search") ?? params.get("q") ?? "";
-    const rawView = params.get("view") as
-      | "dashboard"
-      | "commanders"
-      | "cards"
-      | null;
-    const hasInitialCommander = Boolean(
-      initialCommander && initialCommander !== "Tutti i mazzi",
-    );
-    const viewMode: "dashboard" | "commanders" | "cards" =
-      rawView ||
-      (searchParam.trim() !== "" && !cmdFromUrl && !hasInitialCommander
-        ? "cards"
-        : "dashboard");
-    setHomeMode(viewMode);
-    setActiveTab(params.get("tab") || "Top Cards");
+      if (viewMode === "commanders" && !hasActiveCommander) {
+        setCommanderSearch(searchParam);
+        setDebouncedCommanderSearch(searchParam);
+        setCardSearch("");
+        setDebouncedCardSearch("");
+      } else {
+        setCardSearch(searchParam);
+        setDebouncedCardSearch(searchParam);
+        setCommanderSearch("");
+        setDebouncedCommanderSearch("");
+      }
 
-    if (viewMode === "commanders" && !cmdFromUrl && !hasInitialCommander) {
-      setCommanderSearch(searchParam);
-      setDebouncedCommanderSearch(searchParam);
-      setCardSearch("");
-      setDebouncedCardSearch("");
-    } else {
-      setCardSearch(searchParam);
-      setDebouncedCardSearch(searchParam);
-      setCommanderSearch("");
-      setDebouncedCommanderSearch("");
-    }
-
-    // Supporta sia 'cardsort' che il vecchio 'csort' con retrocompatibilità per vecchi bookmark
-    const cmdSortParam = (params.get("csort") as any) || "top";
-    const cardSortParam = (params.get("cardsort") ||
-      (viewMode === "cards" ? params.get("csort") : null) ||
-      "top") as any;
-    setCommanderSort(cmdSortParam);
-    setCardSort(cardSortParam);
-    setSelectedExpansion(params.get("exp") || "");
-    setSelectedRole(params.get("role") || "");
-    setIsInitialized(true);
-  }, [initialCommander]);
+      // Supporta sia 'cardsort' che il vecchio 'csort' con retrocompatibilità per vecchi bookmark
+      const cmdSortParam = parseCommanderSort(params.get("csort"));
+      const cardSortParam =
+        parseCardSort(params.get("cardsort")) ??
+        (viewMode === "cards" ? parseCardSort(params.get("csort")) : null) ??
+        "top";
+      setCommanderSort(cmdSortParam);
+      setCardSort(cardSortParam);
+      setSelectedExpansion(params.get("exp") || "");
+      setSelectedRole(params.get("role") || "");
+      setIsInitialized(true);
+    },
+    [initialCommander],
+  );
 
   useEffect(() => {
-    syncStateFromURL();
+    syncStateFromURL(true);
 
     // Gestore per le frecce Avanti/Indietro del browser
     const handlePopState = () => {
       isPopState.current = true;
-      syncStateFromURL();
-      // Resetta il blocco cronologia dopo che React ha aggiornato la grafica
-      setTimeout(() => {
-        isPopState.current = false;
-      }, 100);
+      syncStateFromURL(false);
+      setPopStateTick((n) => n + 1);
     };
 
     const handleSelectCardEvent = (ev: Event) => {
@@ -226,7 +225,8 @@ export default function CentMetaApp({
       params.set("csort", commanderSort);
     if (
       cardSort !== "top" &&
-      (homeMode === "cards" || selectedCommander !== "Tutti i mazzi")
+      homeMode === "cards" &&
+      selectedCommander === "Tutti i mazzi"
     )
       params.set("cardsort", cardSort);
     if (cardSort === "expansions" && homeMode === "cards" && selectedExpansion)
@@ -251,19 +251,28 @@ export default function CentMetaApp({
       : basePath;
     const currentUrl = window.location.pathname + window.location.search;
 
+    if (isPopState.current) {
+      isPopState.current = false;
+      isInitialUrlCorrected.current = true;
+      shouldReplaceNextUrl.current = false;
+      return;
+    }
+
     // Se l'URL deve cambiare...
     if (currentUrl !== newUrl) {
-      // 1. Se è il primo caricamento (es. apro da un link vecchio), correggilo ma NON aggiungere storico
-      if (!isInitialUrlCorrected.current) {
+      // 1. Se è il primo caricamento o normalizzazione interna, correggilo senza duplicare storico
+      if (!isInitialUrlCorrected.current || shouldReplaceNextUrl.current) {
         window.history.replaceState(window.history.state, "", newUrl);
         isInitialUrlCorrected.current = true;
+        shouldReplaceNextUrl.current = false;
       }
       // 2. Se l'utente ha cliccato nel sito (e NON sta usando le frecce indietro), aggiungi allo storico
-      else if (!isPopState.current) {
+      else {
         window.history.pushState(window.history.state, "", newUrl);
       }
     } else {
       isInitialUrlCorrected.current = true;
+      shouldReplaceNextUrl.current = false;
     }
   }, [
     selectedCommander,
@@ -278,6 +287,7 @@ export default function CentMetaApp({
     debouncedCommanderSearch,
     filtroTempo,
     isInitialized,
+    popStateTick,
   ]);
 
   useEffect(() => {
@@ -517,9 +527,29 @@ export default function CentMetaApp({
       displayExpansions.length > 0 &&
       (!selectedExpansion || !displayExpansions.some((e) => e.code === selectedExpansion))
     ) {
+      shouldReplaceNextUrl.current = true;
       setSelectedExpansion(displayExpansions[0].code);
     }
   }, [cardSort, homeMode, displayExpansions, selectedExpansion]);
+
+  const handleCardSortChange = useCallback(
+    (nextSort: CardSort) => {
+      setCardSort(nextSort);
+      if (nextSort !== cardSort && nextSort !== "top") {
+        setSelectedRole("");
+      }
+      if (
+        nextSort === "expansions" &&
+        displayExpansions.length > 0 &&
+        (!selectedExpansion ||
+          !displayExpansions.some((e) => e.code === selectedExpansion))
+      ) {
+        setSelectedExpansion(displayExpansions[0].code);
+      }
+      setVisibleCount(50);
+    },
+    [cardSort, displayExpansions, selectedExpansion],
+  );
 
   const cardSearchPredicate = useMemo(
     () => compileScryfallQuery(debouncedCardSearch),
@@ -1102,7 +1132,7 @@ export default function CentMetaApp({
                     homeMode={homeMode}
                     selectedCommander={selectedCommander}
                     cardSort={cardSort}
-                    setCardSort={setCardSort}
+                    setCardSort={handleCardSortChange}
                     expansions={displayExpansions}
                     selectedExpansion={selectedExpansion || displayExpansions[0]?.code || ""}
                     setSelectedExpansion={setSelectedExpansion}

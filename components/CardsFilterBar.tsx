@@ -82,10 +82,16 @@ export default function CardsFilterBar({
                 }`}
               ></span>{" "}
               {cardSort === "expansions"
-                ? "Top Carte Ultime Espansioni"
-                : activeRoleMeta
-                  ? activeRoleMeta.title
-                  : "Tutte le Carte"}
+                ? activeRoleMeta
+                  ? `Ultime Espansioni · ${activeRoleMeta.label}`
+                  : "Top Carte Ultime Espansioni"
+                : cardSort === "hot"
+                  ? activeRoleMeta
+                    ? `Carte Hot (7gg) · ${activeRoleMeta.label}`
+                    : "Carte Hot (7gg)"
+                  : activeRoleMeta
+                    ? activeRoleMeta.title
+                    : "Tutte le Carte"}
             </a>
             <div className="flex flex-wrap bg-slate-900/50 p-1 rounded-lg border border-slate-800">
               <button
