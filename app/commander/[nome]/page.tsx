@@ -1,7 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import CentMetaApp from '../../../components/CentMetaApp';
-import { buildCardMetadata, getScryfallArtCropUrl } from '../../../utils/og';
+import {
+  buildCardMetadata,
+  getScryfallArtCropUrl,
+  sanitizeCardQueryParam,
+} from '../../../utils/og';
 
 type Props = {
   params: { nome: string };
@@ -20,6 +24,7 @@ const cache = {
 
 // TTL della cache: 10 minuti in millisecondi
 const CACHE_TTL = 10 * 60 * 1000;
+let pendingRefresh: Promise<boolean> | null = null;
 
 /**
  * Decodifica in modo sicuro l'URL. Se è malformato (es. %E0%A4%A), invoca il 404
@@ -40,48 +45,25 @@ function safeJsonLd(data: unknown): string {
     .replace(/\u2029/g, '\\u2029');
 }
 
-/**
- * Verifica se un comandante esiste interrogando il backend interno.
- * Logica FAIL-OPEN: in caso di qualsiasi errore, mancanza di config o timeout, 
- * restituisce `true` per non interrompere il servizio.
- */
-async function commanderExists(name: string): Promise<boolean> {
+async function refreshCommandersCache(): Promise<boolean> {
   const apiUrl = process.env.API_INTERNAL_URL || 'http://127.0.0.1:8000';
-  
-  // Fail-open: se la variabile d'ambiente non è configurata, lascia passare
-  if (!apiUrl) {
-    return true;
-  }
-
-  const now = Date.now();
-  
-  // Se la cache è ancora valida (e ha elementi), esegui il check in memoria
-  if (now - cache.ts < CACHE_TTL && cache.names.size > 0) {
-    return cache.names.has(name);
-  }
-
   try {
     // Timeout di 3 secondi per evitare di bloccare il rendering SSR
     const response = await fetch(
       `${apiUrl}/api/commanders?filtro_tempo=${encodeURIComponent('Tutti i tempi')}`,
       {
         cache: 'no-store',
-        signal: AbortSignal.timeout(3000)
-      }
+        signal: AbortSignal.timeout(3000),
+      },
     );
 
     if (!response.ok) {
-      // Fail-open: API non ok. Usiamo la cache vecchia se c'è, altrimenti passa.
-      if (cache.names.size > 0) return cache.names.has(name);
-      return true;
+      return false;
     }
 
     const data = await response.json();
-
     if (!Array.isArray(data) || data.length === 0) {
-      // Fail-open: Risposta inattesa o DB vuoto (es. manutenzione).
-      if (cache.names.size > 0) return cache.names.has(name);
-      return true;
+      return false;
     }
 
     // Costruisci il nuovo Set, la mappa art_crop e la mappa artisti a parte, senza toccare la cache esistente
@@ -100,24 +82,43 @@ async function commanderExists(name: string): Promise<boolean> {
       }
     }
 
-    // Fail-open: se la lista non contiene nomi utilizzabili, non bloccare nulla
     if (fresh.size === 0) {
-      if (cache.names.size > 0) return cache.names.has(name);
-      return true;
+      return false;
     }
 
-    // Lista valida e popolata: aggiorna la cache e rispondi
     cache.names = fresh;
     cache.artCrops = freshArtCrops;
     cache.artists = freshArtists;
-    cache.ts = now;
-    return fresh.has(name);
-
-  } catch (error) {
-    // Fail-open: Timeout, backend spento o errore di rete.
-    if (cache.names.size > 0) return cache.names.has(name);
+    cache.ts = Date.now();
     return true;
+  } catch {
+    return false;
   }
+}
+
+/**
+ * Verifica se un comandante esiste interrogando il backend interno.
+ * Deduplica eventuali refresh concorrenti (es. generateMetadata + CommanderPage).
+ * Logica FAIL-OPEN: in caso di errore o timeout restituisce `true` per non interrompere il servizio.
+ */
+async function commanderExists(name: string): Promise<boolean> {
+  const now = Date.now();
+
+  if (now - cache.ts < CACHE_TTL && cache.names.size > 0) {
+    return cache.names.has(name);
+  }
+
+  if (!pendingRefresh) {
+    pendingRefresh = refreshCommandersCache().finally(() => {
+      pendingRefresh = null;
+    });
+  }
+
+  const refreshed = await pendingRefresh;
+  if (refreshed || cache.names.size > 0) {
+    return cache.names.has(name);
+  }
+  return true;
 }
 
 
@@ -131,11 +132,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     notFound();
   }
 
-  // Se nel link è presente anche il parametro ?card=..., mostra la preview della carta
-  const rawCard = searchParams?.card;
-  const cardName = (Array.isArray(rawCard) ? rawCard[0] : rawCard)?.trim();
+  // Se nel link è presente anche il parametro ?card=... valido, mostra la preview della carta
+  const cardName = sanitizeCardQueryParam(searchParams?.card);
   if (cardName) {
-    return buildCardMetadata(cardName);
+    const cardMeta = await buildCardMetadata(cardName);
+    if (cardMeta) return cardMeta;
   }
 
   const commanderArtCrop =

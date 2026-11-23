@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: '/*?card=',
+      disallow: ['/*?card=', '/*&card='],
     },
     sitemap: 'https://centmeta.it/sitemap.xml',
   };

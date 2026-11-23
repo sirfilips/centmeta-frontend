@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import CentMetaApp from '../components/CentMetaApp';
-import { buildCardMetadata } from '../utils/og';
+import { buildCardMetadata, sanitizeCardQueryParam } from '../utils/og';
 
 type HomeProps = {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -8,11 +8,11 @@ type HomeProps = {
 
 // 1. GENERAZIONE METADATI DELLA HOME E DELLE CARTE (?card=...)
 export async function generateMetadata({ searchParams }: HomeProps): Promise<Metadata> {
-  const rawCard = searchParams?.card;
-  const cardName = (Array.isArray(rawCard) ? rawCard[0] : rawCard)?.trim();
+  const cardName = sanitizeCardQueryParam(searchParams?.card);
 
   if (cardName) {
-    return buildCardMetadata(cardName);
+    const cardMeta = await buildCardMetadata(cardName);
+    if (cardMeta) return cardMeta;
   }
 
   return {
