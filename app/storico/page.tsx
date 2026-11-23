@@ -114,13 +114,20 @@ export default function StoricoMetagamePage() {
   const handleHeaderNavigate = (
     mode: "commanders" | "cards",
     tab: string,
-    sort: "top" | "hot" | "expansions"
+    sort: "top" | "hot" | "expansions",
+    expCode?: string,
+    roleKey?: string,
   ) => {
     if (mode === "commanders") {
       router.push(`/?view=commanders&csort=${sort}`);
     } else {
+      const expParam =
+        sort === "expansions" && expCode
+          ? `&exp=${encodeURIComponent(expCode)}`
+          : "";
+      const roleParam = roleKey ? `&role=${encodeURIComponent(roleKey)}` : "";
       router.push(
-        `/?view=cards&tab=${encodeURIComponent(tab)}&cardsort=${sort}`
+        `/?view=cards&tab=${encodeURIComponent(tab)}&cardsort=${sort}${expParam}${roleParam}`,
       );
     }
   };

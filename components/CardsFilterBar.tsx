@@ -287,9 +287,17 @@ export default function CardsFilterBar({
             <ScrollableFilterStrip innerClassName="py-1">
               {categories.map((cat) => {
                 const iconClass = CATEGORY_INFO[cat]?.icon || "";
+                const catTooltip =
+                  cat === "In Crescita"
+                    ? "Carte con il maggiore incremento percentuale di utilizzo nel periodo selezionato rispetto alla media storica globale."
+                    : cat === "Top Sinergie"
+                      ? "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."
+                      : undefined;
                 return (
-                  <div key={cat} className="relative group/tab flex items-center shrink-0">
+                  <div key={cat} className="relative flex items-center shrink-0">
                     <button
+                      type="button"
+                      title={catTooltip}
                       onClick={() => {
                         setActiveTab(cat);
                         setVisibleCount(50);
@@ -305,13 +313,6 @@ export default function CardsFilterBar({
                       )}
                       <span>{cat}</span>
                     </button>
-                    {(cat === "In Crescita" || cat === "Top Sinergie") && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden sm:group-hover/tab:block w-48 p-2.5 bg-slate-800 text-[11px] text-slate-200 rounded-lg shadow-xl border border-slate-700 z-50 pointer-events-none text-center whitespace-normal leading-relaxed">
-                        {cat === "In Crescita"
-                          ? "Carte con il maggiore incremento percentuale di utilizzo nel periodo selezionato rispetto alla media storica globale."
-                          : "Carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -351,6 +352,14 @@ export default function CardsFilterBar({
           </div>
         )}
       </div>
+
+      {(activeTab === "In Crescita" || activeTab === "Top Sinergie") && (
+        <p className="mt-2.5 text-[11px] text-slate-400 bg-slate-900/60 border border-slate-800/80 rounded-lg px-3 py-1.5">
+          {activeTab === "In Crescita"
+            ? "In Crescita: carte con il maggiore incremento percentuale di utilizzo nel periodo selezionato rispetto alla media storica globale."
+            : "Top Sinergie: carte con il tasso di affinità e inclusione più alto per questo specifico comandante."}
+        </p>
+      )}
     </div>
   );
 }

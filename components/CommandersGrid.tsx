@@ -86,9 +86,10 @@ export default function CommandersGrid({
             const isHotSort = commanderSort === "hot";
             const cmdName = isHotSort ? cmd.name : cmd.comandante;
             const count = isHotSort ? cmd.val1 : cmd.cnt;
-            const globalRank = isHotSort
-              ? null
-              : commanders.findIndex((c) => c.comandante === cmdName) + 1;
+            const rankIdx = isHotSort
+              ? -1
+              : commanders.findIndex((c) => c.comandante === cmdName);
+            const globalRank = rankIdx >= 0 ? rankIdx + 1 : null;
             const isPartner =
               cmdName.includes(" / ") && !cmdName.includes(" // ");
             return (

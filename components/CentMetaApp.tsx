@@ -122,12 +122,19 @@ export default function CentMetaApp({
 
     let cmdFromUrl = params.get("commander");
     if (pathname.startsWith("/commander/")) {
-      cmdFromUrl = decodeURIComponent(pathname.split("/")[2]);
+      const rawCmdSegment = pathname.split("/")[2] || "";
+      try {
+        cmdFromUrl = rawCmdSegment ? decodeURIComponent(rawCmdSegment) : null;
+      } catch {
+        cmdFromUrl = null;
+      }
     }
 
     const timeParam = params.get("periodo") || params.get("time");
     if (timeParam && (VALID_PERIODS as readonly string[]).includes(timeParam)) {
       setFiltroTempo(timeParam);
+    } else {
+      setFiltroTempo("Ultimi 30 giorni");
     }
 
     setSelectedCardDetail(params.get("card") || null);
@@ -138,15 +145,18 @@ export default function CentMetaApp({
       | "commanders"
       | "cards"
       | null;
+    const hasInitialCommander = Boolean(
+      initialCommander && initialCommander !== "Tutti i mazzi",
+    );
     const viewMode: "dashboard" | "commanders" | "cards" =
       rawView ||
-      (searchParam.trim() !== "" && !cmdFromUrl && !initialCommander
+      (searchParam.trim() !== "" && !cmdFromUrl && !hasInitialCommander
         ? "cards"
         : "dashboard");
     setHomeMode(viewMode);
     setActiveTab(params.get("tab") || "Top Cards");
 
-    if (viewMode === "commanders" && !cmdFromUrl && !initialCommander) {
+    if (viewMode === "commanders" && !cmdFromUrl && !hasInitialCommander) {
       setCommanderSearch(searchParam);
       setDebouncedCommanderSearch(searchParam);
       setCardSearch("");
@@ -1132,7 +1142,7 @@ export default function CentMetaApp({
                     <CardsGrid
                       loading={
                         homeMode === "cards" &&
-                        cardSort === "expansions" &&
+                        (cardSort === "expansions" || cardSort === "hot") &&
                         selectedCommander === "Tutti i mazzi"
                           ? dashboardLoading || !dashboardData
                           : loading
