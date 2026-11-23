@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   X,
   GitCompareArrows,
@@ -58,6 +58,14 @@ export default function DeckCompareModal({
   );
 
   useDialogFocus(isOpen, onClose, dialogPanelRef);
+
+  const prevAnalyzedRef = useRef(hasAnalyzed);
+  useEffect(() => {
+    if (isOpen && prevAnalyzedRef.current !== hasAnalyzed) {
+      dialogPanelRef.current?.focus({ preventScroll: true });
+    }
+    prevAnalyzedRef.current = hasAnalyzed;
+  }, [isOpen, hasAnalyzed]);
 
   if (!isOpen) return null;
 

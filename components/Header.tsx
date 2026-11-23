@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -52,6 +52,7 @@ export default function Header({
   const router = useRouter();
   const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -68,6 +69,17 @@ export default function Header({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  useEffect(() => {
+    if (!openDropdown) return;
+    const handleMouseDownOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDownOutside);
+    return () => document.removeEventListener("mousedown", handleMouseDownOutside);
+  }, [openDropdown]);
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return "N/D";
@@ -249,6 +261,12 @@ export default function Header({
         <div className="flex flex-row justify-between lg:justify-center items-center w-full lg:w-auto lg:col-start-2 lg:row-start-1 min-w-0">
           {/* Menu Desktop (>= lg) */}
           <nav
+            ref={navRef}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setOpenDropdown(null);
+              }
+            }}
             className="hidden lg:flex items-center gap-3.5 xl:gap-6 z-50 whitespace-nowrap"
             aria-label="Navigazione principale"
           >
@@ -260,6 +278,8 @@ export default function Header({
             >
               <button
                 type="button"
+                aria-haspopup="menu"
+                aria-expanded={openDropdown === "commanders"}
                 onClick={() => toggleDropdown("commanders")}
                 className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-sm xl:text-base py-1 transition-colors"
               >
@@ -272,29 +292,31 @@ export default function Header({
               </button>
 
               <div
-                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-200 origin-top z-[110] ${
                   openDropdown === "commanders"
                     ? "opacity-100 scale-100 visible"
                     : "opacity-0 scale-95 invisible"
                 }`}
               >
-                <div className="py-1.5 flex flex-col">
-                  <a
-                    href={`/?view=commanders&csort=top${periodParam}`}
-                    onClick={(e) => handleLinkClick(e, "commanders", "top")}
-                    data-umami-event="Header Menu - Top Comandanti"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Trophy className="w-4 h-4 text-blue-400" /> Top Comandanti
-                  </a>
-                  <a
-                    href={`/?view=commanders&csort=hot${periodParam}`}
-                    onClick={(e) => handleLinkClick(e, "commanders", "hot")}
-                    data-umami-event="Header Menu - Hot Comandanti"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  >
-                    <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
-                  </a>
+                <div className="w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                  <div className="py-1.5 flex flex-col">
+                    <a
+                      href={`/?view=commanders&csort=top${periodParam}`}
+                      onClick={(e) => handleLinkClick(e, "commanders", "top")}
+                      data-umami-event="Header Menu - Top Comandanti"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <Trophy className="w-4 h-4 text-blue-400" /> Top Comandanti
+                    </a>
+                    <a
+                      href={`/?view=commanders&csort=hot${periodParam}`}
+                      onClick={(e) => handleLinkClick(e, "commanders", "hot")}
+                      data-umami-event="Header Menu - Hot Comandanti"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    >
+                      <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -307,6 +329,8 @@ export default function Header({
             >
               <button
                 type="button"
+                aria-haspopup="menu"
+                aria-expanded={openDropdown === "cards"}
                 onClick={() => toggleDropdown("cards")}
                 className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-sm xl:text-base py-1 transition-colors"
               >
@@ -319,45 +343,47 @@ export default function Header({
               </button>
 
               <div
-                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-200 origin-top z-[110] ${
                   openDropdown === "cards"
                     ? "opacity-100 scale-100 visible"
                     : "opacity-0 scale-95 invisible"
                 }`}
               >
-                <div className="py-1.5 flex flex-col">
-                  <a
-                    href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`}
-                    onClick={(e) => handleLinkClick(e, "cards", "top")}
-                    data-umami-event="Header Menu - Top Carte"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Trophy className="w-4 h-4 text-blue-400" /> Top Carte
-                  </a>
-                  <a
-                    href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`}
-                    onClick={(e) => handleLinkClick(e, "cards", "hot")}
-                    data-umami-event="Header Menu - Hot Carte"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
-                  </a>
-                  <a
-                    href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`}
-                    onClick={(e) => handleLinkClick(e, "cards", "expansions")}
-                    data-umami-event="Header Menu - Ultime Espansioni"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Sparkles className="w-4 h-4 text-purple-400" /> Ultime Espansioni
-                  </a>
-                  <a
-                    href={`/?view=cards&tab=Top+Cards&cardsort=top&role=removal${periodParam}`}
-                    onClick={(e) => handleLinkClick(e, "cards", "top", "removal")}
-                    data-umami-event="Header Menu - Carte per Ruolo"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  >
-                    <Layers className="w-4 h-4 text-rose-400" /> Carte per Ruolo
-                  </a>
+                <div className="w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                  <div className="py-1.5 flex flex-col">
+                    <a
+                      href={`/?view=cards&tab=Top+Cards&cardsort=top${periodParam}`}
+                      onClick={(e) => handleLinkClick(e, "cards", "top")}
+                      data-umami-event="Header Menu - Top Carte"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <Trophy className="w-4 h-4 text-blue-400" /> Top Carte
+                    </a>
+                    <a
+                      href={`/?view=cards&tab=Top+Cards&cardsort=hot${periodParam}`}
+                      onClick={(e) => handleLinkClick(e, "cards", "hot")}
+                      data-umami-event="Header Menu - Hot Carte"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <Flame className="w-4 h-4 text-orange-500" /> Hot (7 Giorni)
+                    </a>
+                    <a
+                      href={`/?view=cards&tab=Top+Cards&cardsort=expansions${periodParam}`}
+                      onClick={(e) => handleLinkClick(e, "cards", "expansions")}
+                      data-umami-event="Header Menu - Ultime Espansioni"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <Sparkles className="w-4 h-4 text-purple-400" /> Ultime Espansioni
+                    </a>
+                    <a
+                      href={`/?view=cards&tab=Top+Cards&cardsort=top&role=removal${periodParam}`}
+                      onClick={(e) => handleLinkClick(e, "cards", "top", "removal")}
+                      data-umami-event="Header Menu - Carte per Ruolo"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    >
+                      <Layers className="w-4 h-4 text-rose-400" /> Carte per Ruolo
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -384,6 +410,8 @@ export default function Header({
             >
               <button
                 type="button"
+                aria-haspopup="menu"
+                aria-expanded={openDropdown === "info"}
                 onClick={() => toggleDropdown("info")}
                 className={`flex items-center gap-1 font-bold text-sm xl:text-base py-1 transition-colors ${
                   isInfoActive
@@ -400,45 +428,47 @@ export default function Header({
               </button>
 
               <div
-                className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl transition-all duration-200 origin-top z-[110] ${
+                className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 transition-all duration-200 origin-top z-[110] ${
                   openDropdown === "info"
                     ? "opacity-100 scale-100 visible"
                     : "opacity-0 scale-95 invisible"
                 }`}
               >
-                <div className="py-1.5 flex flex-col">
-                  <Link
-                    href="/about"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Il Progetto"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Compass className="w-4 h-4 text-blue-400" /> Il Progetto
-                  </Link>
-                  <Link
-                    href="/status"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Stato Sistema"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <Activity className="w-4 h-4 text-emerald-400" /> Stato del Sistema
-                  </Link>
-                  <Link
-                    href="/changelog"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Changelog"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
-                  >
-                    <History className="w-4 h-4 text-purple-400" /> Changelog
-                  </Link>
-                  <Link
-                    href="/legal"
-                    onClick={() => setOpenDropdown(null)}
-                    data-umami-event="Header Menu - Note Legali"
-                    className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-slate-400" /> Privacy & Legali
-                  </Link>
+                <div className="w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                  <div className="py-1.5 flex flex-col">
+                    <Link
+                      href="/about"
+                      onClick={() => setOpenDropdown(null)}
+                      data-umami-event="Header Menu - Il Progetto"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <Compass className="w-4 h-4 text-blue-400" /> Il Progetto
+                    </Link>
+                    <Link
+                      href="/status"
+                      onClick={() => setOpenDropdown(null)}
+                      data-umami-event="Header Menu - Stato Sistema"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <Activity className="w-4 h-4 text-emerald-400" /> Stato del Sistema
+                    </Link>
+                    <Link
+                      href="/changelog"
+                      onClick={() => setOpenDropdown(null)}
+                      data-umami-event="Header Menu - Changelog"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-b border-slate-700/50"
+                    >
+                      <History className="w-4 h-4 text-purple-400" /> Changelog
+                    </Link>
+                    <Link
+                      href="/legal"
+                      onClick={() => setOpenDropdown(null)}
+                      data-umami-event="Header Menu - Note Legali"
+                      className="flex items-center gap-2.5 text-left px-4 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-slate-400" /> Privacy & Legali
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

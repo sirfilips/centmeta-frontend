@@ -13,13 +13,21 @@ const FOCUSABLE_SELECTOR = [
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (el) => el.getClientRects().length > 0 && !el.hasAttribute("inert"),
+    (el) =>
+      el.getClientRects().length > 0 &&
+      !el.hasAttribute("inert") &&
+      !el.closest("[inert]") &&
+      window.getComputedStyle(el).visibility !== "hidden",
   );
 }
+
+const openDialogStack: symbol[] = [];
+let savedBodyOverflow: string | null = null;
 
 /**
  * Gestisce focus iniziale, focus trap (Tab/Shift+Tab), chiusura con Escape,
  * blocco dello scroll del body e ripristino del focus alla chiusura del dialog.
+ * Supporta più dialog sovrapposti tramite stack globale (agisce solo sul dialog in cima).
  */
 export function useDialogFocus<T extends HTMLElement = HTMLDivElement>(
   isOpen: boolean,
@@ -32,10 +40,15 @@ export function useDialogFocus<T extends HTMLElement = HTMLDivElement>(
   useEffect(() => {
     if (!isOpen) return;
 
+    const dialogId = Symbol("dialog");
     const prevFocused =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+
+    if (openDialogStack.length === 0) {
+      savedBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    }
+    openDialogStack.push(dialogId);
 
     const container = containerRef.current;
     if (container) {
@@ -47,6 +60,9 @@ export function useDialogFocus<T extends HTMLElement = HTMLDivElement>(
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (openDialogStack[openDialogStack.length - 1] !== dialogId) {
+        return;
+      }
       if (e.key === "Escape") {
         e.preventDefault();
         onCloseRef.current();
@@ -84,7 +100,14 @@ export function useDialogFocus<T extends HTMLElement = HTMLDivElement>(
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      const idx = openDialogStack.lastIndexOf(dialogId);
+      if (idx !== -1) {
+        openDialogStack.splice(idx, 1);
+      }
+      if (openDialogStack.length === 0) {
+        document.body.style.overflow = savedBodyOverflow ?? "";
+        savedBodyOverflow = null;
+      }
       document.removeEventListener("keydown", handleKeyDown);
       if (prevFocused && prevFocused.isConnected && typeof prevFocused.focus === "function") {
         prevFocused.focus({ preventScroll: true });

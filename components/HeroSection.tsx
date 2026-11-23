@@ -197,6 +197,13 @@ export default function HeroSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen || highlightedIndex < 0) return;
+    document
+      .getElementById(`hero-search-opt-${highlightedIndex}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [isOpen, highlightedIndex]);
+
   const cleanQ = query.trim().toLowerCase();
   const isScryfallQuery = useMemo(() => hasScryfallSyntax(query), [query]);
   const scryfallPredicate = useMemo(
@@ -538,6 +545,20 @@ export default function HeroSection({
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-label={
+              isDashboard
+                ? "Cerca comandante o carta"
+                : "Cerca comandante"
+            }
+            aria-autocomplete="list"
+            aria-expanded={isOpen && cleanQ.length >= 2}
+            aria-controls="hero-search-listbox"
+            aria-activedescendant={
+              highlightedIndex >= 0
+                ? `hero-search-opt-${highlightedIndex}`
+                : undefined
+            }
             placeholder={
               isDashboard
                 ? "Cerca comandante o carta..."
@@ -566,6 +587,7 @@ export default function HeroSection({
               <button
                 type="button"
                 onClick={handleClear}
+                aria-label="Cancella ricerca"
                 className="text-slate-400 hover:text-white transition-colors p-1 rounded-full"
                 title="Cancella ricerca"
               >
@@ -575,6 +597,9 @@ export default function HeroSection({
             <ScryfallHelpButton
               size={isDashboard ? "md" : "sm"}
               align="right"
+              onOpenChange={(helpOpen) => {
+                if (helpOpen) setIsOpen(false);
+              }}
               onSelectExample={(exampleQ) => {
                 if (onSearchFocus) onSearchFocus();
                 setQuery(exampleQ);
@@ -601,6 +626,8 @@ export default function HeroSection({
               <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-slate-950/70 border-b border-slate-800 text-xs">
                 <div className="flex flex-wrap items-center gap-1">
                   <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       setSearchTab("all");
                       setHighlightedIndex(-1);
@@ -614,6 +641,8 @@ export default function HeroSection({
                     Tutti ({totalResults})
                   </button>
                   <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       setSearchTab("commanders");
                       setHighlightedIndex(-1);
@@ -628,6 +657,8 @@ export default function HeroSection({
                     Comandanti ({matchingCommanders.length})
                   </button>
                   <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       setSearchTab("cards");
                       setHighlightedIndex(-1);
@@ -650,7 +681,11 @@ export default function HeroSection({
               </div>
 
               {/* LISTA DEI RISULTATI */}
-              <div className="max-h-[55vh] sm:max-h-[380px] overflow-y-auto divide-y divide-slate-800/60">
+              <div
+                id="hero-search-listbox"
+                role="listbox"
+                className="max-h-[55vh] sm:max-h-[380px] overflow-y-auto divide-y divide-slate-800/60"
+              >
                 {visibleCommanders.length === 0 && visibleCards.length === 0 ? (
                   <div className="p-6 text-center text-slate-400 text-sm">
                     <p className="font-semibold text-slate-300">
@@ -686,11 +721,16 @@ export default function HeroSection({
                             )}&format=image&version=art_crop`;
 
                           return (
-                            <div
+                            <button
                               key={cmd.comandante}
+                              id={`hero-search-opt-${flatIdx}`}
+                              type="button"
+                              role="option"
+                              aria-selected={isHighlighted}
+                              onMouseDown={(e) => e.preventDefault()}
                               onClick={() => handleSelect({ type: "commander", data: cmd })}
                               onMouseEnter={() => setHighlightedIndex(flatIdx)}
-                              className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer transition-colors ${
+                              className={`w-full text-left flex items-center justify-between px-3.5 py-2.5 cursor-pointer transition-colors ${
                                 isHighlighted
                                   ? "bg-slate-800/90 ring-1 ring-inset ring-blue-500/50"
                                   : "hover:bg-slate-800/50"
@@ -735,7 +775,7 @@ export default function HeroSection({
                                 </span>
                                 <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
@@ -770,11 +810,16 @@ export default function HeroSection({
                           const catInfo = CATEGORY_INFO[card.category];
 
                           return (
-                            <div
+                            <button
                               key={cardName}
+                              id={`hero-search-opt-${flatIdx}`}
+                              type="button"
+                              role="option"
+                              aria-selected={isHighlighted}
+                              onMouseDown={(e) => e.preventDefault()}
                               onClick={() => handleSelect({ type: "card", data: card })}
                               onMouseEnter={() => setHighlightedIndex(flatIdx)}
-                              className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer transition-colors ${
+                              className={`w-full text-left flex items-center justify-between px-3.5 py-2.5 cursor-pointer transition-colors ${
                                 isHighlighted
                                   ? "bg-slate-800/90 ring-1 ring-inset ring-emerald-500/50"
                                   : "hover:bg-slate-800/50"
@@ -820,7 +865,7 @@ export default function HeroSection({
                                 </span>
                                 <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
@@ -834,6 +879,7 @@ export default function HeroSection({
                 <div>
                   <div className="p-2 bg-slate-950/80 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <button
+                      type="button"
                       onClick={() => navigateToSearchList("commanders", query.trim())}
                       className="text-blue-400 hover:text-blue-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
                     >
@@ -841,6 +887,7 @@ export default function HeroSection({
                       Vedi comandanti per &ldquo;{query}&rdquo;
                     </button>
                     <button
+                      type="button"
                       onClick={() => navigateToSearchList("cards", query.trim())}
                       className="text-emerald-400 hover:text-emerald-300 font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800/60 transition-colors flex items-center gap-1"
                     >

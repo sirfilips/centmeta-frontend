@@ -6,17 +6,23 @@ import { SCRYFALL_HELP_EXAMPLES } from "../utils/scryfallSearch";
 
 interface ScryfallHelpButtonProps {
   onSelectExample?: (query: string) => void;
+  onOpenChange?: (isOpen: boolean) => void;
   align?: "left" | "right";
   size?: "sm" | "md";
 }
 
 export default function ScryfallHelpButton({
   onSelectExample,
+  onOpenChange,
   align = "right",
   size = "sm",
 }: ScryfallHelpButtonProps) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
 
   useEffect(() => {
     if (!open) return;
