@@ -19,7 +19,7 @@ export function getScryfallArtCropUrl(cardOrCmdName: string): string {
  */
 export async function resolveCardArtMeta(cardName: string): Promise<{ artCrop: string; artist: string }> {
   const fallback = getScryfallArtCropUrl(cardName);
-  const apiUrl = process.env.API_INTERNAL_URL;
+  const apiUrl = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
   if (!apiUrl) {
     return { artCrop: fallback, artist: "" };
   }

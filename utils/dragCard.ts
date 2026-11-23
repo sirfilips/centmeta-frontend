@@ -20,9 +20,10 @@ export function handleCardDragStart(
   cardName: string,
   imageUrl?: string
 ) {
+  e.stopPropagation();
   if (!cardName) return;
 
-  trackEvent('Drag Card', { card: cardName });
+  trackEvent('Drag Card');
 
   const scryfallSearchUrl = `https://scryfall.com/search?q=%21%22${encodeURIComponent(cardName)}%22`;
 

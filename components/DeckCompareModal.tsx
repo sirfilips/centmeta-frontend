@@ -24,6 +24,7 @@ interface DeckCompareModalProps {
   statsData: {
     total_decks: number;
     avg_lands?: number;
+    type_distribution?: Record<string, number>;
     mana_curve?: Record<string, number>;
     cards: any[];
   };

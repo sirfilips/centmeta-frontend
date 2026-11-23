@@ -33,13 +33,20 @@ function safeDecode(encoded: string): string {
   }
 }
 
+function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 /**
  * Verifica se un comandante esiste interrogando il backend interno.
  * Logica FAIL-OPEN: in caso di qualsiasi errore, mancanza di config o timeout, 
  * restituisce `true` per non interrompere il servizio.
  */
 async function commanderExists(name: string): Promise<boolean> {
-  const apiUrl = process.env.API_INTERNAL_URL;
+  const apiUrl = process.env.API_INTERNAL_URL || 'http://127.0.0.1:8000';
   
   // Fail-open: se la variabile d'ambiente non è configurata, lascia passare
   if (!apiUrl) {
@@ -139,16 +146,19 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     : '© Wizards of the Coast';
   const ogDescription = `Analisi statistica e liste mazzi per ${commanderName}. (${artCredit})`;
   
+  const encodedCommanderName = encodeURIComponent(commanderName);
+  const canonicalUrl = `https://centmeta.it/commander/${encodedCommanderName}`;
+
   return {
     title: `${commanderName} — Centurion Commander | Liste, Sinergie e Statistiche`,
     description: `Analisi statistica completa per ${commanderName} in Magic: The Gathering Centurion Commander (1v1). Curva di mana, composizione media, sinergie e liste mazzi dalla community.`,
     alternates: {
-      canonical: `https://centmeta.it/commander/${params.nome}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: `${commanderName} - CentMeta`,
       description: ogDescription,
-      url: `https://centmeta.it/commander/${params.nome}`,
+      url: canonicalUrl,
       siteName: 'CentMeta',
       images: [
         {
@@ -180,6 +190,7 @@ export default async function CommanderPage({ params }: Props) {
     notFound();
   }
   
+  const encodedCommanderName = encodeURIComponent(commanderName);
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -194,7 +205,7 @@ export default async function CommanderPage({ params }: Props) {
         '@type': 'ListItem',
         position: 2,
         name: commanderName,
-        item: `https://centmeta.it/commander/${params.nome}`,
+        item: `https://centmeta.it/commander/${encodedCommanderName}`,
       },
     ],
   };
@@ -204,7 +215,7 @@ export default async function CommanderPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }}
       />
       <CentMetaApp initialCommander={commanderName} />
     </>

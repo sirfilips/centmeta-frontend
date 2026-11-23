@@ -205,11 +205,31 @@ export function parseDecklistText(
   };
 }
 
+function getMetaCardName(c: any): string {
+  if (typeof c?.card_name === "string" && c.card_name) return c.card_name;
+  if (typeof c?.name === "string" && c.name) return c.name;
+  return "";
+}
+
+function getMetaInclusionRate(c: any): number {
+  const raw = c?.Percentuale ?? c?.inclusion_rate ?? 0;
+  const val = Number(raw);
+  return Number.isFinite(val) ? val : 0;
+}
+
+function getMetaSynergy(c: any): number | undefined {
+  const raw = c?.Sinergia ?? c?.synergy;
+  if (raw === undefined || raw === null) return undefined;
+  const val = Number(raw);
+  return Number.isFinite(val) ? val : undefined;
+}
+
 export function compareDeckWithMeta(
   parsed: ParsedDecklist,
   statsData: {
     total_decks: number;
     avg_lands?: number;
+    type_distribution?: Record<string, number>;
     mana_curve?: Record<string, number>;
     cards: any[];
   }
@@ -218,9 +238,10 @@ export function compareDeckWithMeta(
   const metaLookup = new Map<string, any>();
 
   for (const c of metaCards) {
-    if (!c?.name) continue;
-    const nk = normalizeCardKey(c.name);
-    const fk = getFrontFaceKey(c.name);
+    const metaName = getMetaCardName(c);
+    if (!metaName) continue;
+    const nk = normalizeCardKey(metaName);
+    const fk = getFrontFaceKey(metaName);
     if (!metaLookup.has(nk)) metaLookup.set(nk, c);
     if (!metaLookup.has(fk)) metaLookup.set(fk, c);
   }
@@ -242,9 +263,10 @@ export function compareDeckWithMeta(
     const metaMatch = metaLookup.get(entry.normalizedKey) || metaLookup.get(entry.frontKey);
 
     if (metaMatch) {
+      const matchedName = getMetaCardName(metaMatch) || entry.name;
       matchedCardsCount += 1;
       const isLand =
-        metaMatch.category === "Terre" || isBasicLand(metaMatch.name || entry.name);
+        metaMatch.category === "Terre" || isBasicLand(matchedName);
       if (isLand) {
         userLands += entry.quantity;
       } else {
@@ -253,12 +275,12 @@ export function compareDeckWithMeta(
       }
 
       const item: ComparedMetaCard = {
-        name: metaMatch.name || entry.name,
+        name: matchedName,
         quantity: entry.quantity,
-        inclusion_rate: Number(metaMatch.inclusion_rate || 0),
+        inclusion_rate: getMetaInclusionRate(metaMatch),
         category: metaMatch.category,
         cmc: metaMatch.cmc,
-        synergy: metaMatch.synergy,
+        synergy: getMetaSynergy(metaMatch),
         images: metaMatch.images,
         color_identity: metaMatch.color_identity,
       };
@@ -285,23 +307,24 @@ export function compareDeckWithMeta(
   let staplesCovered = 0;
 
   for (const c of metaCards) {
-    if (!c?.name || isBasicLand(c.name)) continue;
-    const rate = Number(c.inclusion_rate || 0);
+    const metaName = getMetaCardName(c);
+    if (!metaName || isBasicLand(metaName)) continue;
+    const rate = getMetaInclusionRate(c);
     if (rate < 20) continue;
 
     totalStaplesCount += 1;
-    const nk = normalizeCardKey(c.name);
-    const fk = getFrontFaceKey(c.name);
+    const nk = normalizeCardKey(metaName);
+    const fk = getFrontFaceKey(metaName);
     if (userKeySet.has(nk) || userKeySet.has(fk)) {
       staplesCovered += 1;
     } else {
       missingStaples.push({
-        name: c.name,
+        name: metaName,
         quantity: 1,
         inclusion_rate: rate,
         category: c.category,
         cmc: c.cmc,
-        synergy: c.synergy,
+        synergy: getMetaSynergy(c),
         images: c.images,
         color_identity: c.color_identity,
       });
@@ -326,6 +349,9 @@ export function compareDeckWithMeta(
     metaAvg: Number(metaCurve[cmc] ?? metaCurve[String(cmc)] ?? 0),
   }));
 
+  const rawMetaLands = statsData?.avg_lands ?? statsData?.type_distribution?.Terre ?? 0;
+  const metaAvgLands = Number.isFinite(Number(rawMetaLands)) ? Number(rawMetaLands) : 0;
+
   return {
     totalNonCommanderCards: parsed.totalQuantity,
     matchedCardsCount,
@@ -333,7 +359,7 @@ export function compareDeckWithMeta(
     staplesCovered,
     totalStaplesCount,
     userLands,
-    metaAvgLands: Number(statsData?.avg_lands || 0),
+    metaAvgLands,
     missingStaples,
     sharedCards,
     uniqueCards,
