@@ -27,9 +27,9 @@ const scriptSrc = [
 
 const connectSrc = [
   "'self'",
-  'https://cloud.umami.is',
+  'https://*.umami.is',
   'https://api-gateway.umami.dev',
-  ...(umamiOrigin && umamiOrigin !== 'https://cloud.umami.is' ? [umamiOrigin] : []),
+  ...(umamiOrigin && !umamiOrigin.endsWith('.umami.is') ? [umamiOrigin] : []),
   ...(apiOrigin ? [apiOrigin] : []),
 ].join(' ');
 
