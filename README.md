@@ -13,7 +13,7 @@
   <a href="https://ko-fi.com/centmeta"><img src="https://img.shields.io/badge/Support_on-Ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white" alt="Support on Ko-fi" /></a>
 </p>
 
-CentMeta è un'applicazione web indipendente e open-source dedicata all'analisi statistica e al monitoraggio del metagame per il formato Centurion Commander di Magic: The Gathering. 
+CentMeta è un'applicazione web indipendente e open-source dedicata all'analisi statistica e al monitoraggio del metagame per il formato Centurion Commander di Magic: The Gathering.
 
 Questo repository contiene esclusivamente il codice sorgente del frontend, progettato per offrire un'interfaccia utente fluida, reattiva e priva di cookie di profilazione (cookie-free).
 
@@ -21,11 +21,11 @@ Questo repository contiene esclusivamente il codice sorgente del frontend, proge
 
 ## Funzionalità Principali
 
-*   **Dashboard Modulare:** Interfaccia a carosello per la consultazione rapida delle metriche globali, con evidenza sui comandanti e sulle carte in maggiore ascesa (metrica "Hot 7gg").
-*   **Ricerca Unificata Hero:** Motore di ricerca istantaneo nella Hero della homepage per trovare comandanti e carte con navigazione da tastiera e filtri rapidi.
-*   **Analisi Dettagliata:** Schede analitiche per singolo comandante comprendenti distribuzioni statistiche (composizione del mazzo, curva del mana), tassi di sinergia delle carte e supporto nativo HTML5 Drag & Drop verso il deckbuilder di Moxfield.
-*   **Filtri Dinamici e Navigazione:** Motore di ricerca avanzato con filtri cumulativi per identità di colore e tipologia. Gestione dello stato tramite URL (`?periodo=`, `csort`, `cardsort`) per garantire la condivisibilità dei parametri di ricerca e la compatibilità con la navigazione del browser.
-*   **Design Responsivo:** Layout ottimizzato per dispositivi mobili con interfacce a comparsa, affiancato da un'esperienza desktop arricchita da elementi visivi di profondità.
+*   **Dashboard Modulare & Ruoli:** Interfaccia a carosello per la consultazione rapida di comandanti e carte in evidenza, tendenze *Hot 7gg*, espansioni recenti e sezioni dedicate alle **Migliori Carte per Ruolo** (*Removal*, *Botti*, *Counterspell*, *Card Draw*, *Scartini*, *Board Wipe*, *Tutori*, *Ramp*).
+*   **Ricerca Unificata & Sintassi Scryfall:** Barra di ricerca nella Hero e nelle griglie con autocomplete accessibile (`combobox`/`listbox`), guida rapida integrata e supporto alla sintassi Scryfall (`t:`, `o:`, `id:`, `c:`, `mv`, `kw:`, `is:`, `role:`, logica booleana, `!=` ed espressioni regex protette anti-ReDoS).
+*   **Analisi Comandante, Confronto & Appunti Mazzo:** Schede analitiche con composizione, curva del mana e sinergie; strumento **Confronta Lista** (import da Moxfield, MTG Arena e MTGO) e pannello **Appunti Mazzo** client-side persistente in `localStorage` con verifica identità colore, HTML5 Drag & Drop ed export pronto per Moxfield.
+*   **Storico Metagame & Stato Sistema:** Grafici interattivi fino a 24 mesi su `/storico` (quote comandanti, volume mazzi, varietà del meta, distribuzione colori) e pagina `/status` per il monitoraggio dell'infrastruttura.
+*   **Filtri Condivisibili & Pagine di Errore:** Stato sincronizzato via URL (`?periodo=`, `?view=`, `csort`, `cardsort`, `?search=`) compatibile con la cronologia del browser e pagine di errore personalizzate (`not-found`, `error`, `global-error`).
 
 ## Stack Tecnologico
 
@@ -33,13 +33,13 @@ Il progetto è basato sui moderni standard dello sviluppo web frontend:
 *   **Framework:** Next.js 14 (architettura App Router)
 *   **Libreria UI:** React 18 & TypeScript
 *   **Styling:** Tailwind CSS
-*   **Iconografia:** Lucide React & Mana Font
+*   **Iconografia & Font:** Lucide React, Mana Font & `@fontsource` (*Newsreader*, *Plus Jakarta Sans*, *JetBrains Mono*)
 *   **Integrazioni API:** Backend FastAPI & Scryfall API (metadati carte)
 
 ## Requisiti di Sistema
 
 Per eseguire il progetto in ambiente di sviluppo locale, è necessario aver installato:
-*   Node.js (versione 18.0 o superiore consigliata)
+*   Node.js (versione 18.17 o superiore; consigliato **Node.js 20 LTS**, utilizzato in CI)
 *   npm (Node Package Manager)
 
 ## Installazione e Avvio
@@ -64,6 +64,9 @@ npm install
 # URL interno del backend FastAPI per chiamate SSR/SEO (default: http://127.0.0.1:8000)
 API_INTERNAL_URL=http://127.0.0.1:8000
 
+# Opzionale: origine pubblica API client-side (vuoto = usa il rewrite /api/*)
+NEXT_PUBLIC_API_URL=
+
 # Opzionali: Configurazione Umami Analytics (cookie-free)
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=
 NEXT_PUBLIC_UMAMI_SCRIPT_URL=
@@ -74,24 +77,49 @@ NEXT_PUBLIC_UMAMI_SCRIPT_URL=
 npm run dev
 ```
 
-L'applicazione sarà accessibile all'indirizzo `http://localhost:3000`.
+L'applicazione sarà accessibile all'indirizzo `http://localhost:3000`. In sviluppo locale `next.config.js` reindirizza automaticamente le chiamate `/api/*` verso `http://127.0.0.1:8000/api/*`: per popolare dashboard e grafici con dati reali è quindi necessario avere in esecuzione il backend sulla porta `8000`.
+
+## Test e Build
+
+```bash
+# Verifica tipi TypeScript
+npx tsc --noEmit
+
+# Esecuzione suite di unit test
+npm test
+
+# Build di produzione e avvio
+npm run build
+npm run start
+```
 
 ## Struttura del Progetto
 
-*   `/app`: Contiene le logiche di routing di Next.js e le pagine principali (`/`, `/commander/[slug]`, `/about`, `/changelog`, `/status`, `/legal`).
-*   `/components`: Moduli dell'interfaccia utente riutilizzabili (pulsanti, grafici, layout carte).
-*   `/public`: Risorse statiche come immagini, loghi e file di configurazione client-side.
-*   `/utils`: Funzioni di supporto, formattazione dati e logiche di interazione (`mtg.ts`).
+*   `/app`: Routing Next.js App Router e pagine principali (`/`, `/commander/[nome]`, `/storico`, `/status`, `/about`, `/changelog`, `/legal`), insieme ai file SEO (`sitemap.ts`, `robots.ts`, `manifest.ts`) e ai boundary di errore (`not-found.tsx`, `error.tsx`, `global-error.tsx`).
+*   `/components`: Moduli dell'interfaccia utente riutilizzabili (caroselli, grafici storici, modale di confronto, Appunti Mazzo, filtri e menu accessibili).
+*   `/utils`: Logiche client/SSR pure, tra cui `mtg.ts`, `scryfallSearch.ts`, `decklistParser.ts`, `notesStorage.ts`, `og.ts` e `useDialogFocus.ts`.
+*   `/tests` & `/scripts`: Suite di unit test e runner (`scripts/run-tests.mjs`).
+*   `/public`: Risorse statiche, icone PWA, immagine OpenGraph e manifest.
 
 ## Conformità alla Privacy
 
-Il frontend di CentMeta è progettato secondo i principi della "Privacy by Design". L'architettura è completamente priva di cookie (cookie-free). Non sono integrati cookie di profilazione, pixel pubblicitari o strumenti invasivi di tracciamento utente. Per le statistiche aggregate di utilizzo può essere integrato opzionalmente **Umami Analytics** in modalità cookie-free e anonima, rendendo l'applicazione intrinsecamente conforme alle normative GDPR senza necessità di banner per il consenso dei cookie.
+Il frontend di CentMeta è progettato secondo i principi della "Privacy by Design". L'architettura è completamente priva di cookie (cookie-free) e protetta da header HTTP di sicurezza dedicati (`Content-Security-Policy`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `HSTS`). Non sono integrati cookie di profilazione né pixel pubblicitari, e tutti i contenuti inseriti dall'utente negli strumenti locali (**Appunti Mazzo**, **Confronta Lista**, Drag & Drop) restano esclusivamente nel browser (`localStorage`). Per le statistiche aggregate di utilizzo può essere integrato opzionalmente **Umami Analytics** in modalità anonima e senza cookie, in conformità al GDPR.
 
-## Note Legali e Proprietà Intellettuale
+## Contribuire
+
+Lo sviluppo avviene sul branch `dev`, poi unito su `main` per il rilascio:
+
+1. Apri una issue per segnalare bug o proporre miglioramenti.
+2. Lavora su un branch derivato da `dev`.
+3. Prima di aprire una Pull Request, verifica che `npx tsc --noEmit`, `npm test` e `npm run build` completino senza errori.
+
+## Licenza, Note Legali e Proprietà Intellettuale
+
+Il codice sorgente è rilasciato sotto licenza open-source [MIT](./LICENSE).
 
 L'architettura del software frontend e il design dell'interfaccia sono proprietà intellettuale di Filippo Zanardi.
 
-Le informazioni letterali e grafiche presentate su questo sito, riguardanti Magic: The Gathering, comprese le immagini delle carte e il testo Oracle, sono di proprietà di Wizards of the Coast, LLC, una consociata di Hasbro, Inc. 
+Le informazioni letterali e grafiche presentate su questo sito, riguardanti Magic: The Gathering, comprese le immagini delle carte e il testo Oracle, sono di proprietà di Wizards of the Coast, LLC, una consociata di Hasbro, Inc.
 
 **Wizards of the Coast Fan Content Policy:**
 CentMeta è un contenuto amatoriale non ufficiale consentito dalle Linee guida sui contenuti amatoriali. Non è approvato né autorizzato da Wizards. Parte dei materiali utilizzati è proprietà di Wizards of the Coast. © Wizards of the Coast LLC.
